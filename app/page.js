@@ -18,7 +18,6 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#09090b] text-white selection:bg-green-500/30 font-sans">
       
-      {/* Navigation */}
       <nav className="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto border-b border-white/5">
         <div className="flex items-center gap-3">
           <img src="/logo.png" className="w-10 h-10 object-contain" alt="PayOnce Logo" 
@@ -37,13 +36,11 @@ export default function HomePage() {
       </nav>
 
       <main className="flex flex-col items-center justify-center pt-24 pb-32 px-6 text-center">
-        {/* Badge */}
         <div className="inline-flex items-center gap-3 bg-green-500/5 border border-green-500/10 px-4 py-2 rounded-full text-green-500 text-[10px] font-black uppercase tracking-[2px] mb-10 animate-pulse">
           <img src="/bch.png" className="w-4 h-4" alt="BCH" onError={(e) => e.target.src = "https://cryptologos.cc/logos/bitcoin-cash-bch-logo.png"} />
           <span>Powered by Bitcoin Cash 0-Conf</span>
         </div>
 
-        {/* Hero Section */}
         <h1 className="text-6xl md:text-8xl font-black tracking-tighter max-w-5xl mb-8 leading-[0.9] bg-gradient-to-b from-white via-white to-white/20 bg-clip-text text-transparent">
           SELL CONTENT <br /> 
           <span className="text-green-500 italic">INSTANTLY.</span>
@@ -53,30 +50,30 @@ export default function HomePage() {
           The non-custodial gateway to sell digital goods. No middleman, no delays, and <span className="text-white underline decoration-green-500 underline-offset-4">automatic affiliate rewards</span>.
         </p>
 
-        {/* Action Buttons Group */}
-        <div className="flex flex-col md:flex-row gap-4 w-full justify-center px-4 max-w-4xl">
-          <Link href="/create" className="flex-1">
-            <button className="w-full bg-white text-black font-black px-8 py-5 rounded-2xl text-xl transition-all shadow-[0_20px_40px_rgba(255,255,255,0.1)] hover:bg-green-500 hover:shadow-green-500/20 active:scale-95">
+        <div className="flex flex-col items-center gap-6 w-full max-w-4xl px-4">
+          <Link href="/create" className="w-full sm:w-auto">
+            <button className="w-full sm:min-w-[350px] bg-white text-black font-black px-12 py-7 rounded-2xl text-2xl md:text-3xl transition-all shadow-[0_20px_50px_rgba(255,255,255,0.15)] hover:bg-green-500 hover:shadow-green-500/30 active:scale-95 transform hover:-translate-y-1">
               START SELLING
             </button>
           </Link>
-          
-          <button 
-            onClick={scrollToAbout}
-            className="flex-1 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 font-bold px-8 py-5 rounded-2xl border border-white/5 transition-all backdrop-blur-md"
-          >
-              About Us
-          </button>
 
-          <button 
-            onClick={scrollToFeatures}
-            className="flex-1 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 hover:text-white font-bold px-8 py-5 rounded-2xl border border-white/5 transition-all backdrop-blur-md"
-          >
-              How it works
-          </button>
+          <div className="flex flex-row gap-4 w-full sm:w-auto">
+            <button 
+              onClick={scrollToAbout}
+              className="flex-1 sm:px-12 py-4 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 font-bold rounded-xl border border-white/5 transition-all backdrop-blur-md text-sm uppercase tracking-widest"
+            >
+                About Us
+            </button>
+
+            <button 
+              onClick={scrollToFeatures}
+              className="flex-1 sm:px-12 py-4 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 hover:text-white font-bold rounded-xl border border-white/5 transition-all backdrop-blur-md text-sm uppercase tracking-widest"
+            >
+                How it works
+            </button>
+          </div>
         </div>
 
-        {/* About Section */}
         <div ref={aboutRef} className="mt-48 max-w-4xl text-left border-l-2 border-green-500/20 pl-8 md:pl-16">
             <h2 className="text-green-500 text-[12px] font-black uppercase tracking-[4px] mb-4">Who we are</h2>
             <h3 className="text-4xl md:text-5xl font-black tracking-tight mb-6">Freedom to Sell, <br/>Built for Creators.</h3>
@@ -96,7 +93,6 @@ export default function HomePage() {
             </div>
         </div>
 
-        {/* Features Grid */}
         <div ref={featuresRef} className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mt-48 relative">
           <div className="absolute inset-0 bg-green-500/5 blur-[120px] -z-10"></div>
           
@@ -125,11 +121,10 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Call to Action */}
         <div className="mt-40 bg-green-600 w-full max-w-5xl p-12 rounded-[50px] flex flex-col items-center gap-6 shadow-[0_40px_80px_rgba(22,163,74,0.2)]">
             <img src="/bch.png" className="w-20 h-20 object-contain drop-shadow-xl" alt="BCH Footer" 
                  onError={(e) => e.target.src = "https://cryptologos.cc/logos/bitcoin-cash-bch-logo.png"} />
-            <h2 className="text-black text-4xl md:text-5xl font-black tracking-tighter text-center">READY TO BUILD YOUR EMPIRE?</h2>
+            <h2 className="text-black text-4xl md:text-5xl font-black tracking-tighter text-center uppercase">READY TO BUILD YOUR EMPIRE?</h2>
             <Link href="/create">
                <button className="bg-black text-white px-10 py-4 rounded-full font-black text-lg hover:scale-110 transition-transform shadow-2xl">
                   CREATE YOUR FIRST LINK
