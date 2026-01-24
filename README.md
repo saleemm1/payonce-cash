@@ -20,16 +20,7 @@ Legacy platforms treat you like a tenant; we treat you like a Sovereign Creator.
 * **🛡️ Absolute Non-Custodial Freedom:** We never touch your private keys. We never hold your funds. Money moves directly from the Buyer's wallet to Yours.
 * **🕵️ Zero-Friction (No KYC):** No ID. No Address. No intrusive forms. Connect your BCH address and start selling in 30 seconds.
 * **🧬 Viral Affiliate Engine:** Built-in 10% instant on-chain commissions. Let your customers become your sales force.
-
----
-
-## 🛠️ New Features & UI Enhancements (2026 Update)
-We have completely overhauled the user experience to match the power of our backend:
-
-* **💎 Premium UI/UX:** A high-end, dark-mode dashboard with Glassmorphism effects and ultra-smooth transitions.
-* **📱 Mobile-First Design:** Optimized for seamless sales on any device, from Telegram bots to mobile browsers.
-* **🔗 Dynamic Unlock Pages:** Professional "Pay-to-Unlock" landing pages that read product data directly from the URL.
-* **🎯 Asset Specific Logic:** Tailored workflows for 7 different digital asset types.
+* **🌟 Decentralized Trust Score:** We’ve solved the "Scam Risk" in crypto commerce. After a successful payment, buyers can vote on the seller's credibility. This builds a transparent, immutable **Trust Profile** for every seller, ensuring that honest creators thrive while scammers are naturally filtered out by the community.
 
 ---
 
@@ -77,6 +68,7 @@ PayOnce is engineered to sync perfectly with the most advanced tools in the BCH 
 - [ ] **CashTokens Support:** Selling unique digital collectibles (NFTs).
 - [ ] **Dynamic Pricing:** Real-time USD/BCH price conversion.
 - [ ] **IPFS Integration:** Fully decentralized file hosting for assets.
+- [x] **Buyer Feedback System:** On-chain signaling for seller credibility.
 
 ---
 
