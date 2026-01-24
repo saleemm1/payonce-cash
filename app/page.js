@@ -36,7 +36,7 @@ export default function HomePage() {
       </nav>
 
       <main className="flex flex-col items-center justify-center pt-24 pb-32 px-6 text-center">
-        <div className="inline-flex items-center gap-3 bg-green-500/5 border border-green-500/10 px-4 py-2 rounded-full text-green-500 text-[10px] font-black uppercase tracking-[2px] mb-10 animate-pulse">
+        <div className="inline-flex items-center gap-3 bg-green-500/5 border border-green-500/10 px-4 py-2 rounded-full text-green-500 text-[10px] font-black uppercase tracking-[2px] mb-10 animate-pulse transition-all">
           <img src="/bch.png" className="w-4 h-4" alt="BCH" onError={(e) => e.target.src = "https://cryptologos.cc/logos/bitcoin-cash-bch-logo.png"} />
           <span>Powered by Bitcoin Cash 0-Conf</span>
         </div>
@@ -50,24 +50,24 @@ export default function HomePage() {
           The non-custodial gateway to sell digital goods. No middleman, no delays, and <span className="text-white underline decoration-green-500 underline-offset-4">automatic affiliate rewards</span>.
         </p>
 
-        <div className="flex flex-col items-center gap-6 w-full max-w-4xl px-4">
-          <Link href="/create" className="w-full sm:w-auto">
-            <button className="w-full sm:min-w-[350px] bg-white text-black font-black px-12 py-7 rounded-2xl text-2xl md:text-3xl transition-all shadow-[0_20px_50px_rgba(255,255,255,0.15)] hover:bg-green-500 hover:shadow-green-500/30 active:scale-95 transform hover:-translate-y-1">
+        <div className="relative flex flex-col items-center max-w-4xl w-full px-4">
+          <Link href="/create" className="z-10 mb-[-10px]">
+            <button className="bg-white text-black font-black px-14 py-6 rounded-2xl text-xl md:text-2xl transition-all shadow-[0_20px_50px_rgba(255,255,255,0.1)] hover:bg-green-500 hover:scale-105 active:scale-95">
               START SELLING
             </button>
           </Link>
 
-          <div className="flex flex-row gap-4 w-full sm:w-auto">
+          <div className="flex flex-row gap-4 w-full sm:w-auto mt-4">
             <button 
               onClick={scrollToAbout}
-              className="flex-1 sm:px-12 py-4 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 font-bold rounded-xl border border-white/5 transition-all backdrop-blur-md text-sm uppercase tracking-widest"
+              className="px-8 py-3.5 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 font-bold rounded-xl border border-white/5 transition-all backdrop-blur-md text-xs uppercase tracking-widest"
             >
                 About Us
             </button>
 
             <button 
               onClick={scrollToFeatures}
-              className="flex-1 sm:px-12 py-4 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 hover:text-white font-bold rounded-xl border border-white/5 transition-all backdrop-blur-md text-sm uppercase tracking-widest"
+              className="px-8 py-3.5 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 hover:text-white font-bold rounded-xl border border-white/5 transition-all backdrop-blur-md text-xs uppercase tracking-widest"
             >
                 How it works
             </button>
