@@ -12,8 +12,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "PayOnce.cash",
-  description: "Unlock. Sell. Scale.",
+  title: 'PayOnce.cash | Sell Content Instantly',
+  description: 'The non-custodial gateway to sell digital goods using Bitcoin Cash.',
+  icons: {
+    icon: '/logo.png', 
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -27,11 +30,3 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
-
-export const metadata = {
-  title: 'PayOnce.cash | Sell Content Instantly',
-  description: 'The non-custodial gateway to sell digital goods using Bitcoin Cash.',
-  icons: {
-    icon: '/logo.png', 
-  },
-};
