@@ -60,13 +60,6 @@ We didn't just build a gateway; we built an **Automated Sales Army**.
 - **For Affiliates:** Don't have a product? Buy one, get your unique link, and earn 10% on every sale you drive.
 - **The Magic:** The 10% is split **on-chain, instantly**. No "Affiliate Dashboard" needed. No "Minimum Payout". The cash hits your wallet the moment the sale is made.
 
----
-
-## 🛠️ Tech Stack (The BUIDL Essence)
-- **Engine:** Next.js 14 (App Router) - High performance.
-- **Design:** Tailwind CSS - Ultra-modern, dark-themed UI.
-- **Protocol:** Bitcoin Cash (Mainnet) - Peer-to-Peer Electronic Cash.
-- **Blockchain API:** Mainnet.cash - Real-time on-chain verification.
 
 ---
 
