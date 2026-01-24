@@ -60,15 +60,7 @@ PayOnce is engineered to sync perfectly with the most advanced tools in the BCH 
 - **For Affiliates:** Buy a product, get your unique link, and earn 10% on every sale you drive.
 - **The Magic:** The 10% is split **on-chain, instantly**. No "Affiliate Dashboard" needed. The cash hits your wallet the moment the sale is made.
 
----
 
-## 🗺️ Roadmap to the Moon
-- [x] **New UI/UX Implementation** (Premium Dark Mode)
-- [x] **Social Community Launch** (X & Telegram)
-- [ ] **CashTokens Support:** Selling unique digital collectibles (NFTs).
-- [ ] **Dynamic Pricing:** Real-time USD/BCH price conversion.
-- [ ] **IPFS Integration:** Fully decentralized file hosting for assets.
-- [x] **Buyer Feedback System:** On-chain signaling for seller credibility.
 
 ---
 
