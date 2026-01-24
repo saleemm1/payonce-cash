@@ -1,4 +1,4 @@
-# ⚡ PayOnce.cash 🟢
+#  PayOnce.cash 🟢
 ## "Kill the Middleman. Unlock Your Financial Empire."
 
 PayOnce.cash is NOT just another payment gateway. It is a **Financial Liberation Tool** built on the legendary speed of **Bitcoin Cash (BCH)**. We are here to dismantle the high-fee, censorship-heavy regime of legacy platforms like **Stripe** and **PayPal**. 
