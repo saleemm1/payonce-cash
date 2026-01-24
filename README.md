@@ -75,6 +75,16 @@ No Withdrawal Requests
 
 Your wallet receives your earnings instantly.
 
+---
+
+| Feature | Legacy (Stripe/PayPal) | **PayOnce.cash** |
+| :--- | :--- | :--- |
+| 💸 **Fees** | 3% - 10% + Fixed Fees | **0% Platform Fees** |
+| ⚡ **Payout Speed** | 7 - 14 Days | **Instant (Seconds)** |
+| 🔐 **Custody** | Custodial (They hold your money) | **Non-Custodial (P2P)** |
+| 🕵️ **KYC** | Intrusive & Mandatory | **Zero-Friction (No KYC)** |
+| 🛡️ **Censorship** | High Risk of Account Freeze | **Censorship Resistant** |
+
 
 ---
 
