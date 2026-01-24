@@ -12,10 +12,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: 'PayOnce.cash | Sell Content Instantly',
+  title: 'PayOnce cash',
   description: 'The non-custodial gateway to sell digital goods using Bitcoin Cash.',
   icons: {
-    icon: '/logo.png', 
+    icon: 'public/logo.png', 
   },
 };
 
