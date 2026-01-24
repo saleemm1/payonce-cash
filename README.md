@@ -46,7 +46,8 @@ Select your weapon. Our new **Create Dashboard** supports:
 
 > **💡 Community-Driven Roadmap:** The next 50+ content types will be chosen by **YOU**. Join our community and vote for the features you want. We build for the people.
 
-- **Telegram:** [@PayOnceCash]
+- **Telegram:** [@PayOnceCash](https://t.me/PayOnceCash) 
+- **X (Twitter):** [@PayOnceCash](https://x.com/PayOnceCash)
 ---
 
 ## 🏦 Native Ecosystem Integration
