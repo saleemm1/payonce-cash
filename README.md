@@ -44,6 +44,9 @@ Select your weapon. Our new **Create Dashboard** supports:
 6. 🎮 **Gaming Assets** (Skins, items, mods).
 7. 🔑 **App Licenses** (Software activation keys).
 
+> **💡 Community-Driven Roadmap:** The next 50+ content types will be chosen by **YOU**. Join our community and vote for the features you want. We build for the people.
+
+- **Telegram:** [@PayOnceCash]
 ---
 
 ## 🏦 Native Ecosystem Integration
