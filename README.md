@@ -75,6 +75,6 @@ We didn't just build a gateway; we built an **Automated Sales Army**.
 Don't just watch the future. Own it.
 
 - **Telegram:** [@PayOnceCash] 
-- **X (Twitter):** [Your_X_Handle]
+- **X (Twitter):** [@PayOnceCash]
 
 **Built for the Bitcoin Cash BUIDL 2026. The world is moving to Peer-to-Peer. Are you coming?** 🟢⚡
