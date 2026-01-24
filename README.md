@@ -59,7 +59,21 @@ PayOnce is engineered to sync perfectly with the most advanced tools in the BCH 
 - **For Sellers:** Activate "Viral Mode" to offer a **10% Instant Commission**. 
 - **For Affiliates:** Buy a product, get your unique link, and earn 10% on every sale you drive.
 - **The Magic:** The 10% is split **on-chain, instantly**. No "Affiliate Dashboard" needed. The cash hits your wallet the moment the sale is made.
+- **Instead of sellers wasting their budget on ads, we've turned customers into marketers.
 
+Every buyer receives a unique link.
+
+For every sale made through this link:
+
+90% goes to the seller.
+10% goes to the marketer.
+
+The split happens instantly on-chain.
+No Dashboards
+No Minimum Payout
+No Withdrawal Requests
+
+Your wallet receives your earnings instantly.
 
 
 ---
