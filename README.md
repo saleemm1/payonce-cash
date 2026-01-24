@@ -93,6 +93,6 @@ Don't just watch the future. Own it.
 
 - **Telegram:** [@PayOnceCash](https://t.me/PayOnceCash) 
 - **X (Twitter):** [@PayOnceCash](https://x.com/PayOnceCash)
-[**OFFICAL WEBSITE**](https://payonce-cash.vercel.app)
+- **OFFICAL WEBSITE** [https://payonce-cash.vercel.app)
 
 **Built for the Bitcoin Cash BUIDL 2026. The world is moving to Peer-to-Peer. Are you coming?** 🟢⚡
