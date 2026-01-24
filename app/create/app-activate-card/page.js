@@ -1,28 +1,27 @@
 'use client';
 import { useState } from 'react';
-
 export default function AppActivateCardPage() {
   const [wallet, setWallet] = useState('');
   const [price, setPrice] = useState(0.2);
   const [productName, setProductName] = useState('');
+  const [sellerName, setSellerName] = useState('');
+  const [sellerEmail, setSellerEmail] = useState('');
+  const [previewLink, setPreviewLink] = useState('');
   const [generatedLink, setGeneratedLink] = useState('');
   const [copied, setCopied] = useState(false);
   const [enableAffiliate, setEnableAffiliate] = useState(true);
-
   const handleGenerate = () => {
-    if (!wallet || !productName) return alert('Please fill all fields!');
-    const link = `${window.location.origin}/unlock/app-activate-card?name=${encodeURIComponent(productName)}&price=${price}&wallet=${wallet}&aff=${enableAffiliate}`;
+    if (!wallet || !productName || !sellerEmail) return alert('Please fill all required fields!');
+    const link = `${window.location.origin}/unlock?name=${encodeURIComponent(productName)}&price=${price}&wallet=${wallet}&seller=${encodeURIComponent(sellerName)}&email=${encodeURIComponent(sellerEmail)}&preview=${encodeURIComponent(previewLink)}&aff=${enableAffiliate}`;
     setGeneratedLink(link);
   };
-
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generatedLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
   return (
-    <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center px-6 py-10">
       <div className="w-full max-w-md bg-[#18181b] p-8 rounded-2xl border border-white/10 shadow-2xl">
         <h1 className="text-2xl font-bold mb-6 text-center text-green-500">Upload App Card</h1>
         <div className="space-y-4">
@@ -31,9 +30,13 @@ export default function AppActivateCardPage() {
             <input type="file" accept="image/*,.txt,.pdf" className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-gray-300 file:bg-green-600 file:text-white file:border-0 file:px-3 file:py-1 file:rounded" />
             <p className="text-[10px] text-zinc-500 mt-1 ml-1">Allowed formats: Images, TXT, PDF</p>
           </div>
-          <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="Price in BCH" />
+          <div className="grid grid-cols-2 gap-2">
+            <input type="text" placeholder="Seller Name" onChange={(e)=>setSellerName(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
+            <input type="email" placeholder="Support Email" onChange={(e)=>setSellerEmail(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
+          </div>
+          <input type="text" placeholder="Preview Link (Image/Video URL)" onChange={(e)=>setPreviewLink(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
+          <input type="number" step="0.001" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="Price in BCH" />
           <input type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="Your BCH Wallet" />
-          
           <div className="bg-zinc-900/50 p-4 rounded-xl border border-dashed border-zinc-700">
             <div className="flex items-center justify-between">
               <div>
@@ -46,7 +49,6 @@ export default function AppActivateCardPage() {
               </label>
             </div>
           </div>
-
           <button onClick={handleGenerate} className="w-full bg-green-600 hover:bg-green-500 py-3 rounded-xl font-bold transition-all shadow-lg shadow-green-600/20">GENERATE LINK</button>
         </div>
         {generatedLink && (
