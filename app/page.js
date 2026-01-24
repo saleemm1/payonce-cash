@@ -53,21 +53,30 @@ export default function HomePage() {
           The non-custodial gateway to sell digital goods. No middleman, no delays, and <span className="text-white underline decoration-green-500 underline-offset-4">automatic affiliate rewards</span>.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-5 w-full justify-center px-4">
-          <Link href="/create">
-            <button className="w-full sm:w-auto bg-white text-black font-black px-12 py-5 rounded-2xl text-xl transition-all shadow-[0_20px_40px_rgba(255,255,255,0.1)] hover:bg-green-500 hover:shadow-green-500/20 active:scale-95 text-center">
+        {/* Action Buttons Group */}
+        <div className="flex flex-col md:flex-row gap-4 w-full justify-center px-4 max-w-4xl">
+          <Link href="/create" className="flex-1">
+            <button className="w-full bg-white text-black font-black px-8 py-5 rounded-2xl text-xl transition-all shadow-[0_20px_40px_rgba(255,255,255,0.1)] hover:bg-green-500 hover:shadow-green-500/20 active:scale-95">
               START SELLING
             </button>
           </Link>
+          
+          <button 
+            onClick={scrollToAbout}
+            className="flex-1 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300 font-bold px-8 py-5 rounded-2xl border border-white/5 transition-all backdrop-blur-md"
+          >
+              About Us
+          </button>
+
           <button 
             onClick={scrollToFeatures}
-            className="w-full sm:w-auto bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 hover:text-white font-bold px-12 py-5 rounded-2xl border border-white/5 transition-all backdrop-blur-md"
+            className="flex-1 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 hover:text-white font-bold px-8 py-5 rounded-2xl border border-white/5 transition-all backdrop-blur-md"
           >
               How it works
           </button>
         </div>
 
-        {/* About Section (New) */}
+        {/* About Section */}
         <div ref={aboutRef} className="mt-48 max-w-4xl text-left border-l-2 border-green-500/20 pl-8 md:pl-16">
             <h2 className="text-green-500 text-[12px] font-black uppercase tracking-[4px] mb-4">Who we are</h2>
             <h3 className="text-4xl md:text-5xl font-black tracking-tight mb-6">Freedom to Sell, <br/>Built for Creators.</h3>
@@ -133,7 +142,6 @@ export default function HomePage() {
         </footer>
       </main>
 
-      {/* Background Decorative Blurs */}
       <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-green-600/10 blur-[150px] rounded-full -z-10 animate-pulse"></div>
       <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/5 blur-[150px] rounded-full -z-10"></div>
     </div>
