@@ -11,15 +11,14 @@ export default function CreatePage() {
     { name: 'Event Ticket', slug: 'ticket', icon: '🎟️', desc: 'Access to exclusive events' },
     { name: 'Game Card', slug: 'game-card', icon: '🎮', desc: 'In-game items and assets' },
     { name: 'App License', slug: 'app-activate-card', icon: '🔑', desc: 'Software activation keys' },
+    { name: 'Professional Invoice', slug: 'invoice', icon: '🧾', desc: 'For stores and service providers' },
   ];
 
   return (
     <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center py-20 px-6 relative overflow-hidden">
       
-      {/* Background Decor */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_rgba(34,197,94,0.05)_0%,_transparent_70%)] -z-10"></div>
       
-      {/* Header Area */}
       <div className="text-center max-w-2xl mb-16">
         <Link href="/">
           <div className="inline-flex items-center gap-2 mb-8 group cursor-pointer">
@@ -36,7 +35,6 @@ export default function CreatePage() {
         <p className="text-zinc-500 font-medium">Select your asset type to generate your unique payment link.</p>
       </div>
 
-      {/* Grid Container */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full max-w-5xl relative">
         {contentTypes.map((type) => (
           <Link
@@ -44,7 +42,6 @@ export default function CreatePage() {
             href={`/create/${type.slug}`}
             className="group relative bg-[#121214] hover:bg-[#18181b] border border-white/5 hover:border-green-500/30 p-8 rounded-[32px] transition-all duration-300 hover:-translate-y-2 overflow-hidden shadow-2xl"
           >
-            {/* Subtle Hover Glow */}
             <div className="absolute inset-0 bg-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             
             <div className="relative z-10">
@@ -61,14 +58,12 @@ export default function CreatePage() {
               </p>
             </div>
 
-            {/* Bottom Arrow Icon */}
             <div className="absolute bottom-6 right-8 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </div>
           </Link>
         ))}
 
-        {/* Dynamic Empty State Card */}
         <div className="border-2 border-dashed border-white/5 p-8 rounded-[32px] flex flex-col items-center justify-center text-zinc-700">
              <span className="text-xs font-black uppercase tracking-widest">More types coming soon...</span>
         </div>
