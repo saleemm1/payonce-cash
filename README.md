@@ -7,7 +7,7 @@ PayOnce.cash is NOT just another payment gateway. It is a **Financial Liberation
 With PayOnce, you don't "request" a payout. You **OWN** the flow of money.
 
 ## 🔗 Live Revolution
-🚀 **Deployment:** [PayOnce.cash](https://payonce-cash.vercel.app)
+🚀 **Mainnet Deployment:** [PayOnce.cash](https://payonce-cash.vercel.app)
 📺 **Track Fit:** Applications (BCH BUIDL 2026)
 
 ---
@@ -23,6 +23,34 @@ Legacy platforms treat you like a tenant; we treat you like a Sovereign Creator.
 
 ---
 
+## 🛑 The Broken System: Why the World is Hurting
+**Legacy commerce (Stripe, PayPal, Gumroad) is built on Financial Surveillance and Inefficiency:**
+
+**The Fee Tax:** Small creators lose up to 10% of their revenue to "Middleman Taxes."
+
+**Payout Hostage:** Why wait 7–14 days for money you earned today?
+
+**Censorship Risk:** One "Algorithm Change" or "Policy Update" can freeze your life’s work and funds.
+
+**Entry Barriers:** Mandatory KYC and banking requirements exclude millions of talented global creators.
+
+## 🟢 The PayOnce Solution: Key Features
+We didn't just build a tool; we built a Financial Fortress:
+
+**Instant Settlement:** Zero wait time. From Buyer's wallet to Yours in <2 seconds.
+
+**0% Platform Fees:** Keep 100% of what you earn. We believe commerce should be a human right, not a subscription.
+
+**Dynamic Fiat-to-BCH Oracle:** Sell in USD, get paid in BCH. We solve the volatility problem with real-time, precision-bound Satoshi conversion.
+
+**Multi-Asset Arsenal:** Support for 8+ digital product types (Courses, Keys, Tickets, Files) out of the box.
+
+**Viral On-Chain Growth:** There is an option to turn your customers into a sales force through instant 10% affiliate marketing commissions.
+
+**Permissionless Entry**: No accounts, no KYC, no gatekeepers. All you need is a BCH address.
+
+
+---
 ##  NEW: Precision Pricing Engine (USD ↔ BCH)
 We’ve solved the "Volatility Barrier." PayOnce now features a **Live Exchange Oracle**. 
 * **The Problem:** Crypto volatility makes fixed-amount selling risky for merchants.
@@ -74,6 +102,23 @@ We’ve eliminated "Scam Risk" without intermediaries. After payment, buyers cas
 
 ---
 
+## 🛠 Technical ArchitecturePayOnce achieves a "Stripe-like" UX by utilizing BCH-specific primitives:
+⚡ **0-Conf Fulfillment:** We bypass block confirmations (10min+) by monitoring the mempool for broadcasted hashes. This allows Instant Content Unlocking (<2s) while ensuring transaction validity—outperforming traditional credit card gateways.
+💹 **Real-Time Fiat Oracle:** To eliminate volatility risk, we fetch high-frequency price data at the millisecond of invoice creation. Using $BCH_{amount} = \frac{USD_{price}}{BCH_{rate}}$, we lock the exact Satoshi value required to preserve the merchant's purchasing power.
+🔗 **On-Chain Atomic Splitting:** Our Viral Mode isn't a database entry; it’s a financial primitive. Revenue is split (90/10) directly through the payment URI. The blockchain handles the distribution—No dashboards, no withdrawal requests, no minimum payouts.
+---
+## Current State: Production vs. Demo Logic
+**PayOnce is a functional prototype designed for the BCH BUIDL 2026. To provide a seamless judging experience, the project is structured as follows:**
+
+**✅ Production-Ready (Core Engine):** The UI/UX, the Dynamic Fiat-to-BCH Oracle, the payment verification logic, and the On-chain Affiliate URIs are fully operational. You can generate real payment links and verify transactions on the BCH mainnet/testnet today.
+
+**🛠️ Demo Logic (The Delivery Layer):** The "Content Delivery" (e.g., the actual file download or private key reveal) currently operates in Demo Mode. While the payment is verified on-chain, the final asset is served via a simulated secure cloud to demonstrate the user flow.
+
+**🚀 The Roadmap:** The next phase involves integrating IPFS & Filecoin for decentralized storage and CashScript Escrows to ensure that the asset is only released when the transaction is cryptographically confirmed. We are building the frontend of the future, on top of the backend of liberty.
+
+
+
+---
 ##  Protocol Invariants
 1.  **Platform Failure ≠ Access Loss:** Content is backed by decentralized logic; PayOnce is never a gatekeeper.
 2.  **Ownership Beats Permission:** Access is a bearer instrument. Whoever holds the proof, owns the asset.
