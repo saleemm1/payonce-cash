@@ -103,9 +103,13 @@ We’ve eliminated "Scam Risk" without intermediaries. After payment, buyers cas
 ---
 
 ## 🛠 Technical ArchitecturePayOnce achieves a "Stripe-like" UX by utilizing BCH-specific primitives:
+
 ⚡ **0-Conf Fulfillment:** We bypass block confirmations (10min+) by monitoring the mempool for broadcasted hashes. This allows Instant Content Unlocking (<2s) while ensuring transaction validity—outperforming traditional credit card gateways.
+
 💹 **Real-Time Fiat Oracle:** To eliminate volatility risk, we fetch high-frequency price data at the millisecond of invoice creation. Using $BCH_{amount} = \frac{USD_{price}}{BCH_{rate}}$, we lock the exact Satoshi value required to preserve the merchant's purchasing power.
+
 🔗 **On-Chain Atomic Splitting:** Our Viral Mode isn't a database entry; it’s a financial primitive. Revenue is split (90/10) directly through the payment URI. The blockchain handles the distribution—No dashboards, no withdrawal requests, no minimum payouts.
+
 ---
 ## Current State: Production vs. Demo Logic
 **PayOnce is a functional prototype designed for the BCH BUIDL 2026. To provide a seamless judging experience, the project is structured as follows:**
