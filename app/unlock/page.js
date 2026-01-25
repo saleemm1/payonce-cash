@@ -10,6 +10,7 @@ function UnlockContent() {
   const [loadingPrice, setLoadingPrice] = useState(true);
   const [rating, setRating] = useState(null);
   const [qrMode, setQrMode] = useState('smart');
+  const [copied, setCopied] = useState(false);
 
   const type = searchParams.get('type') || 'content';
   const productName = searchParams.get('name') || 'Premium Content';
@@ -61,6 +62,12 @@ function UnlockContent() {
     return () => clearInterval(interval);
   }, [checking, isPaid, cleanAddr]);
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(cleanAddr);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const smartLink = `bitcoincash:${cleanAddr}?amount=${bchPrice}`;
   const addressOnlyLink = cleanAddr;
 
@@ -108,6 +115,13 @@ function UnlockContent() {
             <div className="flex bg-black rounded-full mt-4 p-1 border border-white/10">
               <button onClick={() => setQrMode('smart')} className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase transition-all ${qrMode === 'smart' ? 'bg-green-600 text-black' : 'text-zinc-500 hover:text-white'}`}>Smart Pay</button>
               <button onClick={() => setQrMode('address')} className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase transition-all ${qrMode === 'address' ? 'bg-green-600 text-black' : 'text-zinc-500 hover:text-white'}`}>Address Only</button>
+            </div>
+
+            <div className="mt-4 w-full flex items-center gap-2 bg-black/40 p-2 rounded-xl border border-white/5">
+              <code className="flex-1 text-[9px] text-zinc-400 truncate ml-2 font-mono">{cleanAddr}</code>
+              <button onClick={copyToClipboard} className="bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all border border-white/10 min-w-[60px]">
+                {copied ? 'Copied' : 'Copy'}
+              </button>
             </div>
           </div>
 
