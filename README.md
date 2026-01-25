@@ -7,8 +7,14 @@ With PayOnce, you don't "request" a payout. You **OWN** the flow of money.
 
 ---
 
+### 🟢 Track Fit: Applications
+PayOnce is a user-facing, production-ready commerce application that turns Bitcoin Cash into a frictionless payment primitive for real-world digital sales.
+
+---
+
 ## 🔗 Live Demo
 🚀 [**Launch the Revolution: PayOnce.cash**](https://payonce-cash.vercel.app) 
+
 
 ---
 
@@ -77,6 +83,7 @@ No Withdrawal Requests
 Your wallet receives your earnings instantly.
 
 ---
+
 
 | Feature | Legacy (Stripe/PayPal) | **PayOnce.cash** |
 | :--- | :--- | :--- |
