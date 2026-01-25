@@ -16,7 +16,8 @@ With PayOnce, you don't "request" a payout. You **OWN** the flow of money.
 Legacy platforms treat you like a tenant; we treat you like a Sovereign Creator.
 
 * **🚫 Escape Stripe's Slavery:** Stop giving away 3% - 10% + fixed fees per transaction. Stop waiting 7 days for payouts. Stop fearing "Account Freezes". 
-* **⚡ 0-Conf Speed (Instant Gratification):** Leveraging the power of Bitcoin Cash 0-conf, your content is delivered the **millisecond** the transaction hits the mempool. Faster than any credit card.
+* **⚡ 0-Conf Speed Unlike other chains where you wait for blocks, PayOnce utilizes BCH 0-Conf. Our system monitors the mempool for double-spend proofs and transaction validity, allowing us to unlock digital assets in <1 second.
+Result: A UX that is faster than traditional credit card gateways, (Instant Gratification):** Leveraging the power of Bitcoin Cash 0-conf, your content is delivered the **millisecond** the transaction hits the mempool. Faster than any credit card.
 * **🛡️ Absolute Non-Custodial Freedom:** We never touch your private keys. We never hold your funds. Money moves directly from the Buyer's wallet to Yours.
 * **🕵️ Zero-Friction (No KYC):** No ID. No Address. No intrusive forms. Connect your BCH address and start selling in 30 seconds.
 * **🧬 Viral Affiliate Engine:** Built-in 10% instant on-chain commissions. Let your customers become your sales force.
