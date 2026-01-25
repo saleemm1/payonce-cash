@@ -31,7 +31,7 @@ Result: A UX that is faster than traditional credit card gateways, (Instant Grat
 
 ---
 
-## 📦 Sell Anything. Scale Everything.
+##  Sell Anything. Scale Everything.
 Select your weapon. Our new **Create Dashboard** supports:
 
 1. 📄 **PDF Documents** (Guides, whitepapers, secret sauce).
@@ -41,6 +41,7 @@ Select your weapon. Our new **Create Dashboard** supports:
 5. 🎟️ **Event Tickets** (Access keys for webinars/events).
 6. 🎮 **Gaming Assets** (Skins, items, mods).
 7. 🔑 **App Licenses** (Software activation keys).
+8. 🧾 **Professional Invoices** (Request payments for services & stores with digital receipts).
 
 > **💡 Community-Driven Roadmap:** The next 50+ content types will be chosen by **YOU**. Join our community and vote for the features you want. We build for the people.
 
@@ -48,7 +49,7 @@ Select your weapon. Our new **Create Dashboard** supports:
 - **X (Twitter):** [@PayOnceCash](https://x.com/PayOnceCash)
 ---
 
-## 🏦 Native Ecosystem Integration
+##  Native Ecosystem Integration
 PayOnce is engineered to sync perfectly with the most advanced tools in the BCH ecosystem:
 
 ### 🟢 Peer-to-Peer Powerhouses
