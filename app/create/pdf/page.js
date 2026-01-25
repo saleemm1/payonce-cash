@@ -1,8 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
-export default function PdfUploadPage() {
+export default function PDFUploadPage() {
   const [wallet, setWallet] = useState('');
-  const [usdPrice, setUsdPrice] = useState(5);
+  const [usdPrice, setUsdPrice] = useState(10.5);
   const [bchPreview, setBchPreview] = useState('0.00');
   const [productName, setProductName] = useState('');
   const [sellerName, setSellerName] = useState('');
@@ -11,56 +11,52 @@ export default function PdfUploadPage() {
   const [generatedLink, setGeneratedLink] = useState('');
   const [copied, setCopied] = useState(false);
   const [enableAffiliate, setEnableAffiliate] = useState(true);
-
   useEffect(() => {
     const getBCH = async () => {
       try {
         const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd');
         const data = await res.json();
-        setBchPreview((usdPrice / data['bitcoin-cash'].usd).toFixed(8));
-      } catch (e) { console.error(e); }
+        const price = parseFloat(usdPrice);
+        if (!isNaN(price) && price > 0) {
+          setBchPreview((price / data['bitcoin-cash'].usd).toFixed(8));
+        }
+      } catch (e) {}
     };
-    if (usdPrice > 0) getBCH();
+    getBCH();
   }, [usdPrice]);
-
   const handleGenerate = (e) => {
     e.preventDefault();
     const link = `${window.location.origin}/unlock?name=${encodeURIComponent(productName)}&usd=${usdPrice}&wallet=${wallet}&seller=${encodeURIComponent(sellerName)}&email=${encodeURIComponent(sellerEmail)}&preview=${encodeURIComponent(previewLink)}&aff=${enableAffiliate}`;
     setGeneratedLink(link);
   };
-
   return (
     <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center px-6 py-10">
       <form onSubmit={handleGenerate} className="w-full max-w-md bg-[#18181b] p-8 rounded-2xl border border-white/10 shadow-2xl space-y-4">
-        <h1 className="text-2xl font-bold mb-2 text-center text-green-500 italic uppercase">Upload PDF Document</h1>
-        <input required type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="Document Name" />
-        <div>
-          <label className="text-[10px] text-zinc-400 mb-1 block ml-1 uppercase font-black italic tracking-widest">Main File (.pdf only)</label>
-          <input required type="file" accept=".pdf" className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-gray-300 file:bg-green-600 mb-2" />
-        </div>
+        <h1 className="text-2xl font-bold mb-2 text-center text-green-500 uppercase italic">Sell PDF Document</h1>
+        <input required type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="Document Title" />
+        <input required type="file" accept=".pdf" className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-gray-300 file:bg-green-600 mb-2" />
         <div className="grid grid-cols-2 gap-2">
-          <input type="text" placeholder="Seller Name" onChange={(e)=>setSellerName(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
+          <input required type="text" placeholder="Seller Name" onChange={(e)=>setSellerName(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
           <input required type="email" placeholder="Support Email" onChange={(e)=>setSellerEmail(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
         </div>
         <div className="p-3 bg-zinc-800/30 rounded-lg border border-white/5">
-          <label className="text-[10px] text-zinc-400 mb-2 block italic tracking-tighter">Preview Image (Cover)</label>
-          <input type="file" accept="image/*" className="w-full text-xs text-zinc-500 mb-2" />
-          <input type="url" placeholder="Or Cover URL" onChange={(e)=>setPreviewLink(e.target.value)} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-xs outline-none focus:border-green-500" />
+          <label className="text-[10px] text-zinc-400 mb-2 block uppercase text-center font-black">Cover Preview</label>
+          <input type="url" placeholder="Image URL" onChange={(e)=>setPreviewLink(e.target.value)} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-xs outline-none focus:border-green-500" />
         </div>
         <div className="relative">
-          <label className="text-[10px] text-zinc-400 mb-1 block uppercase italic font-black">Live: {bchPreview} BCH</label>
-          <input required type="number" step="0.01" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="USD Amount" />
+          <label className="text-[10px] text-zinc-400 mb-1 block italic font-bold text-center">BCH: {bchPreview}</label>
+          <input required type="number" step="any" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
         </div>
         <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="BCH Wallet Address" />
         <div className="bg-zinc-900/50 p-4 rounded-xl border border-dashed border-zinc-700 flex items-center justify-between">
-          <div><h3 className="text-sm font-bold uppercase italic italic">Viral Mode</h3><p className="text-[10px] text-zinc-500 tracking-tighter italic">Enable 10% affiliate link</p></div>
+          <div><h3 className="text-sm font-bold uppercase italic">Viral Mode</h3><p className="text-[10px] text-zinc-500">10% rewards enabled</p></div>
           <input type="checkbox" checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500" />
         </div>
-        <button type="submit" className="w-full bg-green-600 hover:bg-green-500 py-4 rounded-xl font-black transition-all uppercase italic text-lg">Generate PDF Link</button>
+        <button type="submit" className="w-full bg-green-600 hover:bg-green-500 py-4 rounded-xl font-black transition-all uppercase italic text-lg shadow-lg">Generate Link</button>
         {generatedLink && (
           <div className="mt-4 p-3 bg-black rounded-lg border border-green-500/30 flex gap-2">
-            <input readOnly value={generatedLink} className="flex-1 bg-zinc-900 p-2 text-[10px] rounded border border-zinc-800" />
-            <button type="button" onClick={()=>{navigator.clipboard.writeText(generatedLink); setCopied(true); setTimeout(()=>setCopied(false),2000)}} className="bg-zinc-800 px-3 py-1 rounded text-xs">{copied ? '✅' : 'Copy'}</button>
+            <input readOnly value={generatedLink} className="flex-1 bg-zinc-900 p-2 text-[10px] rounded border border-zinc-800 outline-none text-zinc-400" />
+            <button type="button" onClick={()=>{navigator.clipboard.writeText(generatedLink); setCopied(true); setTimeout(()=>setCopied(false),2000)}} className="bg-zinc-800 px-3 py-1 rounded text-xs font-bold">{copied ? '✅' : 'Copy'}</button>
           </div>
         )}
       </form>
