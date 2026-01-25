@@ -60,6 +60,21 @@ We’ve solved the "Volatility Barrier." PayOnce now features a **Live Exchange 
 ---
 
 ## 🧬 Viral Mode: The Automated Sales Army
+
+**Built-in Viral Growth Engine**
+
+**PayOnce is designed to grow without ads, influencers, or centralized referral dashboards.**
+
+**We embed virality directly into the payment primitive itself.**
+
+**Any seller can enable Viral Mode**, allowing buyers to instantly become affiliates by sharing their unique payment link. When a new customer pays, the revenue is split on-chain and atomically — for example 90% to the creator, 10% to the promoter — with no custody, no withdrawal requests, and no minimum thresholds.
+
+**This creates a natural incentive for fast-moving communities**, opportunistic marketers, and “side-hustlers” to promote products organically, because the reward is immediate, trustless, and settled in seconds.
+
+**In PayOnce, growth is not a feature layered on top — it is a financial behavior enforced by the blockchain.**
+
+**The result:** every customer can become a salesperson, and every transaction can become a growth event.
+
 We’ve turned customers into a decentralized marketing force. 
 * **The Split:** Activate **"Viral Mode"** to offer a **10% Instant Commission**.
 * **The Magic:** The 10% is split **on-chain, instantly**. 
