@@ -138,7 +138,7 @@ function UnlockContent() {
           </div>
 
           <button onClick={() => setChecking(true)} className="w-full bg-green-600 hover:bg-green-500 text-black font-black py-5 rounded-2xl transition-all shadow-xl shadow-green-900/10 uppercase tracking-tighter text-lg active:scale-95">
-            {checking ? 'Awaiting Payment...' : 'Unlock Content Now'}
+            {checking ? 'Awaiting Payment...' : 'Verify Payment'}
           </button>
           
           <p className="text-center text-[9px] text-zinc-600 mt-4 uppercase font-bold tracking-[2px]">Secured by Bitcoin Cash</p>
