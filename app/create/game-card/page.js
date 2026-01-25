@@ -40,11 +40,11 @@ export default function GameCardUploadPage() {
         </div>
         {deliveryType === 'file' ? (
           <div>
-            <label className="text-[10px] text-zinc-400 mb-1 block ml-1 uppercase font-bold tracking-tighter text-center">Upload Digital Card/Asset</label>
+            <label className="text-[10px] text-zinc-400 mb-1 block ml-1 uppercase font-bold text-center">Upload Digital Card</label>
             <input required type="file" className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-gray-300 file:bg-green-600" />
           </div>
         ) : (
-          <textarea required placeholder="Paste Game Codes / Activation Strings here..." className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 h-24 text-sm"></textarea>
+          <textarea required placeholder="Paste Game Codes here..." className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 h-24 text-sm"></textarea>
         )}
         <div className="grid grid-cols-2 gap-2">
           <input required type="text" placeholder="Seller Name" onChange={(e)=>setSellerName(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
@@ -55,7 +55,11 @@ export default function GameCardUploadPage() {
           <input required type="number" step="any" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
         </div>
         <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="BCH Wallet Address" />
-        <button type="submit" className="w-full bg-green-600 hover:bg-green-500 py-4 rounded-xl font-black transition-all uppercase italic text-lg shadow-lg">Generate Link</button>
+        <div className="bg-zinc-900/50 p-4 rounded-xl border border-dashed border-zinc-700 flex items-center justify-between">
+          <div><h3 className="text-sm font-bold uppercase italic text-white">Viral Mode</h3><p className="text-[10px] text-zinc-500">Enable 10% affiliate rewards</p></div>
+          <input type="checkbox" checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500 cursor-pointer" />
+        </div>
+        <button type="submit" className="w-full bg-green-600 hover:bg-green-500 py-4 rounded-xl font-black transition-all uppercase italic text-lg shadow-lg">Generate Card Link</button>
       </form>
     </div>
   );
