@@ -1,8 +1,9 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 export default function BooksUploadPage() {
   const [wallet, setWallet] = useState('');
-  const [price, setPrice] = useState(0.2);
+  const [usdPrice, setUsdPrice] = useState(10);
+  const [bchPreview, setBchPreview] = useState('0.00');
   const [productName, setProductName] = useState('');
   const [sellerName, setSellerName] = useState('');
   const [sellerEmail, setSellerEmail] = useState('');
@@ -10,12 +11,25 @@ export default function BooksUploadPage() {
   const [generatedLink, setGeneratedLink] = useState('');
   const [copied, setCopied] = useState(false);
   const [enableAffiliate, setEnableAffiliate] = useState(true);
+
+  useEffect(() => {
+    const getBCH = async () => {
+      try {
+        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd');
+        const data = await res.json();
+        setBchPreview((usdPrice / data['bitcoin-cash'].usd).toFixed(8));
+      } catch (e) { console.error(e); }
+    };
+    if (usdPrice > 0) getBCH();
+  }, [usdPrice]);
+
   const handleGenerate = (e) => {
     e.preventDefault();
-    if (!wallet || !productName || !sellerEmail) return alert('Please fill required fields!');
-    const link = `${window.location.origin}/unlock?name=${encodeURIComponent(productName)}&price=${price}&wallet=${wallet}&seller=${encodeURIComponent(sellerName)}&email=${encodeURIComponent(sellerEmail)}&preview=${encodeURIComponent(previewLink)}&aff=${enableAffiliate}`;
+    if (!wallet || !productName || !sellerEmail) return alert('Fields required!');
+    const link = `${window.location.origin}/unlock?name=${encodeURIComponent(productName)}&usd=${usdPrice}&wallet=${wallet}&seller=${encodeURIComponent(sellerName)}&email=${encodeURIComponent(sellerEmail)}&preview=${encodeURIComponent(previewLink)}&aff=${enableAffiliate}`;
     setGeneratedLink(link);
   };
+
   return (
     <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center px-6 py-10">
       <form onSubmit={handleGenerate} className="w-full max-w-md bg-[#18181b] p-8 rounded-2xl border border-white/10 shadow-2xl space-y-4">
@@ -26,15 +40,18 @@ export default function BooksUploadPage() {
           <input required type="file" accept=".pdf,.epub,.mobi" className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-gray-300 file:bg-green-600 file:text-white file:border-0 file:px-3 file:py-1 file:rounded" />
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <input type="text" placeholder="Author Name" onChange={(e)=>setSellerName(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
-          <input required type="email" placeholder="Author Email" onChange={(e)=>setSellerEmail(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
+          <input type="text" placeholder="Author Name" onChange={(e)=>setSellerName(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none" />
+          <input required type="email" placeholder="Author Email" onChange={(e)=>setSellerEmail(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none" />
         </div>
         <div className="p-3 bg-zinc-800/30 rounded-lg border border-white/5">
           <label className="text-[10px] text-zinc-400 mb-2 block">Book Preview (Optional)</label>
           <input type="file" accept="image/*" className="w-full text-xs text-zinc-500 file:py-1 file:px-2 file:bg-zinc-700 mb-2" />
           <input type="url" placeholder="Or Cover URL" onChange={(e)=>setPreviewLink(e.target.value)} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-xs outline-none" />
         </div>
-        <input required type="number" step="0.001" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="Price in BCH" />
+        <div className="relative">
+          <label className="text-[10px] text-zinc-400 mb-1 block">Price in USD (Est: {bchPreview} BCH)</label>
+          <input required type="number" step="0.01" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none" />
+        </div>
         <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="Your BCH Wallet" />
         <button type="submit" className="w-full bg-green-600 hover:bg-green-500 py-3 rounded-xl font-bold transition-all">GENERATE LINK</button>
         {generatedLink && (
