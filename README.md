@@ -96,12 +96,12 @@ Your wallet receives your earnings instantly.
 
 ---
 
-Protocol Invariants — What Will Never Change
+**Protocol Invariants — What Will Never Change**
 
 PayOnce is built around a small set of non-negotiable constraints.
 Features evolve. These do not.
 
-Live Today
+**Live Today**
 
 Instant 0-conf fulfillment on Bitcoin Cash
 Non-custodial, wallet-to-wallet payouts
@@ -110,42 +110,41 @@ No accounts, no custody, no delayed settlement
 
 If these fail, the project fails.
 
-Invariant #1 — Platform Failure ≠ Access Loss
+**Invariant #1 — Platform Failure ≠ Access Loss**
 
 Purchased content must remain accessible even if PayOnce disappears.
 IPFS-backed delivery ensures PayOnce is never a gatekeeper.
 
-Invariant #2 — Ownership Beats Permission
+**Invariant #2 — Ownership Beats Permission**
 
 Access is not granted by databases or logins.
 CashTokens act as bearer ownership instruments.
 Whoever holds the token owns the asset.
 
-Invariant #3 — Trust Without Custody
+**Invariant #3 — Trust Without Custody**
 
 Buyer protection must not introduce intermediaries.
 Optional CashScript escrows for high-value sales only.
 No default locking. No arbitration layer.
 
-Invariant #4 — Commerce Is a Primitive
+**Invariant #4 — Commerce Is a Primitive**
 
 Commerce should be reducible to:
 
 URL + BCH address + UTXO
 
-
 Anything more is optional UX.
 
-Why Bitcoin Cash
+**Why Bitcoin Cash**
 
-This model requires:
+**This model requires:**
 
 Reliable 0-conf behavior
 Predictable, sub-cent fees
 Stable UTXO semantics
 
-Bitcoin Cash is not an implementation choice —
-it is the constraint that makes this system possible.
+**Bitcoin Cash is not an implementation choice —
+it is the constraint that makes this system possible.**
 
 
 ---
