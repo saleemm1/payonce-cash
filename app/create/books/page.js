@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 export default function BookUploadPage() {
   const [wallet, setWallet] = useState('');
-  const [usdPrice, setUsdPrice] = useState(15.25);
+  const [usdPrice, setUsdPrice] = useState(15.5);
   const [bchPreview, setBchPreview] = useState('0.00');
   const [productName, setProductName] = useState('');
   const [sellerName, setSellerName] = useState('');
@@ -52,6 +52,10 @@ export default function BookUploadPage() {
           <input required type="number" step="any" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
         </div>
         <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="BCH Wallet Address" />
+        <div className="bg-zinc-900/50 p-4 rounded-xl border border-dashed border-zinc-700 flex items-center justify-between">
+          <div><h3 className="text-sm font-bold uppercase italic text-white">Viral Mode</h3><p className="text-[10px] text-zinc-500">Enable 10% referral bonus</p></div>
+          <input type="checkbox" checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500 cursor-pointer" />
+        </div>
         <button type="submit" className="w-full bg-green-600 hover:bg-green-500 py-4 rounded-xl font-black transition-all uppercase italic text-lg">Generate Book Link</button>
       </form>
     </div>
