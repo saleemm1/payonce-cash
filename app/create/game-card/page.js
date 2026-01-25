@@ -10,6 +10,7 @@ export default function GameCardUploadPage() {
   const [previewLink, setPreviewLink] = useState('');
   const [generatedLink, setGeneratedLink] = useState('');
   const [copied, setCopied] = useState(false);
+  const [enableAffiliate, setEnableAffiliate] = useState(true);
 
   useEffect(() => {
     const getBCH = async () => {
@@ -24,31 +25,38 @@ export default function GameCardUploadPage() {
 
   const handleGenerate = (e) => {
     e.preventDefault();
-    const link = `${window.location.origin}/unlock?name=${encodeURIComponent(productName)}&usd=${usdPrice}&wallet=${wallet}&seller=${encodeURIComponent(sellerName)}&email=${encodeURIComponent(sellerEmail)}&preview=${encodeURIComponent(previewLink)}&aff=true`;
+    const link = `${window.location.origin}/unlock?name=${encodeURIComponent(productName)}&usd=${usdPrice}&wallet=${wallet}&seller=${encodeURIComponent(sellerName)}&email=${encodeURIComponent(sellerEmail)}&preview=${encodeURIComponent(previewLink)}&aff=${enableAffiliate}`;
     setGeneratedLink(link);
   };
 
   return (
     <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center px-6 py-10">
       <form onSubmit={handleGenerate} className="w-full max-w-md bg-[#18181b] p-8 rounded-2xl border border-white/10 shadow-2xl space-y-4">
-        <h1 className="text-2xl font-bold mb-2 text-center text-green-500">Upload Game Card</h1>
-        <input required type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="Game Name" />
-        <input required type="file" className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-gray-300 file:bg-green-600 mb-2" />
+        <h1 className="text-2xl font-bold mb-2 text-center text-green-500 uppercase italic">Upload Game Asset</h1>
+        <input required type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="Game Asset/Skin Name" />
+        <div>
+          <label className="text-[10px] text-zinc-400 mb-1 block ml-1">Asset File (.zip, .rar, .jpg)</label>
+          <input required type="file" accept=".zip,.rar,image/*" className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-gray-300 file:bg-green-600 mb-2" />
+        </div>
         <div className="grid grid-cols-2 gap-2">
-          <input type="text" placeholder="Store Name" onChange={(e)=>setSellerName(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
-          <input required type="email" placeholder="Store Email" onChange={(e)=>setSellerEmail(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
+          <input type="text" placeholder="Seller Name" onChange={(e)=>setSellerName(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
+          <input required type="email" placeholder="Support Email" onChange={(e)=>setSellerEmail(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
         </div>
         <div className="p-3 bg-zinc-800/30 rounded-lg border border-white/5">
-          <label className="text-[10px] text-zinc-400 mb-2 block">Item Preview (Optional)</label>
-          <input type="file" accept="image/*" className="w-full text-xs text-zinc-500 file:bg-zinc-700 mb-2" />
-          <input type="url" placeholder="Or Preview URL" onChange={(e)=>setPreviewLink(e.target.value)} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-xs outline-none focus:border-green-500" />
+          <label className="text-[10px] text-zinc-400 mb-2 block tracking-widest">INGAME PREVIEW</label>
+          <input type="file" accept="image/*" className="w-full text-xs text-zinc-500 mb-2" />
+          <input type="url" placeholder="Or Preview Image URL" onChange={(e)=>setPreviewLink(e.target.value)} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-xs outline-none focus:border-green-500" />
         </div>
         <div className="relative">
-          <label className="text-[10px] text-zinc-400 mb-1 block">USD Price (Live: {bchPreview} BCH)</label>
-          <input required type="number" step="0.01" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none" placeholder="Price in USD" />
+          <label className="text-[10px] text-zinc-400 mb-1 block">Live Conversion: {bchPreview} BCH</label>
+          <input required type="number" step="0.01" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
         </div>
-        <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none" placeholder="Your BCH Wallet" />
-        <button type="submit" className="w-full bg-green-600 hover:bg-green-500 py-3 rounded-xl font-bold transition-all">GENERATE LINK</button>
+        <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="BCH Wallet Address" />
+        <div className="bg-zinc-900/50 p-4 rounded-xl border border-dashed border-zinc-700 flex items-center justify-between">
+          <div><h3 className="text-sm font-bold uppercase italic tracking-tighter">Viral Mode</h3><p className="text-[10px] text-zinc-500">10% rewards enabled</p></div>
+          <input type="checkbox" checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500" />
+        </div>
+        <button type="submit" className="w-full bg-green-600 hover:bg-green-500 py-4 rounded-xl font-black transition-all uppercase italic">Generate Asset Link</button>
         {generatedLink && (
           <div className="mt-4 p-3 bg-black rounded-lg border border-green-500/30 flex gap-2">
             <input readOnly value={generatedLink} className="flex-1 bg-zinc-900 p-2 text-[10px] rounded border border-zinc-800" />
