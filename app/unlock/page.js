@@ -9,20 +9,27 @@ function UnlockContent() {
   const [bchPrice, setBchPrice] = useState(null);
   const [loadingPrice, setLoadingPrice] = useState(true);
   const [rating, setRating] = useState(null);
+  const [qrMode, setQrMode] = useState('smart');
 
   const type = searchParams.get('type') || 'content';
   const productName = searchParams.get('name') || 'Premium Content';
   const usdAmount = parseFloat(searchParams.get('usd') || '0');
   const sellerWallet = searchParams.get('wallet') || '';
-  const sellerName = searchParams.get('seller') || 'Verified Seller';
+  const sellerName = searchParams.get('seller') || 'The Merchant';
   const sellerEmail = searchParams.get('email') || '';
   const preview = searchParams.get('preview') || '';
   const note = searchParams.get('note') || '';
 
   const getCleanWallet = (addr) => {
     if (!addr) return '';
-    return addr.includes(':') ? addr.split(':')[1] : addr;
+    let clean = addr.trim();
+    if (clean.includes(':')) {
+      clean = clean.split(':')[1];
+    }
+    return clean;
   };
+
+  const cleanAddr = getCleanWallet(sellerWallet);
 
   useEffect(() => {
     const fetchBchRate = async () => {
@@ -39,10 +46,10 @@ function UnlockContent() {
 
   useEffect(() => {
     let interval;
-    if (checking && !isPaid && sellerWallet) {
+    if (checking && !isPaid && cleanAddr) {
       interval = setInterval(async () => {
         try {
-          const res = await fetch(`https://rest.mainnet.cash/v1/address/balance/${getCleanWallet(sellerWallet)}`);
+          const res = await fetch(`https://rest.mainnet.cash/v1/address/balance/${cleanAddr}`);
           const data = await res.json();
           if (data.unconfirmed >= 0 || data.confirmed > 0) {
             setIsPaid(true);
@@ -52,61 +59,69 @@ function UnlockContent() {
       }, 3000);
     }
     return () => clearInterval(interval);
-  }, [checking, isPaid, sellerWallet]);
+  }, [checking, isPaid, cleanAddr]);
 
-  const qrData = `bitcoincash:${getCleanWallet(sellerWallet)}?amount=${bchPrice}`;
+  const smartLink = `bitcoincash:${cleanAddr}?amount=${bchPrice}`;
+  const addressOnlyLink = cleanAddr;
 
   return (
     <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center px-4 py-8 font-sans">
       {!isPaid ? (
         <div className="w-full max-w-md bg-[#18181b] p-8 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden">
+          
           <div className="flex items-center justify-between mb-6 bg-white/5 p-3 rounded-2xl border border-white/10">
             <div>
-              <p className="text-[10px] text-zinc-500 uppercase font-bold">{type === 'invoice' ? 'To Seller' : 'Seller'}</p>
+              <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">Merchant</p>
               <p className="text-sm font-black text-green-500">{sellerName}</p>
             </div>
             {preview && (
-              <a href={preview} target="_blank" className="bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-xl text-[10px] font-bold transition-all border border-white/10">
-                VIEW PREVIEW 👁️
+              <a href={preview} target="_blank" className="bg-green-600 px-3 py-2 rounded-xl text-[10px] font-black text-black transition-all">
+                PREVIEW 👁️
               </a>
             )}
           </div>
 
           <div className="text-center mb-6">
-             <h1 className="text-3xl font-black text-white capitalize leading-tight">{productName}</h1>
-             {note && <p className="text-zinc-400 text-xs mt-2 italic">{note}</p>}
-             <p className="text-zinc-500 text-[10px] mt-1">Support: {sellerEmail}</p>
+             <h1 className="text-2xl font-black text-white capitalize italic tracking-tighter">{productName}</h1>
+             {note && <p className="text-zinc-400 text-[10px] mt-2 bg-white/5 p-2 rounded-lg leading-relaxed">{note}</p>}
           </div>
 
-          <div className="flex justify-center mb-6 relative">
-            <div className="bg-white p-4 rounded-2xl shadow-[0_0_30px_rgba(34,197,94,0.2)]">
+          <div className="flex flex-col items-center mb-6">
+            <div className="bg-white p-4 rounded-3xl shadow-[0_0_40px_rgba(34,197,94,0.15)] relative">
               {!loadingPrice && (
-                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`} alt="BCH QR" className="w-[180px] h-[180px]" />
+                <img 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrMode === 'smart' ? smartLink : addressOnlyLink)}`} 
+                  alt="BCH QR" 
+                  className="w-[180px] h-[180px]" 
+                />
               )}
-              {loadingPrice && <div className="w-[180px] h-[180px] bg-zinc-800 animate-pulse rounded-lg"></div>}
+              {loadingPrice && <div className="w-[180px] h-[180px] bg-zinc-800 animate-pulse rounded-2xl"></div>}
+              
+              {checking && (
+                <div className="absolute inset-0 bg-black/90 backdrop-blur-sm rounded-3xl flex flex-col items-center justify-center">
+                  <div className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                  <p className="text-[9px] font-black text-green-500 animate-pulse uppercase">Syncing Ledger...</p>
+                </div>
+              )}
             </div>
-            {checking && (
-              <div className="absolute inset-0 bg-black/80 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center">
-                <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-                <p className="text-xs font-black text-green-500 animate-pulse uppercase">Searching for Payment...</p>
-              </div>
-            )}
+
+            <div className="flex bg-black rounded-full mt-4 p-1 border border-white/10">
+              <button onClick={() => setQrMode('smart')} className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase transition-all ${qrMode === 'smart' ? 'bg-green-600 text-black' : 'text-zinc-500 hover:text-white'}`}>Smart Pay</button>
+              <button onClick={() => setQrMode('address')} className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase transition-all ${qrMode === 'address' ? 'bg-green-600 text-black' : 'text-zinc-500 hover:text-white'}`}>Address Only</button>
+            </div>
           </div>
 
-          <div className="text-center mb-6 py-4 bg-zinc-900/50 rounded-2xl border border-white/5">
-            {loadingPrice ? (
-              <p className="text-zinc-500 animate-pulse italic text-xs">Fetching Market Rates...</p>
-            ) : (
-              <>
-                <p className="text-4xl font-black text-green-500 tracking-tight">{bchPrice} <span className="text-lg font-light">BCH</span></p>
-                <p className="text-[10px] text-zinc-500 mt-1 uppercase tracking-widest font-bold">Total to pay: ${usdAmount} USD</p>
-              </>
-            )}
+          <div className="text-center mb-6 py-4 bg-zinc-900/50 rounded-2xl border border-white/5 relative">
+            <p className="text-[9px] text-zinc-500 font-black uppercase mb-1">Amount to send</p>
+            <p className="text-3xl font-black text-green-500 tracking-tight">{bchPrice} <span className="text-sm font-light">BCH</span></p>
+            <div className="absolute -top-2 -right-2 bg-zinc-800 text-[8px] px-2 py-1 rounded-md border border-white/10 font-bold">${usdAmount} USD</div>
           </div>
 
-          <button onClick={() => setChecking(true)} className="w-full bg-green-600 hover:bg-green-500 text-black font-black py-5 rounded-2xl transition-all shadow-lg mb-4 uppercase tracking-tighter text-lg">
-            {checking ? 'Checking Ledger...' : 'I HAVE SENT PAYMENT'}
+          <button onClick={() => setChecking(true)} className="w-full bg-green-600 hover:bg-green-500 text-black font-black py-5 rounded-2xl transition-all shadow-xl shadow-green-900/10 uppercase tracking-tighter text-lg">
+            {checking ? 'Checking Transaction...' : 'Verify Payment'}
           </button>
+          
+          <p className="text-center text-[9px] text-zinc-600 mt-4 uppercase font-bold tracking-[2px]">BCH Secure Protocol</p>
         </div>
       ) : (
         <div className="w-full max-w-md animate-in zoom-in-95 duration-500">
@@ -115,8 +130,8 @@ function UnlockContent() {
               <div className="absolute top-0 right-0 p-4 opacity-10 font-black text-6xl italic">PAID</div>
               <div className="flex justify-between items-start mb-8">
                 <div>
-                  <h2 className="text-2xl font-black uppercase italic">Official Receipt</h2>
-                  <p className="text-[10px] text-zinc-500 font-bold tracking-tighter">{new Date().toLocaleString()}</p>
+                  <h2 className="text-2xl font-black uppercase italic">Receipt</h2>
+                  <p className="text-[10px] text-zinc-500 font-bold">{new Date().toLocaleString()}</p>
                 </div>
                 <div className="bg-green-500 text-white p-2 rounded-lg font-bold italic shadow-lg">BCH</div>
               </div>
@@ -126,39 +141,30 @@ function UnlockContent() {
                   <span className="font-black text-sm">{productName}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-zinc-400 text-[10px] font-black uppercase">Seller</span>
+                  <span className="text-zinc-400 text-[10px] font-black uppercase">Merchant</span>
                   <span className="font-black text-sm">{sellerName}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-zinc-400 text-[10px] font-black uppercase">Ref Note</span>
-                  <span className="font-medium text-[10px] text-right max-w-[150px]">{note || 'No description provided'}</span>
                 </div>
               </div>
               <div className="flex justify-between items-baseline mb-2">
-                <span className="text-zinc-400 text-[10px] font-black uppercase">Settled Amount</span>
+                <span className="text-zinc-400 text-[10px] font-black uppercase">Amount</span>
                 <span className="text-3xl font-black text-green-600">${usdAmount} USD</span>
               </div>
-              <p className="text-[9px] text-zinc-400 font-bold italic text-right uppercase tracking-widest">Transaction Verified on Chain</p>
-              <button onClick={() => window.print()} className="w-full mt-6 py-3 border-2 border-dashed border-zinc-200 rounded-xl text-[10px] font-black uppercase text-zinc-400 hover:bg-zinc-50 transition-all">Save PDF Receipt</button>
+              <button onClick={() => window.print()} className="w-full mt-6 py-3 border-2 border-dashed border-zinc-200 rounded-xl text-[10px] font-black uppercase text-zinc-400">Save Receipt</button>
             </div>
           ) : (
             <div className="bg-[#18181b] p-10 rounded-3xl border border-green-500/30 text-center shadow-2xl">
-              <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-4xl text-green-500">✅</span>
-              </div>
-              <h1 className="text-3xl font-black mb-2 text-white italic uppercase">Access Granted!</h1>
-              <p className="text-zinc-400 text-xs mb-8">Payment verified. You can now access your asset.</p>
-              <button className="w-full bg-green-600 text-black py-5 rounded-2xl font-black mb-8 hover:bg-green-500 transition-all uppercase text-lg shadow-xl shadow-green-900/20">Download / Access Content</button>
+              <h1 className="text-3xl font-black mb-2 text-white italic uppercase">Success!</h1>
+              <p className="text-zinc-400 text-xs mb-8">Payment verified. Access your content below.</p>
+              <button className="w-full bg-green-600 text-black py-5 rounded-2xl font-black mb-8 hover:bg-green-500 transition-all uppercase text-lg">Download Content</button>
               {!rating ? (
                 <div className="bg-black/30 p-4 rounded-2xl border border-white/5">
-                  <p className="text-[10px] text-zinc-400 font-bold uppercase mb-3 tracking-widest text-center">Rate this transaction</p>
                   <div className="flex justify-center gap-4">
-                    <button onClick={() => setRating('pos')} className="flex-1 p-3 bg-zinc-800 hover:bg-green-500/20 rounded-xl transition-all border border-white/5 text-xs font-bold uppercase">👍 Good</button>
-                    <button onClick={() => setRating('neg')} className="flex-1 p-3 bg-zinc-800 hover:bg-red-500/20 rounded-xl transition-all border border-white/5 text-xs font-bold uppercase">👎 Bad</button>
+                    <button onClick={() => setRating('pos')} className="flex-1 p-3 bg-zinc-800 hover:bg-green-500/20 rounded-xl transition-all text-xs font-bold uppercase">👍 Good</button>
+                    <button onClick={() => setRating('neg')} className="flex-1 p-3 bg-zinc-800 hover:bg-red-500/20 rounded-xl transition-all text-xs font-bold uppercase">👎 Bad</button>
                   </div>
                 </div>
               ) : (
-                <p className="text-green-500 font-black text-xs uppercase tracking-widest animate-pulse italic">Feedback Received • Thank You</p>
+                <p className="text-green-500 font-black text-xs uppercase italic">Feedback Received</p>
               )}
             </div>
           )}
@@ -170,7 +176,7 @@ function UnlockContent() {
 
 export default function UnlockPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-black text-white flex items-center justify-center font-black italic uppercase">Initializing Secure Terminal...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-black text-white flex items-center justify-center font-black italic uppercase">Loading Secure Terminal...</div>}>
       <UnlockContent />
     </Suspense>
   );
