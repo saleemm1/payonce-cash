@@ -10,6 +10,7 @@ export default function AppLicensePage() {
   const [generatedLink, setGeneratedLink] = useState('');
   const [copied, setCopied] = useState(false);
   const [enableAffiliate, setEnableAffiliate] = useState(true);
+  const [deliveryType, setDeliveryType] = useState('code');
   useEffect(() => {
     const getBCH = async () => {
       try {
@@ -33,10 +34,18 @@ export default function AppLicensePage() {
       <form onSubmit={handleGenerate} className="w-full max-w-md bg-[#18181b] p-8 rounded-2xl border border-white/10 shadow-2xl space-y-4">
         <h1 className="text-2xl font-bold mb-2 text-center text-green-500 uppercase italic font-black">App Activation Key</h1>
         <input required type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="App/Software Name" />
-        <div>
-          <label className="text-[10px] text-zinc-400 mb-1 block ml-1 uppercase font-bold text-center">Enter License Keys / Credentials</label>
-          <textarea required placeholder="Paste activation keys here..." className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 h-24 text-sm"></textarea>
+        <div className="flex bg-zinc-900 p-1 rounded-lg border border-zinc-700 gap-1">
+          <button type="button" onClick={() => setDeliveryType('code')} className={`flex-1 py-2 text-[10px] font-black uppercase italic rounded-md transition-all ${deliveryType === 'code' ? 'bg-green-600 text-white shadow-lg' : 'text-zinc-500 hover:text-white'}`}>Text Code</button>
+          <button type="button" onClick={() => setDeliveryType('file')} className={`flex-1 py-2 text-[10px] font-black uppercase italic rounded-md transition-all ${deliveryType === 'file' ? 'bg-green-600 text-white shadow-lg' : 'text-zinc-500 hover:text-white'}`}>License File</button>
         </div>
+        {deliveryType === 'file' ? (
+          <div>
+            <label className="text-[10px] text-zinc-400 mb-1 block ml-1 uppercase font-bold text-center">Upload License/Key File</label>
+            <input required type="file" className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-gray-300 file:bg-green-600" />
+          </div>
+        ) : (
+          <textarea required placeholder="Paste activation keys here..." className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 h-24 text-sm"></textarea>
+        )}
         <div className="grid grid-cols-2 gap-2">
           <input required type="text" placeholder="Dev Name" onChange={(e)=>setSellerName(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
           <input required type="email" placeholder="Support Email" onChange={(e)=>setSellerEmail(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
@@ -46,6 +55,10 @@ export default function AppLicensePage() {
           <input required type="number" step="any" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
         </div>
         <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="BCH Wallet Address" />
+        <div className="bg-zinc-900/50 p-4 rounded-xl border border-dashed border-zinc-700 flex items-center justify-between">
+          <div><h3 className="text-sm font-bold uppercase italic text-white">Viral Mode</h3><p className="text-[10px] text-zinc-500">10% referral system active</p></div>
+          <input type="checkbox" checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500 cursor-pointer" />
+        </div>
         <button type="submit" className="w-full bg-green-600 hover:bg-green-500 py-4 rounded-xl font-black transition-all uppercase italic text-lg shadow-lg">Generate License Link</button>
       </form>
     </div>
