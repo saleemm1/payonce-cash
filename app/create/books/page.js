@@ -87,7 +87,7 @@ export default function BookUploadPage() {
           <label className="text-[10px] text-zinc-500 uppercase font-black">1. Book File (PDF/EPUB)</label>
           <input required type="file" accept=".pdf,.epub" onChange={(e)=>setFile(e.target.files[0])} className="w-full text-xs text-zinc-400 file:bg-zinc-700 file:text-white file:border-0 file:px-3 file:py-1 file:rounded-lg file:mr-3 cursor-pointer" />
           
-          <label className="text-[10px] text-zinc-500 uppercase font-black block mt-2">2. Cover Image URL (Preview)</label>
+          <label className="text-[10px] text-zinc-500 uppercase font-black block mt-2">2. Cover Image URL (Preview) (Optional)</label>
           <input type="url" placeholder="https://example.com/cover.jpg" value={previewLink} onChange={(e)=>setPreviewLink(e.target.value)} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-xs outline-none focus:border-green-500" />
         </div>
 
