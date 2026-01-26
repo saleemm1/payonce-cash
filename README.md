@@ -2,6 +2,8 @@
 
 **"Kill the Middleman. Unlock Your Financial Empire."**
 
+**PayOnce is a non-custodial payment primitive for digital goods on Bitcoin Cash**
+
 PayOnce.cash is NOT just another payment gateway. It is a **Financial Liberation Tool** built on the legendary speed of **Bitcoin Cash (BCH)**. We are here to dismantle the high-fee, censorship-heavy regime of legacy platforms like Stripe and PayPal.
 
 With PayOnce, you don't "request" a payout. You **OWN** the flow of money.
@@ -12,7 +14,7 @@ With PayOnce, you don't "request" a payout. You **OWN** the flow of money.
 
 ---
 
-##  The "Stripe Killer" Logic: Why PayOnce?
+##   Why PayOnce?
 
 Legacy platforms treat you like a tenant; we treat you like a Sovereign Creator.
 
