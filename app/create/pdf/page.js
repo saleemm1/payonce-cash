@@ -6,6 +6,7 @@ export default function PDFUploadPage() {
   const [sellerName, setSellerName] = useState('');
   const [sellerEmail, setSellerEmail] = useState('');
   const [previewLink, setPreviewLink] = useState('');
+  const [previewFile, setPreviewFile] = useState(null);
   const [usdPrice, setUsdPrice] = useState(10.5);
   const [wallet, setWallet] = useState('');
   const [bchPreview, setBchPreview] = useState('0.00');
@@ -35,9 +36,18 @@ export default function PDFUploadPage() {
 
     setUploading(true);
     try {
+      let finalPreview = previewLink;
+
+      if (previewFile) {
+        const imgData = new FormData();
+        imgData.append("file", previewFile);
+        const imgRes = await fetch("/api/upload", { method: "POST", body: imgData });
+        const imgJson = await imgRes.json();
+        if (imgJson.ipfsHash) finalPreview = `https://gateway.pinata.cloud/ipfs/${imgJson.ipfsHash}`;
+      }
+
       const formData = new FormData();
       formData.append("file", file);
-      
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       const json = await res.json();
       
@@ -49,7 +59,7 @@ export default function PDFUploadPage() {
         n: productName,
         sn: sellerName,
         se: sellerEmail,
-        pr: previewLink,
+        pr: finalPreview,
         i: json.ipfsHash,
         a: enableAffiliate
       };
@@ -57,7 +67,7 @@ export default function PDFUploadPage() {
       const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       setGeneratedLink(`${window.location.origin}/unlock?id=${encodedId}`);
     } catch (err) {
-      alert("Error: Check Upload API");
+      alert("Error during processing");
     } finally {
       setUploading(false);
     }
@@ -73,24 +83,28 @@ export default function PDFUploadPage() {
           <input required type="file" accept=".pdf" onChange={(e)=>setFile(e.target.files[0])} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-gray-300 file:bg-green-600 cursor-pointer" />
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <input required type="text" placeholder="Seller Name" onChange={(e)=>setSellerName(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
-          <input required type="email" placeholder="Support Email" onChange={(e)=>setSellerEmail(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" />
+          <input required type="text" placeholder="Seller Name" onChange={(e)=>setSellerName(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 transition-all" />
+          <input required type="email" placeholder="Support Email" onChange={(e)=>setSellerEmail(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 transition-all" />
         </div>
         <div className="p-3 bg-zinc-800/30 rounded-lg border border-white/5">
           <label className="text-[10px] text-zinc-400 mb-2 block uppercase text-center font-black">Cover Preview (File or URL)</label>
-          <input type="url" placeholder="Image URL" value={previewLink} onChange={(e)=>setPreviewLink(e.target.value)} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-xs outline-none focus:border-green-500" />
+          <input type="file" accept="image/*" onChange={(e)=>setPreviewFile(e.target.files[0])} className="w-full text-xs text-zinc-500 mb-2 file:bg-zinc-700 file:text-white file:border-0 file:rounded file:px-2 cursor-pointer" />
+          <input type="url" placeholder="Or Image URL" value={previewLink} onChange={(e)=>setPreviewLink(e.target.value)} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-xs outline-none focus:border-green-500 transition-all" />
         </div>
         <div className="relative">
           <label className="text-[10px] text-zinc-400 mb-1 block italic font-bold text-center">BCH Rate: {bchPreview}</label>
-          <input required type="number" step="any" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 text-center font-bold" />
+          <div className="relative flex items-center">
+            <span className="absolute left-4 text-green-500 font-black text-sm">USD</span>
+            <input required type="number" step="any" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className="w-full p-3 pl-14 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 text-center font-black transition-all" />
+          </div>
         </div>
-        <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="BCH Wallet Address" />
+        <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 transition-all" placeholder="BCH Wallet Address" />
         <div className="bg-zinc-900/50 p-4 rounded-xl border border-dashed border-zinc-700 flex items-center justify-between">
-          <div><h3 className="text-sm font-bold uppercase italic">Viral Mode</h3><p className="text-[10px] text-zinc-500">10% commission active</p></div>
-          <input type="checkbox" checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500" />
+          <div><h3 className="text-sm font-bold uppercase italic text-white">Viral Mode</h3><p className="text-[10px] text-zinc-500">10% commission active</p></div>
+          <input type="checkbox" checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500 cursor-pointer" />
         </div>
         <button type="submit" disabled={uploading} className="w-full bg-green-600 hover:bg-green-500 py-4 rounded-xl font-black transition-all uppercase italic text-lg shadow-xl disabled:opacity-50">
-          {uploading ? "Uploading PDF..." : "Generate PDF Link"}
+          {uploading ? "Processing Assets..." : "Generate PDF Link"}
         </button>
         {generatedLink && (
           <div className="mt-4 p-3 bg-black rounded-lg border border-green-500/30 flex gap-2">
