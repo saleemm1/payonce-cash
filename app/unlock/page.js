@@ -67,7 +67,11 @@ function UnlockContent() {
     <div className="min-h-screen bg-[#0b0b0d] text-white flex flex-col items-center justify-center px-4 py-8 font-sans">
       {!isPaid ? (
         <div className="w-full max-w-md bg-[#16161a] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden">
-          {data.a && <div className="absolute -right-12 top-6 bg-green-600 text-black text-[8px] font-black px-12 py-1 rotate-45 uppercase shadow-2xl">Viral Mode</div>}
+          {data.a && (
+            <div className="absolute -right-12 top-6 bg-green-600 text-black text-[8px] font-black px-12 py-1 rotate-45 uppercase shadow-2xl">
+              Viral Mode
+            </div>
+          )}
           
           <div className="flex flex-col items-center mb-6">
              {data.pr && (
@@ -112,9 +116,18 @@ function UnlockContent() {
             <p className="text-4xl font-black text-green-500 tracking-tighter">{bchPrice} <span className="text-sm font-light">BCH</span></p>
           </div>
 
-          <button onClick={() => setChecking(true)} className="w-full bg-green-600 hover:bg-green-500 text-black font-black py-5 rounded-[1.5rem] transition-all shadow-[0_10px_30px_rgba(22,163,74,0.2)] uppercase tracking-tighter text-xl active:scale-95">
+          <button onClick={() => setChecking(true)} className="w-full bg-green-600 hover:bg-green-500 text-black font-black py-5 rounded-[1.5rem] transition-all shadow-[0_10px_30px_rgba(22,163,74,0.2)] uppercase tracking-tighter text-xl active:scale-95 mb-4">
             {checking ? 'Awaiting Payment...' : 'Verify Transaction'}
           </button>
+
+          {data.a && (
+            <button 
+              onClick={() => router.push(`/affiliate?product=${searchParams.get('id')}`)}
+              className="w-full bg-white/5 hover:bg-white/10 text-zinc-400 py-3 rounded-xl border border-white/5 text-[10px] font-black uppercase transition-all tracking-widest"
+            >
+              🚀 Earn 10% to promote this
+            </button>
+          )}
         </div>
       ) : (
         <div className="w-full max-w-md bg-[#16161a] p-10 rounded-[3rem] border border-green-500/30 text-center shadow-2xl animate-in zoom-in-95 duration-500">
