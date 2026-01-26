@@ -82,7 +82,7 @@ export default function VideoUploadPage() {
         </div>
 
         <div className="p-3 bg-zinc-800/30 rounded-lg border border-white/5">
-          <label className="text-[10px] text-zinc-400 mb-2 block uppercase text-center font-black">Trailer / Preview (File or URL)</label>
+          <label className="text-[10px] text-zinc-400 mb-2 block uppercase text-center font-black">Trailer / Preview (File or URL) (Optional)</label>
           <input type="file" accept="video/*,image/*" onChange={(e)=>setPreviewFile(e.target.files[0])} className="w-full text-xs text-zinc-500 mb-2 file:bg-zinc-700 file:text-white file:border-0 file:rounded file:px-2 cursor-pointer" />
           <input type="url" placeholder="Or Preview URL" value={previewLink} onChange={(e)=>setPreviewLink(e.target.value)} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-xs outline-none focus:border-green-500 transition-all" />
         </div>
