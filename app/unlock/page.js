@@ -19,9 +19,11 @@ function UnlockContent() {
     const id = searchParams.get('id');
     if (id) {
       try {
-        const decoded = JSON.parse(atob(id));
+        const decoded = JSON.parse(decodeURIComponent(escape(atob(id))));
         setData(decoded);
-      } catch (e) { setError("Invalid Link"); }
+      } catch (e) {
+        setError("Invalid Secure Link");
+      }
     }
   }, [searchParams]);
 
@@ -54,70 +56,93 @@ function UnlockContent() {
     return () => clearInterval(interval);
   }, [checking, isPaid, data]);
 
-  if (error) return <div className="min-h-screen bg-black text-red-500 flex justify-center items-center font-black">{error}</div>;
-  if (!data) return <div className="min-h-screen bg-black text-white flex justify-center items-center animate-pulse font-black italic">INITIALIZING TERMINAL...</div>;
+  if (error) return <div className="min-h-screen bg-black text-red-500 flex justify-center items-center font-black uppercase tracking-tighter">{error}</div>;
+  if (!data) return <div className="min-h-screen bg-black text-white flex justify-center items-center animate-pulse font-black italic tracking-[10px]">LOADING...</div>;
 
   const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
   const smartLink = `bitcoincash:${cleanAddr}?amount=${bchPrice}`;
   const addressOnlyLink = cleanAddr;
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center px-4 py-8 font-sans">
+    <div className="min-h-screen bg-[#0b0b0d] text-white flex flex-col items-center justify-center px-4 py-8 font-sans">
       {!isPaid ? (
-        <div className="w-full max-w-md bg-[#18181b] p-8 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden">
-          {data.a && <div className="absolute -right-12 top-6 bg-green-600 text-black text-[8px] font-black px-12 py-1 rotate-45 uppercase">Viral Mode Active</div>}
+        <div className="w-full max-w-md bg-[#16161a] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden">
+          {data.a && <div className="absolute -right-12 top-6 bg-green-600 text-black text-[8px] font-black px-12 py-1 rotate-45 uppercase shadow-2xl">Viral Mode</div>}
           
-          <div className="text-center mb-6 text-2xl font-black italic tracking-tighter uppercase">{data.n}</div>
+          <div className="flex flex-col items-center mb-6">
+             {data.pr && (
+               <img src={data.pr} className="w-full h-40 object-cover rounded-3xl mb-4 border border-white/5 shadow-inner" alt="Preview" />
+             )}
+             <h1 className="text-2xl font-black italic uppercase tracking-tighter text-center">{data.n}</h1>
+             <div className="flex flex-col items-center mt-2 opacity-60">
+                <span className="text-[10px] font-black uppercase tracking-widest text-green-500">{data.sn}</span>
+                <span className="text-[8px] font-bold font-mono uppercase">{data.se}</span>
+             </div>
+          </div>
 
           <div className="flex flex-col items-center mb-6">
-            <div className="bg-white p-4 rounded-3xl shadow-[0_0_40px_rgba(34,197,94,0.15)]">
+            <div className="bg-white p-4 rounded-[2rem] shadow-[0_0_50px_rgba(34,197,94,0.2)] transition-all relative">
               {!loadingPrice ? (
-                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrMode === 'smart' ? smartLink : addressOnlyLink)}`} alt="QR" className="w-[180px] h-[180px]" />
-              ) : <div className="w-[180px] h-[180px] bg-zinc-800 animate-pulse rounded-2xl"></div>}
+                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrMode === 'smart' ? smartLink : addressOnlyLink)}`} alt="QR" className="w-[170px] h-[170px]" />
+              ) : <div className="w-[170px] h-[170px] bg-zinc-800 animate-pulse rounded-2xl"></div>}
+              
+              {checking && (
+                 <div className="absolute inset-0 bg-black/80 backdrop-blur-sm rounded-[2rem] flex flex-col items-center justify-center border-2 border-green-500/50">
+                    <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                    <p className="text-[8px] font-black text-green-500 uppercase animate-pulse">Scanning Ledger...</p>
+                 </div>
+              )}
             </div>
 
-            <div className="flex bg-black rounded-full mt-4 p-1 border border-white/10">
-              <button onClick={() => setQrMode('smart')} className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase transition-all ${qrMode === 'smart' ? 'bg-green-600 text-black' : 'text-zinc-500'}`}>Smart Pay</button>
-              <button onClick={() => setQrMode('address')} className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase transition-all ${qrMode === 'address' ? 'bg-green-600 text-black' : 'text-zinc-500'}`}>Address Only</button>
+            <div className="flex bg-black rounded-full mt-5 p-1 border border-white/5">
+              <button onClick={() => setQrMode('smart')} className={`px-5 py-2 rounded-full text-[9px] font-black uppercase transition-all ${qrMode === 'smart' ? 'bg-green-600 text-black shadow-lg' : 'text-zinc-500'}`}>Smart Pay</button>
+              <button onClick={() => setQrMode('address')} className={`px-5 py-2 rounded-full text-[9px] font-black uppercase transition-all ${qrMode === 'address' ? 'bg-green-600 text-black shadow-lg' : 'text-zinc-500'}`}>Address Only</button>
             </div>
             
-            <div className="mt-4 w-full flex items-center gap-2 bg-black/40 p-2 rounded-xl border border-white/5">
-              <code className="flex-1 text-[9px] text-zinc-400 truncate ml-2 font-mono">{cleanAddr}</code>
-              <button onClick={() => {navigator.clipboard.writeText(cleanAddr); setCopied(true); setTimeout(()=>setCopied(false),2000)}} className="bg-zinc-800 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase border border-white/10">
+            <div className="mt-5 w-full flex items-center gap-2 bg-black/40 p-2 rounded-xl border border-white/5">
+              <code className="flex-1 text-[9px] text-zinc-500 truncate ml-2 font-mono">{cleanAddr}</code>
+              <button onClick={() => {navigator.clipboard.writeText(cleanAddr); setCopied(true); setTimeout(()=>setCopied(false),2000)}} className="bg-zinc-800 px-4 py-2 rounded-lg text-[9px] font-black uppercase border border-white/10 active:scale-95 transition-all">
                 {copied ? 'Copied' : 'Copy'}
               </button>
             </div>
           </div>
 
-          <div className="text-center mb-6 py-4 bg-zinc-900/50 rounded-2xl border border-white/5 relative">
+          <div className="text-center mb-6 py-5 bg-zinc-900/50 rounded-3xl border border-white/5 relative">
             <p className="text-[9px] text-zinc-500 font-black uppercase mb-1 font-mono">${data.p} USD</p>
-            <p className="text-3xl font-black text-green-500 tracking-tight">{bchPrice} <span className="text-sm font-light">BCH</span></p>
+            <p className="text-4xl font-black text-green-500 tracking-tighter">{bchPrice} <span className="text-sm font-light">BCH</span></p>
           </div>
 
-          <button onClick={() => setChecking(true)} className="w-full bg-green-600 hover:bg-green-500 text-black font-black py-5 rounded-2xl transition-all shadow-xl uppercase mb-4 text-lg">
-            {checking ? 'Verifying...' : 'Verify Payment'}
+          <button onClick={() => setChecking(true)} className="w-full bg-green-600 hover:bg-green-500 text-black font-black py-5 rounded-[1.5rem] transition-all shadow-[0_10px_30px_rgba(22,163,74,0.2)] uppercase tracking-tighter text-xl active:scale-95">
+            {checking ? 'Awaiting Payment...' : 'Verify Transaction'}
           </button>
         </div>
       ) : (
-        <div className="w-full max-w-md bg-[#18181b] p-10 rounded-3xl border border-green-500/30 text-center shadow-2xl">
-           <h1 className="text-3xl font-black mb-2 text-white italic uppercase tracking-tighter">Access Granted</h1>
-           <p className="text-zinc-400 text-[10px] mb-8 uppercase tracking-widest font-bold">Secure IPFS Delivery ✅</p>
+        <div className="w-full max-w-md bg-[#16161a] p-10 rounded-[3rem] border border-green-500/30 text-center shadow-2xl animate-in zoom-in-95 duration-500">
+           <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/20">
+              <span className="text-4xl">💎</span>
+           </div>
+           <h1 className="text-3xl font-black mb-1 text-white italic uppercase tracking-tighter">Payment Confirmed</h1>
+           <p className="text-zinc-500 text-[10px] mb-8 uppercase tracking-[3px] font-bold">Encrypted File Unlocked</p>
            
-           <a href={`https://gateway.pinata.cloud/ipfs/${data.i}`} target="_blank" className="w-full bg-green-600 text-black py-5 rounded-2xl font-black block hover:bg-green-500 transition-all uppercase mb-8 shadow-xl">
+           <a href={`https://gateway.pinata.cloud/ipfs/${data.i}`} target="_blank" className="w-full bg-green-600 text-black py-5 rounded-2xl font-black block hover:bg-green-500 transition-all uppercase mb-8 shadow-xl text-lg active:scale-95">
              Download File ⚡
            </a>
 
            {!rating ? (
-             <div className="bg-black/30 p-4 rounded-2xl border border-white/5">
-               <p className="text-[9px] text-zinc-500 uppercase font-black mb-3">Rate your experience</p>
+             <div className="bg-black/40 p-5 rounded-[2rem] border border-white/5 shadow-inner">
+               <p className="text-[9px] text-zinc-500 uppercase font-black mb-4 tracking-widest">Rate the Merchant</p>
                <div className="flex justify-center gap-4">
-                 <button onClick={() => setRating('pos')} className="flex-1 p-3 bg-zinc-800 hover:bg-green-500/20 rounded-xl transition-all text-[10px] font-bold uppercase border border-white/5">👍 Trusted</button>
-                 <button onClick={() => setRating('neg')} className="flex-1 p-3 bg-zinc-800 hover:bg-red-500/20 rounded-xl transition-all text-[10px] font-bold uppercase border border-white/5">👎 Avoid</button>
+                 <button onClick={() => setRating('pos')} className="flex-1 p-4 bg-zinc-900 hover:bg-green-500/20 rounded-2xl transition-all text-[10px] font-black uppercase border border-white/5 group">
+                    <span className="block text-xl mb-1 group-hover:scale-125 transition-transform">👍</span> Trusted
+                 </button>
+                 <button onClick={() => setRating('neg')} className="flex-1 p-4 bg-zinc-900 hover:bg-red-500/20 rounded-2xl transition-all text-[10px] font-black uppercase border border-white/5 group">
+                    <span className="block text-xl mb-1 group-hover:scale-125 transition-transform">👎</span> Avoid
+                 </button>
                </div>
              </div>
            ) : (
-             <div className="py-2 bg-green-500/10 rounded-xl border border-green-500/20 animate-pulse">
-                <p className="text-green-500 font-black text-[10px] uppercase">Feedback Recorded</p>
+             <div className="py-4 bg-green-600 text-black rounded-2xl font-black text-xs uppercase italic animate-bounce">
+                Feedback Submitted Successfully
              </div>
            )}
         </div>
@@ -127,5 +152,5 @@ function UnlockContent() {
 }
 
 export default function UnlockPage() {
-  return <Suspense fallback={<div>Loading...</div>}><UnlockContent /></Suspense>;
+  return <Suspense fallback={null}><UnlockContent /></Suspense>;
 }
