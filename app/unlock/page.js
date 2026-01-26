@@ -61,70 +61,69 @@ function UnlockContent() {
 
   const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
   const smartLink = `bitcoincash:${cleanAddr}?amount=${bchPrice}`;
-  const addressOnlyLink = cleanAddr;
 
   return (
     <div className="min-h-screen bg-[#0b0b0d] text-white flex flex-col items-center justify-center px-4 py-8 font-sans">
       {!isPaid ? (
-        <div className="w-full max-w-md bg-[#16161a] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden">
+        <div className="w-full max-w-md bg-[#16161a] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-500">
           {data.a && (
-            <div className="absolute -right-12 top-6 bg-green-600 text-black text-[8px] font-black px-12 py-1 rotate-45 uppercase shadow-2xl">
-              Viral Mode
-            </div>
+            <div className="absolute -right-12 top-6 bg-green-600 text-black text-[8px] font-black px-12 py-1 rotate-45 uppercase shadow-2xl">Viral Mode</div>
           )}
           
-          <div className="flex flex-col items-center mb-6">
-             {data.pr && (
-               <img src={data.pr} className="w-full h-40 object-cover rounded-3xl mb-4 border border-white/5 shadow-inner" alt="Preview" />
+          <div className="flex flex-col items-center mb-6 text-center">
+             {data.cn && (
+               <div className="mb-4 bg-green-600/10 border border-green-500/20 px-4 py-1 rounded-full">
+                 <span className="text-[10px] text-green-500 font-black uppercase italic">Personal Bill: {data.cn}</span>
+               </div>
              )}
-             <h1 className="text-2xl font-black italic uppercase tracking-tighter text-center">{data.n}</h1>
-             <div className="flex flex-col items-center mt-2 opacity-60">
-                <span className="text-[10px] font-black uppercase tracking-widest text-green-500">{data.sn}</span>
-                <span className="text-[8px] font-bold font-mono uppercase">{data.se}</span>
+             {data.pr && (
+               <img src={data.pr} className="w-full h-44 object-cover rounded-3xl mb-4 border border-white/5" alt="Preview" />
+             )}
+             <h1 className="text-2xl font-black italic uppercase tracking-tighter">{data.n}</h1>
+             {data.d && <p className="text-zinc-500 text-[11px] mt-2 px-6 leading-relaxed italic">{data.d}</p>}
+             <div className="mt-4 flex flex-col items-center opacity-60">
+                <span className="text-[10px] font-black uppercase text-green-500">{data.sn}</span>
+                <span className="text-[8px] font-mono">{data.se}</span>
              </div>
           </div>
 
           <div className="flex flex-col items-center mb-6">
-            <div className="bg-white p-4 rounded-[2rem] shadow-[0_0_50px_rgba(34,197,94,0.2)] transition-all relative">
+            <div className="bg-white p-4 rounded-[2rem] shadow-[0_0_50px_rgba(34,197,94,0.15)] relative">
               {!loadingPrice ? (
-                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrMode === 'smart' ? smartLink : addressOnlyLink)}`} alt="QR" className="w-[170px] h-[170px]" />
+                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrMode === 'smart' ? smartLink : cleanAddr)}`} alt="QR" className="w-[170px] h-[170px]" />
               ) : <div className="w-[170px] h-[170px] bg-zinc-800 animate-pulse rounded-2xl"></div>}
-              
               {checking && (
                  <div className="absolute inset-0 bg-black/80 backdrop-blur-sm rounded-[2rem] flex flex-col items-center justify-center border-2 border-green-500/50">
                     <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-2"></div>
-                    <p className="text-[8px] font-black text-green-500 uppercase animate-pulse">Scanning Ledger...</p>
+                    <p className="text-[8px] font-black text-green-500 uppercase">Scanning...</p>
                  </div>
               )}
             </div>
 
-            <div className="flex bg-black rounded-full mt-5 p-1 border border-white/5">
+            <div className="flex bg-black rounded-full mt-5 p-1 border border-white/5 shadow-inner">
               <button onClick={() => setQrMode('smart')} className={`px-5 py-2 rounded-full text-[9px] font-black uppercase transition-all ${qrMode === 'smart' ? 'bg-green-600 text-black shadow-lg' : 'text-zinc-500'}`}>Smart Pay</button>
-              <button onClick={() => setQrMode('address')} className={`px-5 py-2 rounded-full text-[9px] font-black uppercase transition-all ${qrMode === 'address' ? 'bg-green-600 text-black shadow-lg' : 'text-zinc-500'}`}>Address Only</button>
+              <button onClick={() => setQrMode('address')} className={`px-5 py-2 rounded-full text-[9px] font-black uppercase transition-all ${qrMode === 'address' ? 'bg-green-600 text-black shadow-lg' : 'text-zinc-500'}`}>Address</button>
             </div>
             
             <div className="mt-5 w-full flex items-center gap-2 bg-black/40 p-2 rounded-xl border border-white/5">
-              <code className="flex-1 text-[9px] text-zinc-500 truncate ml-2 font-mono">{cleanAddr}</code>
-              <button onClick={() => {navigator.clipboard.writeText(cleanAddr); setCopied(true); setTimeout(()=>setCopied(false),2000)}} className="bg-zinc-800 px-4 py-2 rounded-lg text-[9px] font-black uppercase border border-white/10 active:scale-95 transition-all">
+              <code className="flex-1 text-[9px] text-zinc-600 truncate ml-2 font-mono">{cleanAddr}</code>
+              <button onClick={() => {navigator.clipboard.writeText(cleanAddr); setCopied(true); setTimeout(()=>setCopied(false),2000)}} className="bg-zinc-800 px-4 py-2 rounded-lg text-[9px] font-black uppercase active:scale-95 transition-all">
                 {copied ? 'Copied' : 'Copy'}
               </button>
             </div>
           </div>
 
-          <div className="text-center mb-6 py-5 bg-zinc-900/50 rounded-3xl border border-white/5 relative">
+          <div className="text-center mb-6 py-5 bg-zinc-900/50 rounded-3xl border border-white/5">
             <p className="text-[9px] text-zinc-500 font-black uppercase mb-1 font-mono">${data.p} USD</p>
             <p className="text-4xl font-black text-green-500 tracking-tighter">{bchPrice} <span className="text-sm font-light">BCH</span></p>
           </div>
 
-          <button onClick={() => setChecking(true)} className="w-full bg-green-600 hover:bg-green-500 text-black font-black py-5 rounded-[1.5rem] transition-all shadow-[0_10px_30px_rgba(22,163,74,0.2)] uppercase tracking-tighter text-xl active:scale-95 mb-4">
+          <button onClick={() => setChecking(true)} className="w-full bg-green-600 hover:bg-green-500 text-black font-black py-5 rounded-[1.5rem] transition-all uppercase tracking-tighter text-xl active:scale-95 mb-4 shadow-xl shadow-green-900/20">
             {checking ? 'Awaiting Payment...' : 'Verify Transaction'}
           </button>
 
           {data.a && (
-            <button 
-              onClick={() => router.push(`/affiliate?product=${searchParams.get('id')}`)}
-              className="w-full bg-white/5 hover:bg-white/10 text-zinc-400 py-3 rounded-xl border border-white/5 text-[10px] font-black uppercase transition-all tracking-widest"
-            >
+            <button onClick={() => router.push(`/affiliate?product=${searchParams.get('id')}`)} className="w-full bg-white/5 text-zinc-400 py-3 rounded-xl border border-white/5 text-[10px] font-black uppercase tracking-widest">
               🚀 Earn 10% to promote this
             </button>
           )}
@@ -134,16 +133,23 @@ function UnlockContent() {
            <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/20">
               <span className="text-4xl">💎</span>
            </div>
-           <h1 className="text-3xl font-black mb-1 text-white italic uppercase tracking-tighter">Payment Confirmed</h1>
-           <p className="text-zinc-500 text-[10px] mb-8 uppercase tracking-[3px] font-bold">Encrypted File Unlocked</p>
+           <h1 className="text-3xl font-black mb-1 italic uppercase tracking-tighter">Access Granted</h1>
+           <p className="text-zinc-500 text-[10px] mb-8 uppercase tracking-[3px] font-bold">Successfully Decrypted</p>
            
-           <a href={`https://gateway.pinata.cloud/ipfs/${data.i}`} target="_blank" className="w-full bg-green-600 text-black py-5 rounded-2xl font-black block hover:bg-green-500 transition-all uppercase mb-8 shadow-xl text-lg active:scale-95">
-             Download File ⚡
-           </a>
+           {data.dt === 'file' ? (
+             <a href={`https://gateway.pinata.cloud/ipfs/${data.i}`} target="_blank" className="w-full bg-green-600 text-black py-5 rounded-2xl font-black block hover:bg-green-500 transition-all uppercase mb-8 shadow-xl text-lg">
+               Download Asset ⚡
+             </a>
+           ) : (
+             <div className="bg-zinc-900 p-6 rounded-2xl border border-white/10 mb-8 break-all shadow-inner">
+               <p className="text-[10px] text-zinc-400 uppercase font-black mb-2 text-left">Unlocked Data:</p>
+               <p className="text-green-500 font-mono text-sm leading-relaxed">{data.i}</p>
+             </div>
+           )}
 
            {!rating ? (
              <div className="bg-black/40 p-5 rounded-[2rem] border border-white/5 shadow-inner">
-               <p className="text-[9px] text-zinc-500 uppercase font-black mb-4 tracking-widest">Rate the Merchant</p>
+               <p className="text-[9px] text-zinc-500 uppercase font-black mb-4 tracking-widest text-center">Rate the Experience</p>
                <div className="flex justify-center gap-4">
                  <button onClick={() => setRating('pos')} className="flex-1 p-4 bg-zinc-900 hover:bg-green-500/20 rounded-2xl transition-all text-[10px] font-black uppercase border border-white/5 group">
                     <span className="block text-xl mb-1 group-hover:scale-125 transition-transform">👍</span> Trusted
@@ -155,7 +161,7 @@ function UnlockContent() {
              </div>
            ) : (
              <div className="py-4 bg-green-600 text-black rounded-2xl font-black text-xs uppercase italic animate-bounce">
-                Feedback Submitted Successfully
+               Feedback Received
              </div>
            )}
         </div>
