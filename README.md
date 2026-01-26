@@ -67,7 +67,7 @@ We’ve solved the "Volatility Barrier." PayOnce now features a **Live Exchange 
 
 **We embed virality directly into the payment primitive itself.**
 
-**Any seller can enable Viral Mode**, allowing buyers to instantly become affiliates by sharing their unique payment link. When a new customer pays, the revenue is split on-chain and atomically — for example 90% to the creator, 10% to the promoter — with no custody, no withdrawal requests, and no minimum thresholds.
+**Any seller can enable Viral Mode**, allowing buyers to instantly become affiliates by sharing their unique payment link. When a new customer pays, the revenue is split on-chain and atomically —  90% to the creator, 10% to the promoter — with no custody, no withdrawal requests, and no minimum thresholds.
 
 **This creates a natural incentive for fast-moving communities**, opportunistic marketers, and “side-hustlers” to promote products organically, because the reward is immediate, trustless, and settled in seconds.
 
