@@ -66,11 +66,13 @@ export default function AppLicensePage() {
         w: wallet,
         p: usdPrice,
         n: productName,
+        fn: fileToUpload.name,
         sn: sellerName,
         se: sellerEmail,
         pr: finalPreview,
         i: json.ipfsHash,
-        a: enableAffiliate
+        a: enableAffiliate,
+        dt: 'file'
       };
 
       const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
