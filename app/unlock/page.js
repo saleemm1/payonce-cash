@@ -109,10 +109,18 @@ function UnlockContent() {
              {data.pr && (
                <img src={data.pr} className="w-full h-44 object-cover rounded-3xl mb-4 border border-white/5" alt="Preview" />
              )}
-             <div className="mb-2">
-                <span className="text-[9px] text-zinc-500 uppercase font-black tracking-widest block mb-1">File Name:</span>
+             <div className="mb-4">
+                <span className="text-[9px] text-zinc-500 uppercase font-black tracking-widest block mb-1">Document Title:</span>
                 <h1 className="text-2xl font-black italic uppercase tracking-tighter">{data.n}</h1>
              </div>
+             
+             {data.dt === 'file' && (
+               <div className="mb-4 bg-black/40 border border-white/5 p-3 rounded-2xl w-full">
+                  <span className="text-[8px] text-zinc-500 uppercase font-black block mb-1">Attached File:</span>
+                  <p className="text-[11px] text-green-500 font-bold truncate px-2 italic">{data.fn || 'Encrypted_Asset.file'}</p>
+               </div>
+             )}
+
              {data.d && <p className="text-zinc-500 text-[11px] mt-2 px-6 leading-relaxed italic">{data.d}</p>}
              
              <div className="mt-6 flex flex-col items-center bg-black/30 p-4 rounded-2xl border border-white/5 w-full">
@@ -233,13 +241,13 @@ function UnlockContent() {
            <p className="text-zinc-500 text-[10px] mb-8 uppercase tracking-[3px] font-bold">Successfully Decrypted</p>
            
            <div className="mb-8 text-left bg-black/40 p-4 rounded-2xl border border-white/5">
-              <p className="text-[8px] text-zinc-500 uppercase font-black mb-1">File Name:</p>
+              <p className="text-[8px] text-zinc-500 uppercase font-black mb-1">Asset Name:</p>
               <p className="text-white font-black italic uppercase tracking-tight text-sm">{data.n}</p>
            </div>
 
            {data.dt === 'file' ? (
              <a href={`https://gateway.pinata.cloud/ipfs/${data.i}`} target="_blank" className="w-full bg-green-600 text-black py-5 rounded-2xl font-black block hover:bg-green-500 transition-all uppercase mb-8 shadow-xl text-lg">
-               Download Asset ⚡
+               Download {data.fn || 'Asset'} ⚡
              </a>
            ) : (
              <div className="bg-zinc-900 p-6 rounded-2xl border border-white/10 mb-8 break-all shadow-inner text-left">
