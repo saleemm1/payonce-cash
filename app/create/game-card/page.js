@@ -37,7 +37,7 @@ export default function GameCardUploadPage() {
     let fileToUpload = file;
     if (deliveryType === 'code') {
       if (!textCode) return alert("Please enter codes");
-      fileToUpload = new File([textCode], "codes.txt", { type: "text/plain" });
+      fileToUpload = new File([textCode], "card_codes.txt", { type: "text/plain" });
     } else if (!file) return alert("Please select file");
 
     setUploading(true);
@@ -57,8 +57,16 @@ export default function GameCardUploadPage() {
       const json = await res.json();
 
       const payload = {
-        w: wallet, p: usdPrice, n: productName, sn: sellerName,
-        se: sellerEmail, pr: finalPreview, i: json.ipfsHash, a: enableAffiliate
+        w: wallet, 
+        p: usdPrice, 
+        n: productName, 
+        fn: fileToUpload.name,
+        sn: sellerName,
+        se: sellerEmail, 
+        pr: finalPreview, 
+        i: json.ipfsHash, 
+        a: enableAffiliate,
+        dt: 'file'
       };
 
       const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
