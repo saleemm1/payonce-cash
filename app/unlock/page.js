@@ -96,16 +96,23 @@ function UnlockContent() {
              )}
              <h1 className="text-2xl font-black italic uppercase tracking-tighter">{data.n}</h1>
              {data.d && <p className="text-zinc-500 text-[11px] mt-2 px-6 leading-relaxed italic">{data.d}</p>}
-             <div className="mt-4 flex flex-col items-center opacity-60">
-                <span className="text-[10px] font-black uppercase text-green-500">{data.sn}</span>
-                <span className="text-[8px] font-mono">{data.se}</span>
+             
+             <div className="mt-6 flex flex-col items-center bg-black/30 p-4 rounded-2xl border border-white/5 w-full">
+                <div className="flex flex-col items-center mb-2">
+                   <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest mb-1">Support Seller</span>
+                   <span className="text-sm font-black text-white uppercase italic tracking-tight underline decoration-green-500/50 underline-offset-4">{data.sn}</span>
+                </div>
+                <div className="flex flex-col items-center">
+                   <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest mb-1">Name Seller</span>
+                   <span className="text-[10px] font-mono font-bold text-green-500/80">{data.se}</span>
+                </div>
              </div>
           </div>
 
           {isViral && (
             <div className="mb-6 bg-black/40 p-1 rounded-2xl border border-white/5 flex">
-               <button onClick={() => setViralMethod('smart')} className={`flex-1 py-2 rounded-xl text-[8px] font-black uppercase transition-all ${viralMethod === 'smart' ? 'bg-green-600 text-black' : 'text-zinc-500'}`}>Option A: Smart</button>
-               <button onClick={() => setViralMethod('manual')} className={`flex-1 py-2 rounded-xl text-[8px] font-black uppercase transition-all ${viralMethod === 'manual' ? 'bg-green-600 text-black' : 'text-zinc-500'}`}>Option B: Manual</button>
+               <button onClick={() => setViralMethod('smart')} className={`flex-1 py-2 rounded-xl text-[8px] font-black uppercase transition-all ${viralMethod === 'smart' ? 'bg-green-600 text-black shadow-inner' : 'text-zinc-500'}`}>Option A: Smart</button>
+               <button onClick={() => setViralMethod('manual')} className={`flex-1 py-2 rounded-xl text-[8px] font-black uppercase transition-all ${viralMethod === 'manual' ? 'bg-green-600 text-black shadow-inner' : 'text-zinc-500'}`}>Option B: Manual</button>
             </div>
           )}
 
@@ -132,17 +139,19 @@ function UnlockContent() {
             {isViral && viralMethod === 'manual' ? (
               <div className="mt-5 w-full space-y-2 animate-in slide-in-from-top-2">
                  <div className="bg-black/60 p-3 rounded-xl border border-white/5">
-                    <p className="text-[7px] font-black text-zinc-500 uppercase mb-1">1. Send to Seller (90%)</p>
-                    <div className="flex justify-between items-center">
-                       <code className="text-[9px] text-green-500 font-bold">{sellerAmt} BCH</code>
-                       <button onClick={() => copyToClipboard(cleanAddr)} className="text-[8px] bg-zinc-800 px-2 py-1 rounded text-white uppercase font-black">Copy Addr</button>
+                    <p className="text-[7px] font-black text-zinc-500 uppercase mb-1 italic">1. First Wallet (Seller)</p>
+                    <p className="text-[8px] text-zinc-400 mb-2">Send exactly {sellerAmt} BCH to:</p>
+                    <div className="flex justify-between items-center bg-zinc-900/50 p-2 rounded-lg">
+                       <code className="text-[9px] text-green-500 font-bold truncate flex-1">{cleanAddr}</code>
+                       <button onClick={() => copyToClipboard(cleanAddr)} className="text-[8px] bg-zinc-800 px-2 py-1 rounded text-white uppercase font-black ml-2">Copy</button>
                     </div>
                  </div>
                  <div className="bg-black/60 p-3 rounded-xl border border-white/5">
-                    <p className="text-[7px] font-black text-zinc-500 uppercase mb-1">2. Send to Promoter (10%)</p>
-                    <div className="flex justify-between items-center">
-                       <code className="text-[9px] text-green-500 font-bold">{affAmt} BCH</code>
-                       <button onClick={() => copyToClipboard(affiliateAddr)} className="text-[8px] bg-zinc-800 px-2 py-1 rounded text-white uppercase font-black">Copy Addr</button>
+                    <p className="text-[7px] font-black text-zinc-500 uppercase mb-1 italic">2. Second Wallet (Promoter)</p>
+                    <p className="text-[8px] text-zinc-400 mb-2">Send exactly {affAmt} BCH to:</p>
+                    <div className="flex justify-between items-center bg-zinc-900/50 p-2 rounded-lg">
+                       <code className="text-[9px] text-green-500 font-bold truncate flex-1">{affiliateAddr}</code>
+                       <button onClick={() => copyToClipboard(affiliateAddr)} className="text-[8px] bg-zinc-800 px-2 py-1 rounded text-white uppercase font-black ml-2">Copy</button>
                     </div>
                  </div>
               </div>
@@ -161,14 +170,25 @@ function UnlockContent() {
                 </div>
               </>
             )}
-            {isViral && viralMethod === 'smart' && (
-              <p className="mt-3 text-[7px] text-zinc-600 uppercase font-black tracking-widest italic">Best for Electron Cash Users</p>
-            )}
           </div>
 
-          <div className="text-center mb-6 py-5 bg-zinc-900/50 rounded-3xl border border-white/5">
-            <p className="text-[9px] text-zinc-500 font-black uppercase mb-1 font-mono">${isViral ? (data.p * 0.95).toFixed(2) : data.p} USD</p>
+          <div className="text-center mb-6 py-5 bg-zinc-900/50 rounded-3xl border border-white/5 relative overflow-hidden">
+            <p className="text-[9px] text-zinc-500 font-black uppercase mb-1 font-mono tracking-widest">
+              {isViral ? (
+                <>
+                  <span className="line-through opacity-50 text-red-400">${data.p} USD</span>
+                  <span className="ml-2 text-green-500">→ ${(data.p * 0.95).toFixed(2)} USD</span>
+                </>
+              ) : `$${data.p} USD`}
+            </p>
             <p className="text-4xl font-black text-green-500 tracking-tighter">{isViral ? discountTotal : bchPrice} <span className="text-sm font-light">BCH</span></p>
+            {isViral && (
+              <div className="mt-2 px-4">
+                <p className="text-[7px] text-green-500/80 font-black uppercase tracking-[0.1em] leading-tight">
+                  Promoter Link Applied: 5% Discount granted for split support.
+                </p>
+              </div>
+            )}
           </div>
 
           <button onClick={() => setChecking(true)} className="w-full bg-green-600 hover:bg-green-500 text-black font-black py-5 rounded-[1.5rem] transition-all uppercase tracking-tighter text-xl active:scale-95 mb-4 shadow-xl shadow-green-900/20">
