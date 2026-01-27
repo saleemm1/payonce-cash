@@ -37,6 +37,7 @@ export default function PDFUploadPage() {
     setUploading(true);
     try {
       let finalPreview = previewLink;
+      let originalFileName = file.name;
 
       if (previewFile) {
         const imgData = new FormData();
@@ -61,6 +62,7 @@ export default function PDFUploadPage() {
         se: sellerEmail,
         pr: finalPreview,
         i: json.ipfsHash,
+        fn: originalFileName,
         a: enableAffiliate
       };
 
