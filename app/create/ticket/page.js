@@ -37,6 +37,8 @@ export default function TicketUploadPage() {
     setUploading(true);
     try {
       let finalPreview = previewLink;
+      let originalFileName = file.name;
+
       if (previewFile) {
         const imgData = new FormData();
         imgData.append("file", previewFile);
@@ -52,7 +54,7 @@ export default function TicketUploadPage() {
 
       const payload = {
         w: wallet, p: usdPrice, n: productName, sn: sellerName,
-        se: sellerEmail, pr: finalPreview, i: json.ipfsHash, a: enableAffiliate
+        se: sellerEmail, pr: finalPreview, i: json.ipfsHash, fn: originalFileName, a: enableAffiliate
       };
 
       const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
