@@ -48,11 +48,13 @@ export default function BookUploadPage() {
         w: wallet,
         p: usdPrice,
         n: productName,
+        fn: file.name,
         sn: sellerName,
         se: sellerEmail,
         pr: previewLink,
         i: json.ipfsHash,
-        a: enableAffiliate
+        a: enableAffiliate,
+        dt: 'file'
       };
 
       const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
