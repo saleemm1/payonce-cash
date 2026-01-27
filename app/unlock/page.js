@@ -42,12 +42,27 @@ function UnlockContent() {
   useEffect(() => {
     let interval;
     if (checking && !isPaid && data?.w) {
-      const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
+      const sellerClean = data.w.includes(':') ? data.w.split(':')[1] : data.w;
+      const affiliateAddr = searchParams.get('ref');
+      const isViral = data.a && affiliateAddr && (affiliateAddr !== sellerClean);
+      const affClean = affiliateAddr ? (affiliateAddr.includes(':') ? affiliateAddr.split(':')[1] : affiliateAddr) : null;
+
       interval = setInterval(async () => {
         try {
-          const res = await fetch(`https://rest.mainnet.cash/v1/address/balance/${cleanAddr}`);
-          const bal = await res.json();
-          if (bal.unconfirmed > 0 || bal.confirmed > 0) {
+          const sRes = await fetch(`https://rest.mainnet.cash/v1/address/balance/${sellerClean}`);
+          const sBal = await sRes.json();
+          const sellerOk = sBal.unconfirmed > 0 || sBal.confirmed > 0;
+
+          if (isViral && affClean) {
+            const aRes = await fetch(`https://rest.mainnet.cash/v1/address/balance/${affClean}`);
+            const aBal = await aRes.json();
+            const promoterOk = aBal.unconfirmed > 0 || aBal.confirmed > 0;
+            
+            if (sellerOk && promoterOk) {
+              setIsPaid(true);
+              setChecking(false);
+            }
+          } else if (sellerOk) {
             setIsPaid(true);
             setChecking(false);
           }
@@ -55,7 +70,7 @@ function UnlockContent() {
       }, 3000);
     }
     return () => clearInterval(interval);
-  }, [checking, isPaid, data]);
+  }, [checking, isPaid, data, searchParams]);
 
   if (error) return <div className="min-h-screen bg-black text-red-500 flex justify-center items-center font-black uppercase tracking-tighter">{error}</div>;
   if (!data) return <div className="min-h-screen bg-black text-white flex justify-center items-center animate-pulse font-black italic tracking-[10px]">LOADING...</div>;
@@ -214,6 +229,11 @@ function UnlockContent() {
            <h1 className="text-3xl font-black mb-1 italic uppercase tracking-tighter">Access Granted</h1>
            <p className="text-zinc-500 text-[10px] mb-8 uppercase tracking-[3px] font-bold">Successfully Decrypted</p>
            
+           <div className="mb-8 text-left bg-black/40 p-4 rounded-2xl border border-white/5">
+              <p className="text-[8px] text-zinc-500 uppercase font-black mb-1">File Name:</p>
+              <p className="text-white font-black italic uppercase tracking-tight text-sm">{data.n}</p>
+           </div>
+
            {data.dt === 'file' ? (
              <a href={`https://gateway.pinata.cloud/ipfs/${data.i}`} target="_blank" className="w-full bg-green-600 text-black py-5 rounded-2xl font-black block hover:bg-green-500 transition-all uppercase mb-8 shadow-xl text-lg">
                Download Asset ⚡
