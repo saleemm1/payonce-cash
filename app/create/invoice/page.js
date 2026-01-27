@@ -10,7 +10,7 @@ export default function InvoiceUploadPage() {
   const [sellerEmail, setSellerEmail] = useState('');
   const [usdPrice, setUsdPrice] = useState(125.75);
   const [wallet, setWallet] = useState('');
-  const [bchPreview, setBchPreview] = useState('0.00');
+  const [bchPreview, setBchPreview] = useState('0.00'); // تمت الإضافة
   const [deliveryType, setDeliveryType] = useState('file');
   const [file, setFile] = useState(null);
   const [linkOrText, setLinkOrText] = useState('');
@@ -21,6 +21,7 @@ export default function InvoiceUploadPage() {
   const [generatedLink, setGeneratedLink] = useState('');
   const [copied, setCopied] = useState(false);
 
+  // منطق جلب سعر BCH المضاف
   useEffect(() => {
     const getBCH = async () => {
       try {
@@ -30,7 +31,9 @@ export default function InvoiceUploadPage() {
         if (!isNaN(price) && price > 0) {
           setBchPreview((price / data['bitcoin-cash'].usd).toFixed(8));
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error("Price fetch error", e);
+      }
     };
     getBCH();
   }, [usdPrice]);
@@ -124,12 +127,16 @@ export default function InvoiceUploadPage() {
           <input required type="email" placeholder="Contact Email" onChange={(e)=>setSellerEmail(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 transition-all" />
         </div>
 
-        <div className="relative flex items-center">
-            <span className="absolute left-4 text-green-500 font-black text-sm">USD</span>
-            <input required type="number" step="any" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className="w-full p-3 pl-14 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 text-center font-black" />
+        {/* قسم السعر مع معاينة BCH */}
+        <div className="relative">
+            <label className="text-[10px] text-zinc-400 mb-1 block italic font-bold text-center">BCH Rate: {bchPreview}</label>
+            <div className="relative flex items-center">
+                <span className="absolute left-4 text-green-500 font-black text-sm">USD</span>
+                <input required type="number" step="any" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className="w-full p-3 pl-14 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 text-center font-black transition-all" />
+            </div>
         </div>
 
-        <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="BCH Wallet Address" />
+        <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 transition-all" placeholder="BCH Wallet Address" />
 
         <div className={`p-4 rounded-xl border border-dashed transition-all flex items-center justify-between ${invoiceType === 'personal' ? 'bg-zinc-900/20 border-zinc-800 opacity-50' : 'bg-zinc-900/50 border-zinc-700'}`}>
           <div>
