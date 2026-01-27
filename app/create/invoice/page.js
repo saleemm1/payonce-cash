@@ -10,7 +10,7 @@ export default function InvoiceUploadPage() {
   const [sellerEmail, setSellerEmail] = useState('');
   const [usdPrice, setUsdPrice] = useState(125.75);
   const [wallet, setWallet] = useState('');
-  const [bchPreview, setBchPreview] = useState('0.00'); // تمت الإضافة
+  const [bchPreview, setBchPreview] = useState('0.00');
   const [deliveryType, setDeliveryType] = useState('file');
   const [file, setFile] = useState(null);
   const [linkOrText, setLinkOrText] = useState('');
@@ -21,7 +21,6 @@ export default function InvoiceUploadPage() {
   const [generatedLink, setGeneratedLink] = useState('');
   const [copied, setCopied] = useState(false);
 
-  // منطق جلب سعر BCH المضاف
   useEffect(() => {
     const getBCH = async () => {
       try {
@@ -31,9 +30,7 @@ export default function InvoiceUploadPage() {
         if (!isNaN(price) && price > 0) {
           setBchPreview((price / data['bitcoin-cash'].usd).toFixed(8));
         }
-      } catch (e) {
-        console.error("Price fetch error", e);
-      }
+      } catch (e) {}
     };
     getBCH();
   }, [usdPrice]);
@@ -50,7 +47,10 @@ export default function InvoiceUploadPage() {
     setUploading(true);
     try {
       let assetId = linkOrText;
+      let originalFileName = "";
+
       if (deliveryType === 'file' && file) {
+        originalFileName = file.name;
         const formData = new FormData();
         formData.append("file", file);
         const res = await fetch("/api/upload", { method: "POST", body: formData });
@@ -69,7 +69,7 @@ export default function InvoiceUploadPage() {
 
       const payload = {
         w: wallet, p: usdPrice, n: productName, sn: sellerName,
-        se: sellerEmail, i: assetId, a: enableAffiliate,
+        se: sellerEmail, i: assetId, fn: originalFileName, a: enableAffiliate,
         cn: invoiceType === 'personal' ? customerName : '', 
         d: productDesc, pr: finalPreview, dt: deliveryType, ty: invoiceType
       };
@@ -109,7 +109,7 @@ export default function InvoiceUploadPage() {
         </div>
 
         {deliveryType === 'file' ? (
-          <input required type="file" onChange={(e)=>setFile(e.target.files[0])} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-gray-300 file:bg-green-600 cursor-pointer" />
+          <input type="file" onChange={(e)=>setFile(e.target.files[0])} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-gray-300 file:bg-green-600 cursor-pointer" />
         ) : (
           <input required type="text" value={linkOrText} onChange={(e)=>setLinkOrText(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 text-sm" placeholder="Paste Delivery Link or Text" />
         )}
@@ -127,13 +127,12 @@ export default function InvoiceUploadPage() {
           <input required type="email" placeholder="Contact Email" onChange={(e)=>setSellerEmail(e.target.value)} className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 transition-all" />
         </div>
 
-        {/* قسم السعر مع معاينة BCH */}
         <div className="relative">
-            <label className="text-[10px] text-zinc-400 mb-1 block italic font-bold text-center">BCH Rate: {bchPreview}</label>
-            <div className="relative flex items-center">
-                <span className="absolute left-4 text-green-500 font-black text-sm">USD</span>
-                <input required type="number" step="any" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className="w-full p-3 pl-14 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 text-center font-black transition-all" />
-            </div>
+          <label className="text-[10px] text-zinc-400 mb-1 block italic font-bold text-center">BCH Rate: {bchPreview}</label>
+          <div className="relative flex items-center">
+            <span className="absolute left-4 text-green-500 font-black text-sm">USD</span>
+            <input required type="number" step="any" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className="w-full p-3 pl-14 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 text-center font-black transition-all" />
+          </div>
         </div>
 
         <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 transition-all" placeholder="BCH Wallet Address" />
