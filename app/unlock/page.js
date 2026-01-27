@@ -109,7 +109,10 @@ function UnlockContent() {
              {data.pr && (
                <img src={data.pr} className="w-full h-44 object-cover rounded-3xl mb-4 border border-white/5" alt="Preview" />
              )}
-             <h1 className="text-2xl font-black italic uppercase tracking-tighter">{data.n}</h1>
+             <div className="mb-2">
+                <span className="text-[9px] text-zinc-500 uppercase font-black tracking-widest block mb-1">File Name:</span>
+                <h1 className="text-2xl font-black italic uppercase tracking-tighter">{data.n}</h1>
+             </div>
              {data.d && <p className="text-zinc-500 text-[11px] mt-2 px-6 leading-relaxed italic">{data.d}</p>}
              
              <div className="mt-6 flex flex-col items-center bg-black/30 p-4 rounded-2xl border border-white/5 w-full">
