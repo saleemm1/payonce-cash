@@ -109,7 +109,7 @@ export default function InvoiceUploadPage() {
         </div>
 
         {deliveryType === 'file' ? (
-          <input type="file" onChange={(e)=>setFile  (Optional)(e.target.files[0])} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-gray-300 file:bg-green-600 cursor-pointer" />
+          <input type="file" onChange={(e)=>setFile(e.target.files[0])} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-gray-300 file:bg-green-600 cursor-pointer" />
         ) : (
           <input required type="text" value={linkOrText} onChange={(e)=>setLinkOrText(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 text-sm" placeholder="Paste Delivery Link or Text" />
         )}
