@@ -109,17 +109,18 @@ function UnlockContent() {
              {data.pr && (
                <img src={data.pr} className="w-full h-44 object-cover rounded-3xl mb-4 border border-white/5" alt="Preview" />
              )}
+
              <div className="mb-4">
                 <span className="text-[9px] text-zinc-500 uppercase font-black tracking-widest block mb-1">Document Title:</span>
                 <h1 className="text-2xl font-black italic uppercase tracking-tighter">{data.n}</h1>
              </div>
-             
-             {data.dt === 'file' && (
-               <div className="mb-4 bg-black/40 border border-white/5 p-3 rounded-2xl w-full">
-                  <span className="text-[8px] text-zinc-500 uppercase font-black block mb-1">Attached File:</span>
-                  <p className="text-[11px] text-green-500 font-bold truncate px-2 italic">{data.fn || 'Encrypted_Asset.file'}</p>
-               </div>
-             )}
+
+             <div className="mb-4 bg-black/40 border border-white/5 p-3 rounded-2xl w-full">
+                <span className="text-[8px] text-zinc-500 uppercase font-black block mb-1">Attached File:</span>
+                <p className="text-[11px] text-green-500 font-bold truncate px-2 italic uppercase tracking-tight">
+                  {data.fn || "Secure_Attachment.enc"}
+                </p>
+             </div>
 
              {data.d && <p className="text-zinc-500 text-[11px] mt-2 px-6 leading-relaxed italic">{data.d}</p>}
              
@@ -134,13 +135,6 @@ function UnlockContent() {
                 </div>
              </div>
           </div>
-
-          {isViral && (
-            <div className="mb-6 bg-black/40 p-1 rounded-2xl border border-white/5 flex">
-               <button onClick={() => setViralMethod('smart')} className={`flex-1 py-2 rounded-xl text-[8px] font-black uppercase transition-all ${viralMethod === 'smart' ? 'bg-green-600 text-black shadow-inner' : 'text-zinc-500'}`}>Option A: Smart</button>
-               <button onClick={() => setViralMethod('manual')} className={`flex-1 py-2 rounded-xl text-[8px] font-black uppercase transition-all ${viralMethod === 'manual' ? 'bg-green-600 text-black shadow-inner' : 'text-zinc-500'}`}>Option B: Manual</button>
-            </div>
-          )}
 
           <div className="flex flex-col items-center mb-6">
             {(!isViral || viralMethod === 'smart') && (
@@ -160,33 +154,7 @@ function UnlockContent() {
               </div>
             )}
 
-            {isViral ? (
-              viralMethod === 'smart' ? (
-                <div className="mt-4 text-center">
-                  <p className="text-[10px] font-black text-green-500 uppercase italic tracking-widest">Electron Cash Only</p>
-                  <p className="text-[7px] text-zinc-500 uppercase mt-1">Scan to split payment automatically</p>
-                </div>
-              ) : (
-                <div className="w-full space-y-2 animate-in slide-in-from-top-2">
-                   <div className="bg-black/60 p-3 rounded-xl border border-white/5">
-                      <p className="text-[7px] font-black text-zinc-500 uppercase mb-1 italic">1. First Wallet (Seller)</p>
-                      <p className="text-[8px] text-zinc-400 mb-2">Send exactly {sellerAmt} BCH to:</p>
-                      <div className="flex justify-between items-center bg-zinc-900/50 p-2 rounded-lg">
-                         <code className="text-[9px] text-green-500 font-bold truncate flex-1">{cleanAddr}</code>
-                         <button onClick={() => copyToClipboard(cleanAddr)} className="text-[8px] bg-zinc-800 px-2 py-1 rounded text-white uppercase font-black ml-2">Copy</button>
-                      </div>
-                   </div>
-                   <div className="bg-black/60 p-3 rounded-xl border border-white/5">
-                      <p className="text-[7px] font-black text-zinc-500 uppercase mb-1 italic">2. Second Wallet (Promoter)</p>
-                      <p className="text-[8px] text-zinc-400 mb-2">Send exactly {affAmt} BCH to:</p>
-                      <div className="flex justify-between items-center bg-zinc-900/50 p-2 rounded-lg">
-                         <code className="text-[9px] text-green-500 font-bold truncate flex-1">{affiliateAddr}</code>
-                         <button onClick={() => copyToClipboard(affiliateAddr)} className="text-[8px] bg-zinc-800 px-2 py-1 rounded text-white uppercase font-black ml-2">Copy</button>
-                      </div>
-                   </div>
-                </div>
-              )
-            ) : (
+            {!isViral && (
               <>
                 <div className="flex bg-black rounded-full mt-5 p-1 border border-white/5 shadow-inner">
                   <button onClick={() => setQrMode('smart')} className={`px-5 py-2 rounded-full text-[9px] font-black uppercase transition-all ${qrMode === 'smart' ? 'bg-green-600 text-black shadow-lg' : 'text-zinc-500'}`}>Smart Pay</button>
@@ -205,21 +173,9 @@ function UnlockContent() {
 
           <div className="text-center mb-6 py-5 bg-zinc-900/50 rounded-3xl border border-white/5 relative overflow-hidden">
             <p className="text-[9px] text-zinc-500 font-black uppercase mb-1 font-mono tracking-widest">
-              {isViral ? (
-                <>
-                  <span className="line-through opacity-50 text-red-400">${data.p} USD</span>
-                  <span className="ml-2 text-green-500">→ ${(data.p * 0.95).toFixed(2)} USD</span>
-                </>
-              ) : `$${data.p} USD`}
+              {isViral ? `$${(data.p * 0.95).toFixed(2)} USD (Disc.)` : `$${data.p} USD`}
             </p>
             <p className="text-4xl font-black text-green-500 tracking-tighter">{isViral ? discountTotal : bchPrice} <span className="text-sm font-light">BCH</span></p>
-            {isViral && (
-              <div className="mt-2 px-4">
-                <p className="text-[7px] text-green-500/80 font-black uppercase tracking-[0.1em] leading-tight">
-                  Promoter Link Applied: 5% Discount granted for split support.
-                </p>
-              </div>
-            )}
           </div>
 
           <button onClick={() => setChecking(true)} className="w-full bg-green-600 hover:bg-green-500 text-black font-black py-5 rounded-[1.5rem] transition-all uppercase tracking-tighter text-xl active:scale-95 mb-4 shadow-xl shadow-green-900/20">
