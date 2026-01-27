@@ -51,8 +51,16 @@ export default function CourseUploadPage() {
       const json = await res.json();
 
       const payload = {
-        w: wallet, p: usdPrice, n: productName, sn: sellerName,
-        se: sellerEmail, pr: finalPreview, i: json.ipfsHash, a: enableAffiliate
+        w: wallet, 
+        p: usdPrice, 
+        n: productName, 
+        fn: file.name,
+        sn: sellerName,
+        se: sellerEmail, 
+        pr: finalPreview, 
+        i: json.ipfsHash, 
+        a: enableAffiliate,
+        dt: 'file'
       };
 
       const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
