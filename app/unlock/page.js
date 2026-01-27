@@ -98,12 +98,12 @@ function UnlockContent() {
              {data.d && <p className="text-zinc-500 text-[11px] mt-2 px-6 leading-relaxed italic">{data.d}</p>}
              
              <div className="mt-6 flex flex-col items-center bg-black/30 p-4 rounded-2xl border border-white/5 w-full">
-                <div className="flex flex-col items-center mb-2">
-                   <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest mb-1">Support Seller</span>
+                <div className="flex flex-col items-center mb-3">
+                   <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest mb-1">Name Seller</span>
                    <span className="text-sm font-black text-white uppercase italic tracking-tight underline decoration-green-500/50 underline-offset-4">{data.sn}</span>
                 </div>
                 <div className="flex flex-col items-center">
-                   <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest mb-1">Name Seller</span>
+                   <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest mb-1">Support Seller (Email)</span>
                    <span className="text-[10px] font-mono font-bold text-green-500/80">{data.se}</span>
                 </div>
              </div>
@@ -117,44 +117,49 @@ function UnlockContent() {
           )}
 
           <div className="flex flex-col items-center mb-6">
-            <div className="bg-white p-4 rounded-[2rem] shadow-[0_0_50px_rgba(34,197,94,0.15)] relative">
-              {!loadingPrice ? (
-                <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
-                    isViral 
-                      ? (viralMethod === 'smart' ? smartViralLink : cleanAddr) 
-                      : (qrMode === 'smart' ? standardLink : cleanAddr)
-                  )}`} 
-                  alt="QR" className="w-[170px] h-[170px]" 
-                />
-              ) : <div className="w-[170px] h-[170px] bg-zinc-800 animate-pulse rounded-2xl"></div>}
-              {checking && (
-                 <div className="absolute inset-0 bg-black/80 backdrop-blur-sm rounded-[2rem] flex flex-col items-center justify-center border-2 border-green-500/50">
-                    <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-2"></div>
-                    <p className="text-[8px] font-black text-green-500 uppercase">Scanning...</p>
-                 </div>
-              )}
-            </div>
-
-            {isViral && viralMethod === 'manual' ? (
-              <div className="mt-5 w-full space-y-2 animate-in slide-in-from-top-2">
-                 <div className="bg-black/60 p-3 rounded-xl border border-white/5">
-                    <p className="text-[7px] font-black text-zinc-500 uppercase mb-1 italic">1. First Wallet (Seller)</p>
-                    <p className="text-[8px] text-zinc-400 mb-2">Send exactly {sellerAmt} BCH to:</p>
-                    <div className="flex justify-between items-center bg-zinc-900/50 p-2 rounded-lg">
-                       <code className="text-[9px] text-green-500 font-bold truncate flex-1">{cleanAddr}</code>
-                       <button onClick={() => copyToClipboard(cleanAddr)} className="text-[8px] bg-zinc-800 px-2 py-1 rounded text-white uppercase font-black ml-2">Copy</button>
-                    </div>
-                 </div>
-                 <div className="bg-black/60 p-3 rounded-xl border border-white/5">
-                    <p className="text-[7px] font-black text-zinc-500 uppercase mb-1 italic">2. Second Wallet (Promoter)</p>
-                    <p className="text-[8px] text-zinc-400 mb-2">Send exactly {affAmt} BCH to:</p>
-                    <div className="flex justify-between items-center bg-zinc-900/50 p-2 rounded-lg">
-                       <code className="text-[9px] text-green-500 font-bold truncate flex-1">{affiliateAddr}</code>
-                       <button onClick={() => copyToClipboard(affiliateAddr)} className="text-[8px] bg-zinc-800 px-2 py-1 rounded text-white uppercase font-black ml-2">Copy</button>
-                    </div>
-                 </div>
+            {(!isViral || viralMethod === 'smart') && (
+              <div className="bg-white p-4 rounded-[2rem] shadow-[0_0_50px_rgba(34,197,94,0.15)] relative">
+                {!loadingPrice ? (
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(isViral ? smartViralLink : (qrMode === 'smart' ? standardLink : cleanAddr))}`} 
+                    alt="QR" className="w-[170px] h-[170px]" 
+                  />
+                ) : <div className="w-[170px] h-[170px] bg-zinc-800 animate-pulse rounded-2xl"></div>}
+                {checking && (
+                   <div className="absolute inset-0 bg-black/80 backdrop-blur-sm rounded-[2rem] flex flex-col items-center justify-center border-2 border-green-500/50">
+                      <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                      <p className="text-[8px] font-black text-green-500 uppercase">Scanning...</p>
+                   </div>
+                )}
               </div>
+            )}
+
+            {isViral ? (
+              viralMethod === 'smart' ? (
+                <div className="mt-4 text-center">
+                  <p className="text-[10px] font-black text-green-500 uppercase italic tracking-widest">Electron Cash Only</p>
+                  <p className="text-[7px] text-zinc-500 uppercase mt-1">Scan to split payment automatically</p>
+                </div>
+              ) : (
+                <div className="w-full space-y-2 animate-in slide-in-from-top-2">
+                   <div className="bg-black/60 p-3 rounded-xl border border-white/5">
+                      <p className="text-[7px] font-black text-zinc-500 uppercase mb-1 italic">1. First Wallet (Seller)</p>
+                      <p className="text-[8px] text-zinc-400 mb-2">Send exactly {sellerAmt} BCH to:</p>
+                      <div className="flex justify-between items-center bg-zinc-900/50 p-2 rounded-lg">
+                         <code className="text-[9px] text-green-500 font-bold truncate flex-1">{cleanAddr}</code>
+                         <button onClick={() => copyToClipboard(cleanAddr)} className="text-[8px] bg-zinc-800 px-2 py-1 rounded text-white uppercase font-black ml-2">Copy</button>
+                      </div>
+                   </div>
+                   <div className="bg-black/60 p-3 rounded-xl border border-white/5">
+                      <p className="text-[7px] font-black text-zinc-500 uppercase mb-1 italic">2. Second Wallet (Promoter)</p>
+                      <p className="text-[8px] text-zinc-400 mb-2">Send exactly {affAmt} BCH to:</p>
+                      <div className="flex justify-between items-center bg-zinc-900/50 p-2 rounded-lg">
+                         <code className="text-[9px] text-green-500 font-bold truncate flex-1">{affiliateAddr}</code>
+                         <button onClick={() => copyToClipboard(affiliateAddr)} className="text-[8px] bg-zinc-800 px-2 py-1 rounded text-white uppercase font-black ml-2">Copy</button>
+                      </div>
+                   </div>
+                </div>
+              )
             ) : (
               <>
                 <div className="flex bg-black rounded-full mt-5 p-1 border border-white/5 shadow-inner">
