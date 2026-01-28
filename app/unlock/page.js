@@ -122,19 +122,34 @@ function UnlockContent() {
 
                     <div className="p-7">
                         <div className="flex flex-col items-center text-center">
-                            <div className="mb-6 bg-white/5 border border-white/10 px-4 py-1.5 rounded-full flex items-center gap-2">
-                                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                <span className="text-[10px] text-zinc-400 font-black uppercase tracking-[2px]">Secured Link</span>
-                            </div>
+                            {data.cn && (
+                                <div className="mb-6 bg-green-500/5 border border-green-500/10 px-4 py-1.5 rounded-full">
+                                    <span className="text-[10px] text-green-500 font-black uppercase tracking-[2px]">Bill: {data.cn}</span>
+                                </div>
+                            )}
+
+                            {data.pr && (
+                                <div className="w-full relative mb-6 group">
+                                    <img src={data.pr} className="w-full h-48 object-cover rounded-[2rem] border border-white/5 shadow-inner transition-transform group-hover:scale-[1.02] duration-500" alt="Preview" />
+                                    <div className="absolute inset-0 rounded-[2rem] shadow-[inset_0_0_40px_rgba(0,0,0,0.6)]"></div>
+                                </div>
+                            )}
 
                             <div className="mb-6">
                                 <h1 className="text-3xl font-black italic uppercase tracking-tighter text-white leading-none mb-3">{data.n}</h1>
+                                <div className="inline-block bg-white/5 px-3 py-1 rounded-lg border border-white/5 mb-3">
+                                    <p className="text-[10px] text-green-500/80 font-bold truncate italic uppercase">
+                                        {data.fn || "Secure_Attachment.enc"}
+                                    </p>
+                                </div>
                                 {isViral && (
-                                    <p className="text-[10px] text-green-500 font-bold uppercase tracking-widest bg-green-500/10 py-1 px-3 rounded-lg inline-block">
+                                    <p className="text-[10px] text-green-500 font-bold uppercase tracking-widest block">
                                         Affiliate Reward Applied 💸
                                     </p>
                                 )}
                             </div>
+
+                            {data.d && <p className="text-zinc-400 text-[12px] mb-8 leading-relaxed italic opacity-80 max-w-[90%]">{data.d}</p>}
                         </div>
 
                         <div className="flex flex-col items-center mb-8">
@@ -148,9 +163,9 @@ function UnlockContent() {
                                     ) : <div className="w-[180px] h-[180px] bg-zinc-800 animate-pulse rounded-2xl"></div>}
                                     
                                     {checking && (
-                                        <div className="absolute inset-0 bg-black/90 backdrop-blur-md rounded-[2.5rem] flex flex-col items-center justify-center border-2 border-green-500/40">
+                                        <div className="absolute inset-0 bg-black/90 backdrop-blur-md rounded-[2.5rem] flex flex-col items-center justify-center border-2 border-green-500/40 animate-in fade-in duration-300">
                                             <div className="w-10 h-10 border-2 border-green-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-                                            <p className="text-[10px] font-black text-green-500 uppercase tracking-widest">Verifying...</p>
+                                            <p className="text-[10px] font-black text-green-500 uppercase tracking-widest">Searching Network...</p>
                                         </div>
                                     )}
                                 </div>
@@ -202,7 +217,7 @@ function UnlockContent() {
                         </div>
 
                         <div className="text-center mb-8 py-6 bg-gradient-to-b from-zinc-900/50 to-transparent rounded-[2rem] border border-white/5">
-                            <p className="text-[10px] text-zinc-500 font-black uppercase mb-2 tracking-[3px]">Total To Send</p>
+                            <p className="text-[10px] text-zinc-500 font-black uppercase mb-2 tracking-[3px]">Total Amount Due</p>
                             <div className="flex items-baseline justify-center gap-2">
                                 <span className="text-5xl font-black text-green-500 tracking-tighter tabular-nums">
                                     {isViral ? discountTotal : fullPriceBch}
@@ -216,53 +231,62 @@ function UnlockContent() {
                             )}
                         </div>
 
-                        <button onClick={() => setChecking(true)} className="w-full bg-green-600 hover:bg-green-500 text-black font-black py-5 rounded-2xl transition-all uppercase tracking-tight text-lg active:scale-[0.98] mb-6 shadow-xl group">
-                            {checking ? 'Awaiting Network...' : 'Verify Transaction'}
+                        <button onClick={() => setChecking(true)} className="w-full bg-green-600 hover:bg-green-500 text-black font-black py-5 rounded-2xl transition-all uppercase tracking-tight text-lg active:scale-[0.98] mb-4 shadow-xl group">
+                            {checking ? 'Awaiting Payment...' : 'Verify Transaction'}
                         </button>
 
-                        <div className="text-center">
-                            <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest leading-relaxed">
-                                {isViral 
-                                    ? (qrMode === 'smart' ? "Smart Pay splits payment for Electron Cash." : "Manual: Send exact amounts to both recipients.")
-                                    : "Send the amount to the address to unlock."}
-                            </p>
+                        <div className="grid grid-cols-2 gap-3 mb-6">
+                           <div className="bg-black/20 p-3 rounded-2xl border border-white/5">
+                                <span className="text-[7px] font-black text-zinc-600 uppercase block mb-1">Seller</span>
+                                <span className="text-[11px] font-bold text-white truncate block">{data.sn}</span>
+                           </div>
+                           <div className="bg-black/20 p-3 rounded-2xl border border-white/5">
+                                <span className="text-[7px] font-black text-zinc-600 uppercase block mb-1">Support</span>
+                                <span className="text-[11px] font-bold text-green-500/70 truncate block">{data.se}</span>
+                           </div>
                         </div>
+
+                        {data.a && !affiliateAddr && (
+                            <button onClick={() => router.push(`/affiliate?product=${searchParams.get('id')}`)} className="w-full bg-white/5 hover:bg-white/10 text-zinc-400 py-4 rounded-2xl border border-white/5 text-[9px] font-black uppercase tracking-[2px] transition-colors">
+                                🚀 Become an Affiliate (Earn 10%)
+                            </button>
+                        )}
                     </div>
                 </div>
             ) : (
                 <div className="w-full max-w-[440px] bg-[#16161a] p-10 rounded-[3rem] border border-green-500/20 text-center shadow-2xl animate-in zoom-in-95 duration-500">
-                    <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-green-500/20">
+                    <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-green-500/20 shadow-[0_0_50px_rgba(34,197,94,0.1)]">
                         <span className="text-5xl animate-bounce">💎</span>
                     </div>
                     <h1 className="text-4xl font-black mb-2 italic uppercase tracking-tighter text-white">Access Granted</h1>
-                    <p className="text-zinc-500 text-[11px] mb-10 uppercase tracking-[4px] font-bold">Successfully Decrypted</p>
+                    <p className="text-zinc-500 text-[11px] mb-10 uppercase tracking-[4px] font-bold">Encrypted Data Unlocked</p>
                     
                     {data.dt === 'file' ? (
                         <a href={`https://gateway.pinata.cloud/ipfs/${data.i}`} target="_blank" className="w-full bg-green-600 text-black py-6 rounded-2xl font-black block hover:bg-green-500 transition-all uppercase mb-10 shadow-xl text-xl tracking-tighter active:scale-95">
                             Download Now ⚡
                         </a>
                     ) : (
-                        <div className="bg-zinc-900/80 p-6 rounded-2xl border border-white/5 mb-10 break-all text-left shadow-inner">
-                            <p className="text-[10px] text-zinc-500 uppercase font-black mb-3">Unlocked Content:</p>
-                            <p className="text-green-500 font-mono text-sm leading-relaxed select-all">{data.i}</p>
+                        <div className="bg-zinc-900/80 p-6 rounded-2xl border border-white/5 mb-10 break-all text-left shadow-inner relative group">
+                            <p className="text-[10px] text-zinc-500 uppercase font-black mb-3">Decrypted Content:</p>
+                            <p className="text-green-500 font-mono text-sm leading-relaxed">{data.i}</p>
                         </div>
                     )}
 
                     {!rating ? (
                         <div className="bg-black/40 p-6 rounded-[2.5rem] border border-white/5 shadow-inner">
-                            <p className="text-[9px] text-zinc-500 uppercase font-black mb-5 tracking-[3px]">Feedback</p>
+                            <p className="text-[9px] text-zinc-500 uppercase font-black mb-5 tracking-[3px] text-center">Quality Feedback</p>
                             <div className="flex justify-center gap-4">
                                 <button onClick={() => setRating('pos')} className="flex-1 p-5 bg-zinc-900/50 hover:bg-green-500/10 rounded-2xl transition-all text-[10px] font-black uppercase border border-white/5 group border-b-2 border-b-transparent hover:border-b-green-500">
-                                    <span className="block text-2xl mb-2">👍</span> Trusted
+                                    <span className="block text-2xl mb-2 group-hover:scale-110 transition-transform">👍</span> Trusted
                                 </button>
                                 <button onClick={() => setRating('neg')} className="flex-1 p-5 bg-zinc-900/50 hover:bg-red-500/10 rounded-2xl transition-all text-[10px] font-black uppercase border border-white/5 group border-b-2 border-b-transparent hover:border-b-red-500">
-                                    <span className="block text-2xl mb-2">👎</span> Avoid
+                                    <span className="block text-2xl mb-2 group-hover:scale-110 transition-transform">👎</span> Avoid
                                 </button>
                             </div>
                         </div>
                     ) : (
-                        <div className="py-5 bg-green-600/10 text-green-500 border border-green-500/20 rounded-2xl font-black text-[10px] uppercase italic tracking-[2px]">
-                            Rating Submitted
+                        <div className="py-5 bg-green-600/10 text-green-500 border border-green-500/20 rounded-2xl font-black text-[10px] uppercase italic tracking-[2px] animate-pulse">
+                            Verification Recorded
                         </div>
                     )}
                 </div>
