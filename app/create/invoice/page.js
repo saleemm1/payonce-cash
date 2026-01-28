@@ -139,11 +139,23 @@ export default function InvoiceUploadPage() {
 
         <div className={`p-4 rounded-xl border border-dashed transition-all flex items-center justify-between ${invoiceType === 'personal' ? 'bg-zinc-900/20 border-zinc-800 opacity-50' : 'bg-zinc-900/50 border-zinc-700'}`}>
           <div>
-            <h3 className="text-sm font-bold uppercase italic text-white">Viral Mode</h3>
-            <p className="text-[9px] text-zinc-500">
-              {invoiceType === 'personal' ? 'Disabled: Personal invoices cannot be viral' : 'Enable 10% referral commission'}
-            </p>
-          </div>
+  <h3 className="text-sm font-bold uppercase italic text-white">
+    Viral Mode
+  </h3>
+
+  <p className="text-[9px] text-zinc-500 leading-tight">
+    {invoiceType === 'personal'
+      ? 'Disabled: Personal invoices cannot be viral'
+      : '10% promoter commission · 5% buyer discount'}
+  </p>
+
+  {invoiceType !== 'personal' && (
+    <p className="text-[8px] text-zinc-600">
+      For every sale through the promoter
+    </p>
+  )}
+</div>
+
           <input type="checkbox" disabled={invoiceType === 'personal'} checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500 cursor-pointer disabled:cursor-not-allowed" />
         </div>
 
