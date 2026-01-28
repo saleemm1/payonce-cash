@@ -59,7 +59,7 @@ export default function CreatePage() {
                     Merchant <span className="text-green-500 text-shadow-glow">Terminal</span>
                    </h3>
                    <p className="text-zinc-400 text-lg font-medium leading-relaxed max-w-xl mb-6">
-                     Deploy a real-world BCH payment system for your business.
+                      Deploy a real-world BCH payment system for your business.
 Accept Bitcoin Cash instantly — in-store or online.
                    </p>
                    
@@ -90,7 +90,7 @@ Accept Bitcoin Cash instantly — in-store or online.
               </div>
 
               <div className="relative z-10 bg-white text-black px-10 py-5 rounded-2xl font-black uppercase text-sm tracking-tighter flex items-center gap-3 group-hover:bg-green-500 transition-all shadow-xl hover:scale-105 active:scale-95 whitespace-nowrap">
-                 Open Terminal <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  Open Terminal <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </div>
             </div>
         </Link>
