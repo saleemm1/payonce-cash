@@ -17,6 +17,9 @@ export default function GameCardUploadPage() {
   const [uploading, setUploading] = useState(false);
   const [generatedLink, setGeneratedLink] = useState('');
   const [copied, setCopied] = useState(false);
+  const [enablePromo, setEnablePromo] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
+  const [promoDiscount, setPromoDiscount] = useState('');
 
   useEffect(() => {
     const getBCH = async () => {
@@ -66,7 +69,8 @@ export default function GameCardUploadPage() {
         pr: finalPreview, 
         i: json.ipfsHash, 
         a: enableAffiliate,
-        dt: 'file'
+        dt: 'file',
+        pc: enablePromo && promoCode && promoDiscount ? { code: promoCode.toUpperCase(), discount: promoDiscount } : null
       };
 
       const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
@@ -116,21 +120,27 @@ export default function GameCardUploadPage() {
 
         <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500" placeholder="BCH Wallet Address" />
         
+        <div className="bg-zinc-900/50 p-4 rounded-xl border border-dashed border-zinc-700 flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+                <div>
+                   <h3 className="text-sm font-bold uppercase italic text-white">Promo Code</h3>
+                   <p className="text-[9px] text-zinc-500">Offer a secret discount</p>
+                </div>
+                <input type="checkbox" checked={enablePromo} onChange={(e) => setEnablePromo(e.target.checked)} className="w-5 h-5 accent-green-500 cursor-pointer" />
+            </div>
+            {enablePromo && (
+                <div className="flex gap-2 animate-in fade-in slide-in-from-top-2">
+                    <input type="text" maxLength={5} placeholder="CODE (3-5 chars)" value={promoCode} onChange={(e)=>setPromoCode(e.target.value.toUpperCase())} className="flex-1 p-2 bg-black border border-zinc-700 rounded text-xs text-white uppercase outline-none focus:border-green-500" />
+                    <input type="number" placeholder="%" min="1" max="100" value={promoDiscount} onChange={(e)=>setPromoDiscount(e.target.value)} className="w-16 p-2 bg-black border border-zinc-700 rounded text-xs text-white outline-none focus:border-green-500 text-center" />
+                </div>
+            )}
+        </div>
+
         <div className="bg-zinc-900/50 p-4 rounded-xl border border-dashed border-zinc-700 flex items-center justify-between">
           <div>
-  <h3 className="text-sm font-bold uppercase italic text-white">
-    Viral Mode
-  </h3>
-
-  <p className="text-[10px] text-zinc-400 leading-tight">
-    10% promoter commission · 5% buyer discount
-  </p>
-
-  <p className="text-[9px] text-zinc-500">
-    For every sale through the promoter
-  </p>
-</div>
-
+            <h3 className="text-sm font-bold uppercase italic text-white">Viral Mode</h3>
+            <p className="text-[10px] text-zinc-400 leading-tight">10% promoter commission · 5% buyer discount</p>
+          </div>
           <input type="checkbox" checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500 cursor-pointer" />
         </div>
 
