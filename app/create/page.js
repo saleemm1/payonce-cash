@@ -12,6 +12,7 @@ export default function CreatePage() {
     { name: 'Game Card', slug: 'game-card', icon: '🎮', desc: 'In-game items and assets' },
     { name: 'App License', slug: 'app-activate-card', icon: '🔑', desc: 'Software activation keys' },
     { name: 'Professional Invoice', slug: 'invoice', icon: '🧾', desc: 'For stores and service providers' },
+    { name: 'Office Files', slug: 'office', icon: '📊', desc: 'Word, Excel, & PowerPoint docs' },
   ];
 
   return (
