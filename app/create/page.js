@@ -60,7 +60,8 @@ export default function CreatePage() {
                     Merchant <span className="text-green-500 text-shadow-glow">Terminal</span>
                    </h3>
                    <p className="text-zinc-400 text-lg font-medium leading-relaxed max-w-xl mb-6">
-                     Deploy a real-world payment system for your business. Accept BCH instantly in-store or online.
+                     Deploy a real-world BCH payment system for your business.
+Accept Bitcoin Cash instantly — in-store or online.
                    </p>
                    
                    {/* 3 Modes Grid */}
