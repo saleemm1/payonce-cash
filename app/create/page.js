@@ -17,10 +17,8 @@ export default function CreatePage() {
   return (
     <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center py-20 px-6 relative overflow-hidden font-sans">
       
-      {/* Background Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_rgba(34,197,94,0.08)_0%,_transparent_70%)] -z-10"></div>
       
-      {/* Header */}
       <div className="text-center max-w-3xl mb-16">
         <Link href="/">
           <div className="inline-flex items-center gap-2 mb-8 group cursor-pointer">
@@ -37,7 +35,6 @@ export default function CreatePage() {
         <p className="text-zinc-500 font-bold uppercase tracking-widest text-sm">Decentralized Payment Infrastructure for Bitcoin Cash</p>
       </div>
 
-      {/* SECTION 1: MERCHANT TERMINAL (The Winner Feature) */}
       <div className="w-full max-w-5xl mb-16">
         <div className="flex items-center gap-4 mb-8">
            <span className="text-[11px] uppercase font-black tracking-[4px] text-green-500 whitespace-nowrap">Business & Retail Solutions</span>
@@ -64,7 +61,6 @@ export default function CreatePage() {
 Accept Bitcoin Cash instantly — in-store or online.
                    </p>
                    
-                   {/* 3 Modes Grid */}
                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div className="bg-zinc-900/80 border border-white/5 p-3 rounded-2xl flex items-center gap-3">
                         <span className="text-xl">🏪</span>
@@ -98,7 +94,6 @@ Accept Bitcoin Cash instantly — in-store or online.
         </Link>
       </div>
 
-      {/* SECTION 2: DIGITAL ASSETS */}
       <div className="w-full max-w-5xl">
         <div className="flex items-center gap-4 mb-8">
            <span className="text-[11px] uppercase font-black tracking-[4px] text-zinc-600 whitespace-nowrap">Digital Asset Locking</span>
@@ -132,7 +127,6 @@ Accept Bitcoin Cash instantly — in-store or online.
             </Link>
           ))}
 
-          {/* More Types Coming Soon */}
           <div className="border-2 border-dashed border-white/5 p-8 rounded-[32px] flex flex-col items-center justify-center text-center group hover:bg-zinc-900/20 transition-all">
                <div className="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center mb-4 text-zinc-700 font-bold group-hover:scale-110 transition-transform">
                  +
