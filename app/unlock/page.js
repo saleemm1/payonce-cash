@@ -10,7 +10,7 @@ function UnlockContent() {
     const [data, setData] = useState(null);
     const [bchPrice, setBchPrice] = useState(null);
     const [loadingPrice, setLoadingPrice] = useState(true);
-    const [qrMode, setQrMode] = useState('manual');
+    const [qrMode, setQrMode] = useState('address');
     const [copied, setCopied] = useState('');
     const [rating, setRating] = useState(null);
     const [error, setError] = useState('');
@@ -79,6 +79,16 @@ function UnlockContent() {
         return () => clearInterval(interval);
     }, [checking, isPaid, data, searchParams]);
 
+    useEffect(() => {
+        const affiliateAddr = searchParams.get('ref');
+        const sellerClean = data?.w?.includes(':') ? data.w.split(':')[1] : data?.w;
+        if (data?.a && affiliateAddr && affiliateAddr !== sellerClean) {
+            setQrMode('manual');
+        } else {
+            setQrMode('address');
+        }
+    }, [data, searchParams]);
+
     if (error) return <div className="min-h-screen bg-black text-red-500 flex justify-center items-center font-black uppercase tracking-tighter">{error}</div>;
     if (!data) return <div className="min-h-screen bg-[#0b0b0d] text-white flex justify-center items-center animate-pulse font-black italic tracking-[10px]">LOADING...</div>;
 
@@ -91,9 +101,8 @@ function UnlockContent() {
     const sellerAmt = isViral ? (parseFloat(discountTotal) * 0.9).toFixed(8) : fullPriceBch;
     const affAmt = isViral ? (parseFloat(discountTotal) * 0.1).toFixed(8) : "0";
 
-    const smartViralLink = isViral 
-        ? `bitcoincash:${cleanAddr}?amount=${sellerAmt}&address=${affiliateAddr}&amount=${affAmt}`
-        : `bitcoincash:${cleanAddr}?amount=${fullPriceBch}`;
+    const standardLink = `bitcoincash:${cleanAddr}?amount=${fullPriceBch}`;
+    const smartViralLink = `bitcoincash:${cleanAddr}?amount=${sellerAmt}&address=${affiliateAddr}&amount=${affAmt}`;
 
     const copyToClipboard = (text, type) => {
         navigator.clipboard.writeText(text);
@@ -115,45 +124,56 @@ function UnlockContent() {
                         <div className="flex flex-col items-center text-center">
                             <div className="mb-6 bg-white/5 border border-white/10 px-4 py-1.5 rounded-full flex items-center gap-2">
                                 <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                <span className="text-[10px] text-zinc-400 font-black uppercase tracking-[2px]">Secured Transaction</span>
+                                <span className="text-[10px] text-zinc-400 font-black uppercase tracking-[2px]">Secured Link</span>
                             </div>
 
                             <div className="mb-6">
                                 <h1 className="text-3xl font-black italic uppercase tracking-tighter text-white leading-none mb-3">{data.n}</h1>
                                 {isViral && (
                                     <p className="text-[10px] text-green-500 font-bold uppercase tracking-widest bg-green-500/10 py-1 px-3 rounded-lg inline-block">
-                                        Special Reward Applied 💸
+                                        Affiliate Reward Applied 💸
                                     </p>
                                 )}
                             </div>
                         </div>
 
                         <div className="flex flex-col items-center mb-8">
-                            <div className="bg-white p-5 rounded-[2.5rem] shadow-[0_0_60px_rgba(34,197,94,0.1)] relative">
-                                {!loadingPrice ? (
-                                    <img
-                                        src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrMode === 'smart' ? smartViralLink : (isViral ? cleanAddr : cleanAddr))}`}
-                                        alt="QR" className="w-[180px] h-[180px] rounded-lg"
-                                    />
-                                ) : <div className="w-[180px] h-[180px] bg-zinc-800 animate-pulse rounded-2xl"></div>}
-                                
-                                {checking && (
-                                    <div className="absolute inset-0 bg-black/90 backdrop-blur-md rounded-[2.5rem] flex flex-col items-center justify-center border-2 border-green-500/40">
-                                        <div className="w-10 h-10 border-2 border-green-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-                                        <p className="text-[10px] font-black text-green-500 uppercase tracking-widest animate-pulse">Scanning BCH Network</p>
-                                    </div>
-                                )}
-                            </div>
+                            {!(isViral && qrMode === 'manual') && (
+                                <div className="bg-white p-5 rounded-[2.5rem] shadow-[0_0_60px_rgba(34,197,94,0.1)] relative">
+                                    {!loadingPrice ? (
+                                        <img
+                                            src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrMode === 'smart' ? (isViral ? smartViralLink : standardLink) : cleanAddr)}`}
+                                            alt="QR" className="w-[180px] h-[180px] rounded-lg"
+                                        />
+                                    ) : <div className="w-[180px] h-[180px] bg-zinc-800 animate-pulse rounded-2xl"></div>}
+                                    
+                                    {checking && (
+                                        <div className="absolute inset-0 bg-black/90 backdrop-blur-md rounded-[2.5rem] flex flex-col items-center justify-center border-2 border-green-500/40">
+                                            <div className="w-10 h-10 border-2 border-green-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+                                            <p className="text-[10px] font-black text-green-500 uppercase tracking-widest">Verifying...</p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             <div className="flex bg-black/50 rounded-2xl mt-8 p-1 border border-white/5 w-full">
-                                <button onClick={() => setQrMode('manual')} className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${qrMode === 'manual' ? 'bg-zinc-800 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}>Manual Pay</button>
-                                <button onClick={() => setQrMode('smart')} className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${qrMode === 'smart' ? 'bg-green-600 text-black shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}>Smart Pay (Electron)</button>
+                                {isViral ? (
+                                    <>
+                                        <button onClick={() => setQrMode('manual')} className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${qrMode === 'manual' ? 'bg-zinc-800 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}>Manual Pay</button>
+                                        <button onClick={() => setQrMode('smart')} className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${qrMode === 'smart' ? 'bg-green-600 text-black shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}>Smart Pay (Electron)</button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <button onClick={() => setQrMode('address')} className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${qrMode === 'address' ? 'bg-zinc-800 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}>Address</button>
+                                        <button onClick={() => setQrMode('smart')} className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${qrMode === 'smart' ? 'bg-green-600 text-black shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}>Smart Pay</button>
+                                    </>
+                                )}
                             </div>
 
                             <div className="mt-6 w-full space-y-3">
                                 <div className="bg-black/40 p-4 rounded-2xl border border-white/5 relative group">
                                     <div className="flex justify-between items-center mb-2">
-                                        <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Recipient: Seller (90%)</span>
+                                        <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Recipient: Seller {isViral && '(90%)'}</span>
                                         <span className="text-[10px] font-bold text-green-500">{sellerAmt} BCH</span>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -191,58 +211,58 @@ function UnlockContent() {
                             </div>
                             {isViral && (
                                 <p className="text-[9px] text-green-500/60 mt-2 font-black italic uppercase tracking-tighter">
-                                    You saved { (parseFloat(fullPriceBch) * 0.05).toFixed(8) } BCH via affiliate link
+                                    You saved 5% via affiliate link
                                 </p>
                             )}
                         </div>
 
                         <button onClick={() => setChecking(true)} className="w-full bg-green-600 hover:bg-green-500 text-black font-black py-5 rounded-2xl transition-all uppercase tracking-tight text-lg active:scale-[0.98] mb-6 shadow-xl group">
-                            {checking ? 'Verifying Payments...' : 'I Have Paid'}
+                            {checking ? 'Awaiting Network...' : 'Verify Transaction'}
                         </button>
 
                         <div className="text-center">
                             <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest leading-relaxed">
-                                {qrMode === 'smart' 
-                                    ? "Smart Pay automatically splits payment for Electron Cash users." 
-                                    : "Manual: Please send exact amounts to both addresses above."}
+                                {isViral 
+                                    ? (qrMode === 'smart' ? "Smart Pay splits payment for Electron Cash." : "Manual: Send exact amounts to both recipients.")
+                                    : "Send the amount to the address to unlock."}
                             </p>
                         </div>
                     </div>
                 </div>
             ) : (
-                <div className="w-full max-w-[440px] bg-[#16161a] p-10 rounded-[3rem] border border-green-500/20 text-center shadow-2xl animate-in zoom-in-95">
-                    <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-green-500/20 shadow-[0_0_50px_rgba(34,197,94,0.1)]">
+                <div className="w-full max-w-[440px] bg-[#16161a] p-10 rounded-[3rem] border border-green-500/20 text-center shadow-2xl animate-in zoom-in-95 duration-500">
+                    <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-green-500/20">
                         <span className="text-5xl animate-bounce">💎</span>
                     </div>
-                    <h1 className="text-4xl font-black mb-2 italic uppercase tracking-tighter text-white">Payment Confirmed</h1>
-                    <p className="text-zinc-500 text-[11px] mb-10 uppercase tracking-[4px] font-bold">Content Decrypted Successfully</p>
+                    <h1 className="text-4xl font-black mb-2 italic uppercase tracking-tighter text-white">Access Granted</h1>
+                    <p className="text-zinc-500 text-[11px] mb-10 uppercase tracking-[4px] font-bold">Successfully Decrypted</p>
                     
                     {data.dt === 'file' ? (
                         <a href={`https://gateway.pinata.cloud/ipfs/${data.i}`} target="_blank" className="w-full bg-green-600 text-black py-6 rounded-2xl font-black block hover:bg-green-500 transition-all uppercase mb-10 shadow-xl text-xl tracking-tighter active:scale-95">
-                            Download {data.fn || 'Asset'} ⚡
+                            Download Now ⚡
                         </a>
                     ) : (
                         <div className="bg-zinc-900/80 p-6 rounded-2xl border border-white/5 mb-10 break-all text-left shadow-inner">
-                            <p className="text-[10px] text-zinc-500 uppercase font-black mb-3 tracking-widest">Decoded Data:</p>
+                            <p className="text-[10px] text-zinc-500 uppercase font-black mb-3">Unlocked Content:</p>
                             <p className="text-green-500 font-mono text-sm leading-relaxed select-all">{data.i}</p>
                         </div>
                     )}
 
                     {!rating ? (
                         <div className="bg-black/40 p-6 rounded-[2.5rem] border border-white/5 shadow-inner">
-                            <p className="text-[9px] text-zinc-500 uppercase font-black mb-5 tracking-[3px]">Rate This Seller</p>
+                            <p className="text-[9px] text-zinc-500 uppercase font-black mb-5 tracking-[3px]">Feedback</p>
                             <div className="flex justify-center gap-4">
                                 <button onClick={() => setRating('pos')} className="flex-1 p-5 bg-zinc-900/50 hover:bg-green-500/10 rounded-2xl transition-all text-[10px] font-black uppercase border border-white/5 group border-b-2 border-b-transparent hover:border-b-green-500">
-                                    <span className="block text-2xl mb-2 group-hover:scale-110 transition-transform">👍</span> Trusted
+                                    <span className="block text-2xl mb-2">👍</span> Trusted
                                 </button>
                                 <button onClick={() => setRating('neg')} className="flex-1 p-5 bg-zinc-900/50 hover:bg-red-500/10 rounded-2xl transition-all text-[10px] font-black uppercase border border-white/5 group border-b-2 border-b-transparent hover:border-b-red-500">
-                                    <span className="block text-2xl mb-2 group-hover:scale-110 transition-transform">👎</span> Avoid
+                                    <span className="block text-2xl mb-2">👎</span> Avoid
                                 </button>
                             </div>
                         </div>
                     ) : (
-                        <div className="py-5 bg-green-600/10 text-green-500 border border-green-500/20 rounded-2xl font-black text-[10px] uppercase italic tracking-[2px] animate-pulse">
-                            Feedback Received - Thank You
+                        <div className="py-5 bg-green-600/10 text-green-500 border border-green-500/20 rounded-2xl font-black text-[10px] uppercase italic tracking-[2px]">
+                            Rating Submitted
                         </div>
                     )}
                 </div>
