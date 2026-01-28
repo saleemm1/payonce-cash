@@ -15,11 +15,13 @@ export default function CreatePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center py-20 px-6 relative overflow-hidden">
+    <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center py-20 px-6 relative overflow-hidden font-sans">
       
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_rgba(34,197,94,0.05)_0%,_transparent_70%)] -z-10"></div>
+      {/* Background Glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_rgba(34,197,94,0.08)_0%,_transparent_70%)] -z-10"></div>
       
-      <div className="text-center max-w-2xl mb-12">
+      {/* Header */}
+      <div className="text-center max-w-3xl mb-16">
         <Link href="/">
           <div className="inline-flex items-center gap-2 mb-8 group cursor-pointer">
             <div className="w-8 h-8 bg-zinc-900 rounded-full flex items-center justify-center border border-white/10 group-hover:border-green-500/50 transition-all">
@@ -29,88 +31,132 @@ export default function CreatePage() {
           </div>
         </Link>
         
-        <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-4 uppercase italic">
-          Choose Your <span className="text-green-500">Solution</span>
+        <h1 className="text-5xl md:text-6xl font-black tracking-tighter mb-4 uppercase italic leading-none">
+          CHOOSE YOUR <span className="text-green-500">ENGINE</span>
         </h1>
-        <p className="text-zinc-500 font-medium">Select a tool to generate your decentralized payment link.</p>
+        <p className="text-zinc-500 font-bold uppercase tracking-widest text-sm">Decentralized Payment Infrastructure for Bitcoin Cash</p>
       </div>
 
-      <div className="w-full max-w-5xl mb-12">
-        <div className="flex items-center gap-4 mb-6">
-           <div className="h-[1px] bg-zinc-800 flex-1"></div>
-           <span className="text-[10px] uppercase font-black tracking-[3px] text-green-500">Business & Retail</span>
-           <div className="h-[1px] bg-zinc-800 flex-1"></div>
+      {/* SECTION 1: MERCHANT TERMINAL (The Winner Feature) */}
+      <div className="w-full max-w-5xl mb-16">
+        <div className="flex items-center gap-4 mb-8">
+           <span className="text-[11px] uppercase font-black tracking-[4px] text-green-500 whitespace-nowrap">Business & Retail Solutions</span>
+           <div className="h-[1px] bg-gradient-to-r from-green-500/50 to-transparent flex-1"></div>
         </div>
 
         <Link
             href="/create/invoice"
-            className="group relative w-full bg-gradient-to-r from-[#121214] to-[#0f2a1d] border border-green-500/20 hover:border-green-500 hover:shadow-[0_0_30px_rgba(34,197,94,0.1)] p-8 md:p-10 rounded-[32px] transition-all duration-300 hover:-translate-y-1 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden"
+            className="group relative w-full bg-[#121214] border border-white/5 hover:border-green-500/40 p-1 rounded-[40px] transition-all duration-500 hover:-translate-y-2 block"
           >
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
-            
-            <div className="relative z-10 flex items-start gap-6">
-              <div className="text-5xl bg-zinc-900/80 w-24 h-24 flex items-center justify-center rounded-2xl border border-white/10 shadow-2xl group-hover:scale-105 transition-transform">
-                🧾
+            <div className="bg-zinc-950/50 rounded-[38px] p-8 md:p-12 flex flex-col lg:flex-row items-center justify-between gap-10 overflow-hidden relative">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-green-600/5 blur-[100px] -z-10"></div>
+              
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-8 relative z-10">
+                <div className="text-6xl bg-zinc-900 w-28 h-28 flex items-center justify-center rounded-3xl border border-white/5 shadow-2xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                  🧾
+                </div>
+                <div className="text-center md:text-left">
+                   <h3 className="text-3xl md:text-4xl font-black mb-3 tracking-tighter text-white uppercase italic">
+                    Merchant <span className="text-green-500 text-shadow-glow">Terminal</span>
+                   </h3>
+                   <p className="text-zinc-400 text-lg font-medium leading-relaxed max-w-xl mb-6">
+                     Deploy a real-world payment system for your business. Accept BCH instantly in-store or online.
+                   </p>
+                   
+                   {/* 3 Modes Grid */}
+                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="bg-zinc-900/80 border border-white/5 p-3 rounded-2xl flex items-center gap-3">
+                        <span className="text-xl">🏪</span>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-black text-green-500 uppercase">POS Mode</span>
+                          <span className="text-[9px] text-zinc-500 uppercase font-bold">In-store Retail</span>
+                        </div>
+                      </div>
+                      <div className="bg-zinc-900/80 border border-white/5 p-3 rounded-2xl flex items-center gap-3">
+                        <span className="text-xl">👤</span>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-black text-blue-400 uppercase">Personal</span>
+                          <span className="text-[9px] text-zinc-500 uppercase font-bold">1-on-1 Billing</span>
+                        </div>
+                      </div>
+                      <div className="bg-zinc-900/80 border border-white/5 p-3 rounded-2xl flex items-center gap-3">
+                        <span className="text-xl">📦</span>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-black text-purple-400 uppercase">Digital Shop</span>
+                          <span className="text-[9px] text-zinc-500 uppercase font-bold">Public Listing</span>
+                        </div>
+                      </div>
+                   </div>
+                </div>
               </div>
-              <div>
-                 <h3 className="text-2xl md:text-3xl font-black mb-2 tracking-tight text-white group-hover:text-green-400 transition-colors italic uppercase">
-                  Merchant Terminal
-                 </h3>
-                 <p className="text-zinc-400 text-sm md:text-base font-medium leading-relaxed max-w-md">
-                   All-in-one crypto invoicing solution. Perfect for <span className="text-white font-bold">Restaurants</span>, <span className="text-white font-bold">Retail Stores</span>, and <span className="text-white font-bold">Freelancers</span>.
-                 </p>
-                 <div className="flex gap-2 mt-4">
-                    <span className="bg-zinc-800/50 border border-zinc-700 px-3 py-1 rounded-full text-[10px] uppercase font-bold text-zinc-300">🏪 POS Mode</span>
-                    <span className="bg-zinc-800/50 border border-zinc-700 px-3 py-1 rounded-full text-[10px] uppercase font-bold text-zinc-300">👤 Personal Bill</span>
-                 </div>
-              </div>
-            </div>
 
-            <div className="relative z-10 bg-green-600 text-black px-8 py-4 rounded-xl font-black uppercase text-sm tracking-wider flex items-center gap-2 group-hover:bg-green-500 transition-colors shadow-lg">
-               Launch Terminal <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              <div className="relative z-10 bg-white text-black px-10 py-5 rounded-2xl font-black uppercase text-sm tracking-tighter flex items-center gap-3 group-hover:bg-green-500 transition-all shadow-xl hover:scale-105 active:scale-95 whitespace-nowrap">
+                 Open Terminal <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </div>
             </div>
         </Link>
       </div>
 
+      {/* SECTION 2: DIGITAL ASSETS */}
       <div className="w-full max-w-5xl">
         <div className="flex items-center gap-4 mb-8">
-           <div className="h-[1px] bg-zinc-800 flex-1"></div>
-           <span className="text-[10px] uppercase font-black tracking-[3px] text-zinc-600">Digital Assets</span>
+           <span className="text-[11px] uppercase font-black tracking-[4px] text-zinc-600 whitespace-nowrap">Digital Asset Locking</span>
            <div className="h-[1px] bg-zinc-800 flex-1"></div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {digitalAssets.map((type) => (
             <Link
               key={type.slug}
               href={`/create/${type.slug}`}
-              className="group relative bg-[#121214] hover:bg-[#18181b] border border-white/5 hover:border-zinc-600 p-6 rounded-[24px] transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+              className="group relative bg-[#121214] hover:bg-zinc-900/50 border border-white/5 hover:border-white/20 p-8 rounded-[32px] transition-all duration-300 hover:-translate-y-2 overflow-hidden"
             >
-              <div className="relative z-10 flex flex-col h-full">
-                <div className="text-3xl mb-4 bg-zinc-900 w-12 h-12 flex items-center justify-center rounded-xl border border-white/5">
+              <div className="relative z-10">
+                <div className="text-4xl mb-6 bg-zinc-900 w-16 h-16 flex items-center justify-center rounded-2xl border border-white/5 group-hover:scale-110 group-hover:rotate-6 transition-transform">
                   {type.icon}
                 </div>
                 
-                <h3 className="text-lg font-black mb-1 tracking-tight group-hover:text-green-500 transition-colors">
+                <h3 className="text-xl font-black mb-2 tracking-tight group-hover:text-green-500 transition-colors uppercase italic">
                   {type.name}
                 </h3>
                 
-                <p className="text-zinc-500 text-xs font-medium leading-relaxed mb-4">
+                <p className="text-zinc-500 text-sm font-medium leading-relaxed mb-4">
                   {type.desc}
                 </p>
                 
-                <div className="mt-auto flex justify-end opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                <div className="mt-6 flex justify-end opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </div>
               </div>
             </Link>
           ))}
+
+          {/* More Types Coming Soon */}
+          <div className="border-2 border-dashed border-white/5 p-8 rounded-[32px] flex flex-col items-center justify-center text-center group hover:bg-zinc-900/20 transition-all">
+               <div className="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center mb-4 text-zinc-700 font-bold group-hover:scale-110 transition-transform">
+                 +
+               </div>
+               <span className="text-xs font-black uppercase tracking-widest text-zinc-600">More assets<br/>Coming Soon</span>
+          </div>
         </div>
       </div>
 
-      <footer className="mt-24 text-[10px] font-black uppercase tracking-[5px] text-zinc-800">
-          Secure • Non-Custodial • Powered by BCH
+      <footer className="mt-32 flex flex-col items-center gap-4">
+          <div className="flex gap-8 text-[10px] font-black uppercase tracking-[3px] text-zinc-700">
+            <span>Non-Custodial</span>
+            <span className="text-green-900">•</span>
+            <span>Instant Settlement</span>
+            <span className="text-green-900">•</span>
+            <span>Zero Fees</span>
+          </div>
+          <p className="text-[10px] font-black uppercase tracking-[5px] text-green-500/40">Powered by Bitcoin Cash</p>
       </footer>
+
+      <style jsx>{`
+        .text-shadow-glow {
+          text-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+        }
+      `}</style>
 
     </div>
   );
