@@ -104,8 +104,8 @@ export default function InvoiceUploadPage() {
         <textarea required value={productDesc} onChange={(e) => setProductDesc(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 h-20 text-sm" placeholder="Details & Terms..."></textarea>
 
         <div className="flex bg-zinc-900 p-1 rounded-lg border border-zinc-700 gap-1">
-          <button type="button" onClick={() => setDeliveryType('file')} className={`flex-1 py-2 text-[9px] font-black uppercase rounded-md transition-all ${deliveryType === 'file' ? 'bg-green-600 text-white shadow-lg' : 'text-zinc-500 hover:text-white'}`}>Asset File</button>
-          <button type="button" onClick={() => setDeliveryType('link')} className={`flex-1 py-2 text-[9px] font-black uppercase rounded-md transition-all ${deliveryType === 'link' ? 'bg-green-600 text-white shadow-lg' : 'text-zinc-500 hover:text-white'}`}>Link/Text</button>
+          <button type="button" onClick={() => setDeliveryType('file')} className={`flex-1 py-2 text-[9px] font-black uppercase rounded-md transition-all ${deliveryType === 'file' ? 'bg-green-600 text-white shadow-lg' : 'text-zinc-500 hover:text-white'}`}>Asset File (Optional)</button>
+          <button type="button" onClick={() => setDeliveryType('link')} className={`flex-1 py-2 text-[9px] font-black uppercase rounded-md transition-all ${deliveryType === 'link' ? 'bg-green-600 text-white shadow-lg' : 'text-zinc-500 hover:text-white'}`}>Link/Text (Optional)</button>
         </div>
 
         {deliveryType === 'file' ? (
