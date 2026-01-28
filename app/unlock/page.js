@@ -83,7 +83,7 @@ function UnlockContent() {
         const affiliateAddr = searchParams.get('ref');
         const sellerClean = data?.w?.includes(':') ? data.w.split(':')[1] : data?.w;
         if (data?.a && affiliateAddr && affiliateAddr !== sellerClean) {
-            setQrMode('manual');
+            setQrMode('smart');
         } else {
             setQrMode('address');
         }
@@ -174,8 +174,8 @@ function UnlockContent() {
                             <div className="flex bg-black/50 rounded-2xl mt-8 p-1 border border-white/5 w-full">
                                 {isViral ? (
                                     <>
-                                        <button onClick={() => setQrMode('manual')} className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${qrMode === 'manual' ? 'bg-zinc-800 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}>Manual Pay</button>
                                         <button onClick={() => setQrMode('smart')} className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${qrMode === 'smart' ? 'bg-green-600 text-black shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}>Smart Pay (Electron)</button>
+                                        <button onClick={() => setQrMode('manual')} className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${qrMode === 'manual' ? 'bg-zinc-800 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}>Manual Pay</button>
                                     </>
                                 ) : (
                                     <>
@@ -186,32 +186,48 @@ function UnlockContent() {
                             </div>
 
                             <div className="mt-6 w-full space-y-3">
-                                <div className="bg-black/40 p-4 rounded-2xl border border-white/5 relative group">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Recipient: Seller {isViral && '(90%)'}</span>
-                                        <span className="text-[10px] font-bold text-green-500">{sellerAmt} BCH</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <code className="flex-1 text-[10px] text-zinc-400 truncate font-mono">{cleanAddr}</code>
-                                        <button onClick={() => copyToClipboard(cleanAddr, 'seller')} className="bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase text-white border border-white/5 transition-all">
-                                            {copied === 'seller' ? 'DONE' : 'COPY'}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {isViral && (
+                                {qrMode === 'address' && !isViral && (
                                     <div className="bg-black/40 p-4 rounded-2xl border border-white/5 relative group">
                                         <div className="flex justify-between items-center mb-2">
-                                            <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Recipient: Promoter (10%)</span>
-                                            <span className="text-[10px] font-bold text-green-500">{affAmt} BCH</span>
+                                            <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Recipient Address</span>
+                                            <span className="text-[10px] font-bold text-green-500">{fullPriceBch} BCH</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <code className="flex-1 text-[10px] text-zinc-400 truncate font-mono">{affiliateAddr}</code>
-                                            <button onClick={() => copyToClipboard(affiliateAddr, 'aff')} className="bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase text-white border border-white/5 transition-all">
-                                                {copied === 'aff' ? 'DONE' : 'COPY'}
+                                            <code className="flex-1 text-[10px] text-zinc-400 truncate font-mono">{cleanAddr}</code>
+                                            <button onClick={() => copyToClipboard(cleanAddr, 'seller')} className="bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase text-white border border-white/5 transition-all">
+                                                {copied === 'seller' ? 'DONE' : 'COPY'}
                                             </button>
                                         </div>
                                     </div>
+                                )}
+
+                                {qrMode === 'manual' && isViral && (
+                                    <>
+                                        <div className="bg-black/40 p-4 rounded-2xl border border-white/5 relative group">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Recipient: Seller (90%)</span>
+                                                <span className="text-[10px] font-bold text-green-500">{sellerAmt} BCH</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <code className="flex-1 text-[10px] text-zinc-400 truncate font-mono">{cleanAddr}</code>
+                                                <button onClick={() => copyToClipboard(cleanAddr, 'seller')} className="bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase text-white border border-white/5 transition-all">
+                                                    {copied === 'seller' ? 'DONE' : 'COPY'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="bg-black/40 p-4 rounded-2xl border border-white/5 relative group">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Recipient: Promoter (10%)</span>
+                                                <span className="text-[10px] font-bold text-green-500">{affAmt} BCH</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <code className="flex-1 text-[10px] text-zinc-400 truncate font-mono">{affiliateAddr}</code>
+                                                <button onClick={() => copyToClipboard(affiliateAddr, 'aff')} className="bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase text-white border border-white/5 transition-all">
+                                                    {copied === 'aff' ? 'DONE' : 'COPY'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -268,7 +284,7 @@ function UnlockContent() {
                     ) : (
                         <div className="bg-zinc-900/80 p-6 rounded-2xl border border-white/5 mb-10 break-all text-left shadow-inner relative group">
                             <p className="text-[10px] text-zinc-500 uppercase font-black mb-3">Decrypted Content:</p>
-                            <p className="text-green-500 font-mono text-sm leading-relaxed">{data.i}</p>
+                            <p className="text-green-500 font-mono text-sm leading-relaxed select-all">{data.i}</p>
                         </div>
                     )}
 
