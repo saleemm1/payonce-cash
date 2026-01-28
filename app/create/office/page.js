@@ -81,7 +81,7 @@ export default function OfficeUploadPage() {
         <h1 className="text-2xl font-bold mb-2 text-center text-green-500 uppercase italic font-black">Sell Office Docs</h1>
         <input required type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 transition-all" placeholder="Document Title" />
         <div>
-          <label className="text-[10px] text-zinc-400 mb-1 block ml-1 uppercase font-bold">Main File (Word, Excel, PPT)</label>
+          <label className="text-[10px] text-zinc-400 mb-1 block ml-1 uppercase font-bold">Main File (Word, Excel, PowerPoint)</label>
           <input required type="file" accept=".doc,.docx,.ppt,.pptx,.xls,.xlsx" onChange={(e)=>setFile(e.target.files[0])} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-gray-300 file:bg-green-600 cursor-pointer" />
         </div>
         <div className="grid grid-cols-2 gap-2">
