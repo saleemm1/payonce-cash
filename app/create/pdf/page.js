@@ -102,7 +102,20 @@ export default function PDFUploadPage() {
         </div>
         <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 transition-all" placeholder="BCH Wallet Address" />
         <div className="bg-zinc-900/50 p-4 rounded-xl border border-dashed border-zinc-700 flex items-center justify-between">
-          <div><h3 className="text-sm font-bold uppercase italic text-white">Viral Mode</h3><p className="text-[10px] text-zinc-500">10% commission active</p></div>
+          <div>
+  <h3 className="text-sm font-bold uppercase italic text-white">
+    Viral Mode
+  </h3>
+
+  <p className="text-[10px] text-zinc-400 leading-tight">
+    10% promoter commission · 5% buyer discount
+  </p>
+
+  <p className="text-[9px] text-zinc-500">
+    For every sale through the promoter
+  </p>
+</div>
+
           <input type="checkbox" checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500 cursor-pointer" />
         </div>
         <button type="submit" disabled={uploading} className="w-full bg-green-600 hover:bg-green-500 py-4 rounded-xl font-black transition-all uppercase italic text-lg shadow-xl disabled:opacity-50">
