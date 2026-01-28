@@ -10,7 +10,7 @@ function UnlockContent() {
   const [data, setData] = useState(null);
   const [bchPrice, setBchPrice] = useState(null);
   const [loadingPrice, setLoadingPrice] = useState(true);
-  const [qrMode, setQrMode] = useState('address'); 
+  const [qrMode, setQrMode] = useState('address');
   const [viralMethod, setViralMethod] = useState('smart');
   const [copied, setCopied] = useState(false);
   const [rating, setRating] = useState(null);
@@ -29,14 +29,21 @@ function UnlockContent() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (data?.p) {
-      fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd')
-        .then(res => res.json())
-        .then(json => {
-          setBchPrice((parseFloat(data.p) / json['bitcoin-cash'].usd).toFixed(8));
-          setLoadingPrice(false);
-        }).catch(() => setLoadingPrice(false));
-    }
+    const fetchPrice = () => {
+      if (data?.p) {
+        fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd')
+          .then(res => res.json())
+          .then(json => {
+            setBchPrice((parseFloat(data.p) / json['bitcoin-cash'].usd).toFixed(8));
+            setLoadingPrice(false);
+          })
+          .catch(() => setLoadingPrice(false));
+      }
+    };
+
+    fetchPrice();
+    const priceInterval = setInterval(fetchPrice, 60000); 
+    return () => clearInterval(priceInterval);
   }, [data]);
 
   useEffect(() => {
@@ -72,8 +79,22 @@ function UnlockContent() {
     return () => clearInterval(interval);
   }, [checking, isPaid, data, searchParams]);
 
-  if (error) return <div className="min-h-screen bg-[#050505] text-red-500 flex justify-center items-center font-bold tracking-widest uppercase text-sm">{error}</div>;
-  if (!data) return <div className="min-h-screen bg-[#050505] text-zinc-500 flex justify-center items-center animate-pulse font-mono text-xs tracking-[0.5em]">INITIALIZING...</div>;
+  if (error) return (
+    <div className="min-h-screen bg-black flex justify-center items-center">
+      <div className="bg-red-500/10 border border-red-500/50 text-red-500 px-6 py-4 rounded-xl font-bold tracking-widest uppercase text-sm shadow-[0_0_30px_rgba(239,68,68,0.2)]">
+        {error}
+      </div>
+    </div>
+  );
+
+  if (!data) return (
+    <div className="min-h-screen bg-black flex justify-center items-center">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-10 h-10 border-4 border-zinc-800 border-t-green-500 rounded-full animate-spin"></div>
+        <span className="text-zinc-500 font-mono text-xs tracking-[0.3em] animate-pulse">DECRYPTING SECURE LINK...</span>
+      </div>
+    </div>
+  );
 
   const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
   const affiliateAddr = searchParams.get('ref');
@@ -93,172 +114,187 @@ function UnlockContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-zinc-100 flex flex-col items-center justify-center p-4 antialiased selection:bg-green-500/30">
+    <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans selection:bg-green-500/30">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-green-600/10 blur-[120px] rounded-full pointer-events-none"></div>
+      
       {!isPaid ? (
-        <div className="w-full max-w-[420px] bg-[#0f0f11] rounded-[32px] border border-zinc-800/50 shadow-2xl overflow-hidden relative transition-all duration-500">
+        <div className="w-full max-w-[400px] backdrop-blur-xl bg-[#0a0a0a]/80 rounded-[30px] border border-white/10 shadow-2xl relative z-10 transition-all duration-500 hover:shadow-[0_0_50px_rgba(34,197,94,0.05)] hover:border-white/20">
           
           {isViral && (
-            <div className="absolute -right-12 top-8 bg-green-500 text-black text-[10px] font-black px-12 py-1 rotate-45 shadow-lg z-10">
+            <div className="absolute -right-[42px] top-[32px] bg-gradient-to-r from-green-500 to-emerald-400 text-black text-[9px] font-black px-10 py-1 rotate-45 shadow-lg z-20 tracking-wider">
               5% OFF
             </div>
           )}
-          
-          <div className="p-8 pb-6 flex flex-col items-center text-center relative z-0">
-             {data.cn && (
-               <div className="mb-6 inline-flex items-center justify-center px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800">
-                 <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Bill: <span className="text-white">{data.cn}</span></span>
-               </div>
-             )}
-             
-             {data.pr && (
-               <div className="w-full mb-6 relative group">
-                  <div className="absolute -inset-1 bg-gradient-to-b from-green-500/20 to-transparent rounded-[24px] blur opacity-50 group-hover:opacity-100 transition duration-700"></div>
-                  <img src={data.pr} className="w-full h-48 object-cover rounded-[20px] relative shadow-2xl border border-white/5" alt="Preview" />
-               </div>
-             )}
 
-             <div className="w-full space-y-2 mb-6">
-                <h1 className="text-xl font-bold text-white tracking-tight leading-snug">{data.n}</h1>
-                <div className="flex items-center justify-center gap-2 text-[11px] text-zinc-500 font-medium bg-zinc-900/50 py-2 px-4 rounded-xl border border-white/5">
-                   <span className="uppercase tracking-wider">Format:</span>
-                   <span className="text-green-500 font-bold truncate max-w-[150px]">{data.fn || "Encrypted File"}</span>
+          <div className="p-6 pb-2 flex flex-col items-center text-center">
+             <div className="w-full flex justify-between items-center mb-6 px-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                  <span className="text-[10px] text-green-500 font-bold uppercase tracking-widest">Secure Payment</span>
                 </div>
-                {data.d && <p className="text-zinc-400 text-xs leading-relaxed px-2 pt-2">{data.d}</p>}
+                {data.cn && <span className="text-[10px] text-zinc-500 font-mono border border-zinc-800 px-2 py-0.5 rounded-md">#{data.cn}</span>}
              </div>
 
-             <div className="w-full grid grid-cols-2 gap-3 mb-2">
-                <div className="bg-zinc-900/30 p-3 rounded-2xl border border-white/5 flex flex-col items-center justify-center gap-1">
-                   <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">Seller</span>
-                   <span className="text-[11px] font-bold text-zinc-200">{data.sn}</span>
+             {data.pr && (
+               <div className="w-full mb-6 relative group overflow-hidden rounded-2xl">
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-300"></div>
+                  <img src={data.pr} className="w-full h-40 object-cover transform group-hover:scale-105 transition-transform duration-700" alt="Preview" />
+               </div>
+             )}
+
+             <div className="text-center mb-6 w-full">
+                <h1 className="text-xl font-bold text-white tracking-tight mb-2 leading-tight">{data.n}</h1>
+                <div className="inline-flex items-center gap-2 bg-zinc-900/80 px-3 py-1.5 rounded-lg border border-white/5">
+                   <svg className="w-3 h-3 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                   <span className="text-[10px] text-zinc-400 font-medium truncate max-w-[180px]">{data.fn || "Encrypted_Asset.file"}</span>
                 </div>
-                <div className="bg-zinc-900/30 p-3 rounded-2xl border border-white/5 flex flex-col items-center justify-center gap-1">
-                   <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">Contact</span>
-                   <span className="text-[10px] font-bold text-green-500/80 truncate w-full text-center">{data.se}</span>
+             </div>
+
+             <div className="w-full bg-zinc-900/40 rounded-2xl p-4 border border-white/5 mb-2">
+                <div className="flex justify-between items-end mb-1">
+                  <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Total</span>
+                  <div className="text-right">
+                    <span className="text-[10px] text-zinc-500 font-medium mr-1">≈</span>
+                    <span className="text-[11px] text-zinc-400 font-mono">${isViral ? (data.p * 0.95).toFixed(2) : data.p} USD</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                   <div className="flex items-baseline gap-1">
+                      <span className="text-2xl font-bold text-white tracking-tighter">{isViral ? discountTotal : bchPrice}</span>
+                      <span className="text-xs font-bold text-green-500">BCH</span>
+                   </div>
+                   {!loadingPrice && <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]"></div>}
                 </div>
              </div>
           </div>
 
-          <div className="bg-[#141416] p-8 pt-6 rounded-t-[32px] border-t border-white/5 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
-            <div className="flex flex-col items-center mb-6">
-               <div className="mb-2 text-center">
-                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em] mb-1">Total Amount</p>
-                  <div className="flex items-baseline justify-center gap-2">
-                     <span className="text-3xl font-bold text-white tracking-tight">{isViral ? discountTotal : bchPrice}</span>
-                     <span className="text-sm font-bold text-green-500">BCH</span>
-                  </div>
-                  <p className="text-[10px] text-zinc-600 font-medium mt-1">
-                     ≈ ${isViral ? (data.p * 0.95).toFixed(2) : data.p} USD
-                  </p>
-               </div>
-            </div>
+          <div className="px-6 pb-6">
+            {!isViral && (
+              <div className="flex p-1 bg-zinc-900/80 rounded-xl border border-white/5 mb-5">
+                <button 
+                  onClick={() => setQrMode('address')} 
+                  className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${qrMode === 'address' ? 'bg-zinc-800 text-white shadow-md border border-white/5' : 'text-zinc-600 hover:text-zinc-400'}`}
+                >
+                  Address
+                </button>
+                <button 
+                  onClick={() => setQrMode('smart')} 
+                  className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${qrMode === 'smart' ? 'bg-zinc-800 text-white shadow-md border border-white/5' : 'text-zinc-600 hover:text-zinc-400'}`}
+                >
+                  Smart Pay
+                </button>
+              </div>
+            )}
 
-            <div className="flex flex-col items-center gap-5">
+            <div className="flex flex-col items-center gap-4 transition-all duration-300">
               {(!isViral || viralMethod === 'smart') && (
-                <div className="relative group">
-                   <div className="absolute -inset-0.5 bg-gradient-to-br from-green-500/30 to-zinc-800 rounded-[24px] blur opacity-75"></div>
-                   <div className="relative bg-white p-3 rounded-[22px]">
-                    {!loadingPrice ? (
-                      <img 
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(isViral ? smartViralLink : (qrMode === 'smart' ? standardLink : cleanAddr))}`} 
-                        alt="QR Code" 
-                        className="w-40 h-40 mix-blend-multiply" 
-                      />
-                    ) : <div className="w-40 h-40 bg-zinc-100 rounded-xl animate-pulse"></div>}
-                    
-                    {checking && (
-                       <div className="absolute inset-0 bg-white/90 backdrop-blur-sm rounded-[22px] flex flex-col items-center justify-center z-20">
-                          <div className="w-8 h-8 border-2 border-zinc-200 border-t-green-600 rounded-full animate-spin mb-2"></div>
-                          <p className="text-[9px] font-black text-green-600 uppercase tracking-widest">Scanning</p>
-                       </div>
-                    )}
-                   </div>
+                <div className="bg-white p-3 rounded-2xl shadow-2xl shadow-green-900/10 relative overflow-hidden group">
+                   {!loadingPrice ? (
+                     <img 
+                       src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(isViral ? smartViralLink : (qrMode === 'smart' ? standardLink : cleanAddr))}`} 
+                       alt="QR" 
+                       className="w-44 h-44 object-contain mix-blend-multiply opacity-90 group-hover:opacity-100 transition-opacity" 
+                     />
+                   ) : <div className="w-44 h-44 bg-zinc-100 animate-pulse rounded-xl"></div>}
+                   
+                   {checking && (
+                      <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center">
+                         <div className="w-8 h-8 border-3 border-zinc-100 border-t-green-500 rounded-full animate-spin mb-2"></div>
+                      </div>
+                   )}
                 </div>
               )}
-
-              {!isViral && (
-                <div className="w-full">
-                  <div className="flex p-1 bg-zinc-900 rounded-xl border border-zinc-800 mb-4 relative">
-                    <button 
-                      onClick={() => setQrMode('address')} 
-                      className={`flex-1 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-300 ${qrMode === 'address' ? 'bg-[#1f1f22] text-white shadow-lg border border-white/5' : 'text-zinc-500 hover:text-zinc-300'}`}
-                    >
-                      Address
-                    </button>
-                    <button 
-                      onClick={() => setQrMode('smart')} 
-                      className={`flex-1 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-300 ${qrMode === 'smart' ? 'bg-[#1f1f22] text-white shadow-lg border border-white/5' : 'text-zinc-500 hover:text-zinc-300'}`}
-                    >
-                      Smart Pay
-                    </button>
-                  </div>
-                  
-                  <div className={`transition-all duration-300 overflow-hidden ${qrMode === 'address' ? 'max-h-20 opacity-100' : 'max-h-0 opacity-0'}`}>
-                    <div className="flex items-center gap-2 bg-zinc-900/50 p-2 pl-3 rounded-xl border border-white/5">
-                      <code className="flex-1 text-[10px] text-zinc-400 font-mono truncate select-all">{cleanAddr}</code>
-                      <button onClick={() => copyToClipboard(cleanAddr)} className="bg-green-600 hover:bg-green-500 text-black px-4 py-2 rounded-lg text-[10px] font-bold uppercase transition-colors">
-                        {copied ? '✓' : 'Copy'}
-                      </button>
-                    </div>
-                  </div>
+              
+              {!isViral && qrMode === 'address' && (
+                <div className="w-full animate-in slide-in-from-top-2 fade-in duration-300">
+                   <div className="flex items-center gap-2 bg-black/40 p-1.5 pl-3 rounded-xl border border-white/10 hover:border-white/20 transition-colors group">
+                     <code className="flex-1 text-[10px] text-zinc-400 font-mono truncate">{cleanAddr}</code>
+                     <button 
+                        onClick={() => copyToClipboard(cleanAddr)} 
+                        className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase transition-all ${copied ? 'bg-green-600 text-black' : 'bg-zinc-800 text-white group-hover:bg-zinc-700'}`}
+                     >
+                       {copied ? 'Copied' : 'Copy'}
+                     </button>
+                   </div>
                 </div>
               )}
             </div>
 
             <button 
               onClick={() => setChecking(true)} 
-              disabled={checking}
-              className="w-full mt-6 bg-white hover:bg-zinc-200 text-black font-bold py-4 rounded-xl transition-all duration-300 uppercase tracking-wider text-sm shadow-xl active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+              className={`w-full mt-6 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-black font-black py-4 rounded-xl transition-all duration-300 uppercase tracking-widest text-xs shadow-[0_0_20px_rgba(34,197,94,0.2)] active:scale-[0.98] ${checking ? 'opacity-80' : ''}`}
             >
-              {checking ? 'Checking Status...' : 'Verify Transaction'}
+              {checking ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="w-2 h-2 bg-black rounded-full animate-bounce"></span>
+                  Checking...
+                </span>
+              ) : 'Verify Transaction'}
             </button>
 
             {data.a && !affiliateAddr && (
-              <button onClick={() => router.push(`/affiliate?product=${searchParams.get('id')}`)} className="w-full mt-3 bg-zinc-800/50 hover:bg-zinc-800 text-zinc-400 py-3 rounded-xl border border-white/5 text-[9px] font-bold uppercase tracking-widest transition-all">
-                Partner & Earn 10%
+              <button 
+                onClick={() => router.push(`/affiliate?product=${searchParams.get('id')}`)} 
+                className="w-full mt-3 flex items-center justify-center gap-2 text-zinc-500 hover:text-white py-2 transition-colors text-[9px] font-bold uppercase tracking-widest group"
+              >
+                <span>Promote & Earn 10%</span>
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
               </button>
             )}
           </div>
         </div>
       ) : (
-        <div className="w-full max-w-[420px] bg-[#0f0f11] p-8 rounded-[32px] border border-green-500/20 text-center shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-500">
-           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50"></div>
+        <div className="w-full max-w-[400px] backdrop-blur-xl bg-[#0a0a0a]/90 p-8 rounded-[30px] border border-green-500/30 text-center shadow-[0_0_60px_rgba(34,197,94,0.1)] animate-in zoom-in-95 fade-in duration-500 relative overflow-hidden">
+           <div className="absolute inset-0 bg-green-500/5 pointer-events-none"></div>
            
-           <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6 ring-1 ring-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.1)]">
-              <svg className="w-6 h-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+           <div className="w-16 h-16 bg-gradient-to-tr from-green-500 to-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-500/30">
+              <svg className="w-8 h-8 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
            </div>
            
            <h1 className="text-2xl font-bold text-white mb-2 tracking-tight">Access Granted</h1>
-           <p className="text-zinc-500 text-[10px] mb-8 uppercase tracking-[0.2em] font-bold">Transaction Confirmed</p>
+           <p className="text-zinc-500 text-[10px] mb-8 uppercase tracking-[0.25em] font-bold">Successfully Verified</p>
            
-           <div className="bg-zinc-900/50 p-4 rounded-2xl border border-white/5 mb-8 text-left">
-              <span className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider block mb-2">Content</span>
-              <p className="text-white font-medium text-sm break-words leading-relaxed">
-                {data.dt === 'file' ? data.fn || "Secure File" : data.i}
-              </p>
+           <div className="bg-zinc-900/60 p-5 rounded-2xl border border-white/5 mb-8 text-left relative z-10">
+              <p className="text-[9px] text-zinc-500 uppercase font-black mb-2 tracking-wider">Decrypted Data</p>
+              {data.dt === 'file' ? (
+                 <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center">
+                       <svg className="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    </div>
+                    <div>
+                       <p className="text-white font-bold text-xs">{data.fn || "Secure_File.zip"}</p>
+                       <p className="text-green-500 text-[9px] uppercase font-bold">Ready to download</p>
+                    </div>
+                 </div>
+              ) : (
+                 <code className="text-green-500 font-mono text-xs break-all block bg-black/30 p-2 rounded-lg border border-white/5">
+                    {data.i}
+                 </code>
+              )}
            </div>
 
            {data.dt === 'file' ? (
-             <a href={`https://gateway.pinata.cloud/ipfs/${data.i}`} target="_blank" className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-black py-4 rounded-xl font-bold text-sm uppercase tracking-wider transition-all shadow-lg shadow-green-900/20 mb-8 group">
-               <span>Download File</span>
-               <svg className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+             <a href={`https://gateway.pinata.cloud/ipfs/${data.i}`} target="_blank" className="relative z-10 w-full bg-white hover:bg-zinc-200 text-black py-4 rounded-xl font-black block transition-all uppercase mb-6 shadow-xl active:scale-95 text-xs tracking-widest flex items-center justify-center gap-2">
+               Download Now
+               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
              </a>
            ) : null}
 
            {!rating ? (
-             <div className="bg-[#161618] p-5 rounded-2xl border border-white/5">
-               <p className="text-[9px] text-zinc-500 uppercase font-bold mb-4 tracking-widest">Rate Transaction</p>
-               <div className="flex gap-3">
-                 <button onClick={() => setRating('pos')} className="flex-1 py-3 bg-zinc-900 hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-500 rounded-xl transition-all text-xs font-bold border border-white/5">
-                    Good
+             <div className="relative z-10 bg-black/40 p-4 rounded-xl border border-white/5 backdrop-blur-sm">
+               <p className="text-[8px] text-zinc-500 uppercase font-black mb-3 tracking-widest">Rate Transaction</p>
+               <div className="flex gap-2">
+                 <button onClick={() => setRating('pos')} className="flex-1 py-2.5 bg-zinc-800/50 hover:bg-green-500/20 hover:text-green-500 hover:border-green-500/30 rounded-lg transition-all text-[10px] font-bold border border-white/5 uppercase">
+                    Trusted
                  </button>
-                 <button onClick={() => setRating('neg')} className="flex-1 py-3 bg-zinc-900 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-500 rounded-xl transition-all text-xs font-bold border border-white/5">
-                    Bad
+                 <button onClick={() => setRating('neg')} className="flex-1 py-2.5 bg-zinc-800/50 hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/30 rounded-lg transition-all text-[10px] font-bold border border-white/5 uppercase">
+                    Scam
                  </button>
                </div>
              </div>
            ) : (
-             <div className="py-3 bg-green-600/10 text-green-500 rounded-xl font-bold text-[10px] uppercase tracking-widest border border-green-500/20">
-               Thank you for feedback
+             <div className="relative z-10 py-3 bg-green-500/10 text-green-500 rounded-xl font-bold text-[9px] uppercase tracking-widest border border-green-500/20 animate-pulse">
+               Feedback Submitted
              </div>
            )}
         </div>
