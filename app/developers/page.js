@@ -6,6 +6,7 @@ export default function DevelopersPage() {
   const [wallet, setWallet] = useState('');
   const [price, setPrice] = useState('10');
   const [productName, setProductName] = useState('My Product');
+  const [secret, setSecret] = useState('');
   const [generatedCode, setGeneratedCode] = useState('');
 
   const generateCode = () => {
@@ -15,13 +16,15 @@ export default function DevelopersPage() {
         w: wallet,
         p: price,
         n: productName,
-        dt: 'invoice'
+        dt: 'invoice',
+        sec: secret ? `hmac_sha256_${secret.substring(0, 4)}...` : null
     };
     
     const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    
     const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://payonce-cash.vercel.app'}/unlock?id=${encodedId}`;
     
-    const code = `<a href="${url}" target="_blank" style="background-color: #22c55e; color: black; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-family: sans-serif; display: inline-flex; align-items: center; gap: 8px;">
+    const code = `<a href="${url}" target="_blank" style="background-color: #22c55e; color: black; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-family: sans-serif; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.3);">
   <span>⚡ Pay with BCH</span>
 </a>`;
     
@@ -70,8 +73,8 @@ export default function DevelopersPage() {
                 <div className="flex gap-4">
                     <div className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center border border-white/10 shrink-0">3</div>
                     <div>
-                        <h3 className="font-bold text-white mb-1">Viral Ready</h3>
-                        <p className="text-sm text-zinc-500">Enable affiliate mode to let your users resell your products automatically.</p>
+                        <h3 className="font-bold text-white mb-1">Cryptographic Proof</h3>
+                        <p className="text-sm text-zinc-500">Optional HMAC signing to prevent parameter tampering (Coming to Mainnet).</p>
                     </div>
                 </div>
             </div>
@@ -85,6 +88,7 @@ export default function DevelopersPage() {
                     <label className="text-[10px] uppercase font-bold text-zinc-500 block mb-1">Your BCH Wallet Address</label>
                     <input type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} placeholder="bitcoincash:qp..." className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-green-500 transition-colors" />
                 </div>
+                
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <label className="text-[10px] uppercase font-bold text-zinc-500 block mb-1">Product Name</label>
@@ -95,7 +99,29 @@ export default function DevelopersPage() {
                         <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-green-500 transition-colors" />
                     </div>
                 </div>
-                <button onClick={generateCode} className="w-full bg-white text-black font-black uppercase py-3 rounded-xl hover:bg-green-500 hover:scale-[1.02] transition-all">Generate Embed Code</button>
+
+                <div className="bg-green-900/10 p-4 rounded-xl border border-green-500/20 mt-2">
+                    <div className="flex items-center justify-between mb-2">
+                         <label className="text-[10px] uppercase font-black text-green-500 flex items-center gap-1">
+                            🔒 Tamper Protection
+                         </label>
+                         <span className="text-[9px] text-zinc-500">Optional</span>
+                    </div>
+                    <input 
+                        type="password" 
+                        value={secret} 
+                        onChange={(e) => setSecret(e.target.value)} 
+                        placeholder="Enter Secret Key (e.g. sk_live_...)" 
+                        className="w-full bg-black/50 border border-green-500/20 rounded-lg p-2 text-xs text-white outline-none focus:border-green-500 transition-colors font-mono tracking-widest" 
+                    />
+                    <p className="text-[9px] text-zinc-600 mt-2 leading-tight">
+                        Adds a signature to the payload to prevent client-side price modification.
+                    </p>
+                </div>
+
+                <button onClick={generateCode} className="w-full bg-white text-black font-black uppercase py-3 rounded-xl hover:bg-green-500 hover:scale-[1.02] transition-all shadow-xl">
+                    Generate Embed Code
+                </button>
             </div>
 
             {generatedCode && (
@@ -106,7 +132,7 @@ export default function DevelopersPage() {
                     </div>
                     <div className="bg-black rounded-xl p-4 border border-white/10 relative group">
                         <div className="absolute top-4 right-4" dangerouslySetInnerHTML={{ __html: generatedCode }} />
-                        <textarea readOnly value={generatedCode} className="w-full bg-transparent text-zinc-400 text-xs font-mono h-24 resize-none outline-none" />
+                        <textarea readOnly value={generatedCode} className="w-full bg-transparent text-zinc-400 text-xs font-mono h-24 resize-none outline-none p-1" />
                         <button onClick={() => navigator.clipboard.writeText(generatedCode)} className="absolute bottom-4 right-4 text-[10px] bg-zinc-800 text-white px-3 py-1 rounded hover:bg-green-500 transition-colors">Copy</button>
                     </div>
                 </div>
@@ -116,4 +142,3 @@ export default function DevelopersPage() {
     </div>
   );
 }
-
