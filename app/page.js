@@ -7,6 +7,7 @@ export default function HomePage() {
   const featuresRef = useRef(null);
   const howItWorksRef = useRef(null);
   const invoiceRef = useRef(null);
+  const devRef = useRef(null);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -18,6 +19,7 @@ export default function HomePage() {
   const scrollToFeatures = () => featuresRef.current?.scrollIntoView({ behavior: 'smooth' });
   const scrollToHowItWorks = () => howItWorksRef.current?.scrollIntoView({ behavior: 'smooth' });
   const scrollToInvoice = () => invoiceRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToDev = () => devRef.current?.scrollIntoView({ behavior: 'smooth' });
 
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-green-500/30 font-sans overflow-x-hidden">
@@ -41,6 +43,7 @@ export default function HomePage() {
           <div className="hidden md:flex gap-8 items-center">
              <button onClick={scrollToHowItWorks} className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">How it Works</button>
              <button onClick={scrollToInvoice} className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">Solutions</button>
+             <button onClick={scrollToDev} className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">Developers</button>
              
              <div className="h-4 w-[1px] bg-white/10"></div>
              
@@ -242,6 +245,54 @@ export default function HomePage() {
             </div>
 
          </div>
+      </section>
+
+      <section ref={devRef} className="py-24 px-6 border-t border-white/5 bg-zinc-900/20 relative">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-16 items-center">
+              <div className="flex-1">
+                  <div className="inline-block bg-green-500/10 text-green-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 border border-green-500/20">
+                     For Developers
+                  </div>
+                  <h2 className="text-4xl md:text-5xl font-black uppercase italic text-white mb-6 leading-none">
+                     Integration in <br/> <span className="text-zinc-500">Milliseconds.</span>
+                  </h2>
+                  <p className="text-zinc-400 text-lg mb-8 leading-relaxed max-w-xl">
+                      Embed non-custodial checkout buttons into your app, game, or website with a single line of code. Zero backend required.
+                  </p>
+                  <div className="flex gap-4">
+                      <Link href="/developers">
+                          <button className="bg-white text-black font-black uppercase px-8 py-4 rounded-xl hover:bg-green-500 transition-all shadow-lg">
+                              Get the SDK
+                          </button>
+                      </Link>
+                  </div>
+              </div>
+              <div className="flex-1 w-full max-w-lg">
+                  <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 p-6 font-mono text-xs shadow-2xl relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-4 opacity-30 group-hover:opacity-100 transition-opacity">
+                          <div className="text-[10px] text-zinc-500 uppercase font-bold">React / Next.js</div>
+                      </div>
+                      <div className="flex gap-2 mb-6">
+                         <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                         <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                         <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      </div>
+                      <div className="space-y-2 text-zinc-400">
+                          <div><span className="text-purple-400">import</span> {'{ PayButton }'} <span className="text-purple-400">from</span> <span className="text-green-400">'@payonce/sdk'</span>;</div>
+                          <br/>
+                          <div><span className="text-blue-400">export default</span> <span className="text-purple-400">function</span> <span className="text-yellow-200">App</span>() {'{'}</div>
+                          <div className="pl-4"><span className="text-purple-400">return</span> (</div>
+                          <div className="pl-8 text-white">{'<PayButton'}</div>
+                          <div className="pl-12 text-blue-300">to=<span className="text-green-400">"bitcoincash:qp..."</span></div>
+                          <div className="pl-12 text-blue-300">amount=<span className="text-orange-400">{10}</span></div>
+                          <div className="pl-12 text-blue-300">onSuccess=<span className="text-yellow-200">{'{deliverAsset}'}</span></div>
+                          <div className="pl-8 text-white">{'/>'}</div>
+                          <div className="pl-4">);</div>
+                          <div>{'}'}</div>
+                      </div>
+                  </div>
+              </div>
+          </div>
       </section>
 
       <section className="py-20 px-6">
