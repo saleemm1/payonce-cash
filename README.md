@@ -141,32 +141,12 @@ PayOnce is built for instant commerce, where waiting 10+ minutes for confirmatio
 - Low-fee environment reduces double-spend incentives  
 - Proven history of 0-conf retail usage on BCH  
 
----
+> 💡 Community-Driven Roadmap: The next 15+ content types will be chosen by YOU. Join our community and vote for the features you want. We build for the people.
 
-### Double-Spend Threat Model
-An attacker attempts to broadcast two conflicting transactions:
-- TX₁ → Merchant invoice  
-- TX₂ → Self (double-spend attempt)
+- Telegram: [@PayOnceCash](https://t.me/PayOnceCash) 
+- X (Twitter): [@PayOnceCash](https://x.com/PayOnceCash)
 
----
 
-### PayOnce Mitigations
-
-1. **Mempool Conflict Detection**  
-   Continuous monitoring for conflicting inputs or replace attempts.  
-   Any detected conflict immediately **locks fulfillment**.
-
-2. **Value-Based Risk Thresholds**  
-   Instant delivery applies under configurable value limits.  
-   Higher-value invoices can require 1 confirmation.
-
-3. **One-Time Encrypted Delivery**  
-   Content is encrypted and delivered once.  
-   Decryption keys cannot be replayed or reused.
-
-4. **No Custody, No Attack Surface**  
-   PayOnce never holds funds.  
-   No hot wallets. No withdrawal logic.
 
 ---
 
