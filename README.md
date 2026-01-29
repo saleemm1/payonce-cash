@@ -42,6 +42,25 @@ It is a **payment primitive** creators and merchants own.
 
 ---
 
+## 🛠️ Developers: The PayOnce SDK
+> **New Feature:** We turned PayOnce into a protocol.
+
+Developers can now embed non-custodial checkout buttons into **any app, game, or website** with a single line of code. No backend required.
+
+```html
+<a href="[https://payonce.cash/unlock?id=eyJ3IjoiYml0Y29pbmNh](https://payonce.cash/unlock?id=eyJ3IjoiYml0Y29pbmNh)..." target="_blank">
+  ⚡ Pay with BCH
+</a>
+```
+**Stateless:** Logic is encoded in the URL.
+
+**Tamper-Proof:** Includes HMAC-SHA256 signatures to prevent client-side price manipulation.
+
+**Instant**: Zero setup time.
+
+**Generate buttons instantly at: payonce-cash.vercel.app/developers**
+
+---
 ## 🔑 Core Capabilities
 
 | Capability | Web2 Platforms | PayOnce |
@@ -130,22 +149,23 @@ PayOnce is built for people who **sell value**, not ads or attention.
 - **Result:** Encrypted storage, automatic unlock after payment.
   
 
----
-
-## 🔐 Security & Trust Model (Why 0-Conf Works on BCH)
-
-PayOnce is built for instant commerce, where waiting 10+ minutes for confirmations is unacceptable.
-
-### Why 0-Conf is Viable on Bitcoin Cash
-- No Replace-By-Fee enabled by default  
-- Low-fee environment reduces double-spend incentives  
-- Proven history of 0-conf retail usage on BCH  
-
 > 💡 Community-Driven Roadmap: The next 15+ content types will be chosen by YOU. Join our community and vote for the features you want. We build for the people.
 
 - Telegram: [@PayOnceCash](https://t.me/PayOnceCash) 
 - X (Twitter): [@PayOnceCash](https://x.com/PayOnceCash)
+---
 
+🔐 Security & Trust Model
+We don't just "hope" 0-conf works; we visualize it.
+
+1. Real-Time Security Visualizer
+Our checkout engine bridges the gap between "Broadcast" and "Confirmation" to eliminate double-spend anxiety:
+
+Mempool Detection: Instantly sees the transaction.
+
+Double-Spend Analysis: Checks network propagation risks.
+
+UX Feedback: Shows a "Validating -> Secured" animation to reassure the user before unlocking content.  
 
 
 ---
@@ -167,21 +187,27 @@ PayOnce demonstrates how BCH can power real commerce — not just settlement.
 
 ---
 
-## 🛣 Roadmap
+## 🛣️ Roadmap: The Sovereign Economy
 
-- **Phase 1 (Completed)**  
-  Core platform, invoices, retail POS, viral logic
+We are executing a focused strategy to become the standard checkout layer for BCH.
 
-- **Phase 2**  
-  CashTokens: NFT tickets and token-gated content
-
-- **Phase 3**  
-  On-chain merchant reputation system
-
-- **Phase 4**  
-  PayOnce SDK & embeddable payment button
+- [x] **Phase 1: Foundation (Completed)**
+    - Retail POS, Invoicing, Viral Protocol, Security Visualizer.
+- [x] **Phase 2: Developer Tooling (Completed)**
+    - PayOnce SDK, Embeddable Buttons, HMAC Protection.
+- [ ] **Phase 3: CashTokens (Hackcelerator Goal)**
+    - **Native Stablecoins:** Support for USDT/USDC on BCH to solve merchant volatility risk (while burning BCH for gas).
+    - **Loyalty Protocols:** Automated "Store Token" airdrops to customers instantly after payment.
+- [ ] **Phase 4: The Ecosystem**
+    - WordPress/WooCommerce Plugin.
+    - On-Chain Merchant Reputation System.
 
 ---
+
+> **"We didn't just build a tool; we built the engine for the Sovereign Economy. PayOnce is not merely a gateway—it is the infrastructure Bitcoin Cash has been waiting for. The protocol is live. The rails are built. Today, we unleash decentralized commerce."**
+
+---
+
 
 ## 🔗 Links
 - **Live App:** https://payonce-cash.vercel.app  
