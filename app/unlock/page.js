@@ -6,6 +6,8 @@ function UnlockContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [isPaid, setIsPaid] = useState(false);
+    const [isValidating, setIsValidating] = useState(false);
+    const [securityStep, setSecurityStep] = useState(0);
     const [checking, setChecking] = useState(false);
     const [data, setData] = useState(null);
     const [bchPrice, setBchPrice] = useState(null);
@@ -64,9 +66,20 @@ function UnlockContent() {
         }
     };
 
+    const startValidation = () => {
+        setChecking(false);
+        setIsValidating(true);
+        setTimeout(() => setSecurityStep(1), 1000);
+        setTimeout(() => setSecurityStep(2), 2500);
+        setTimeout(() => {
+            setIsValidating(false);
+            setIsPaid(true);
+        }, 4000);
+    };
+
     useEffect(() => {
         let interval;
-        if (checking && !isPaid && data?.w) {
+        if (checking && !isPaid && !isValidating && data?.w) {
             const sellerClean = data.w.includes(':') ? data.w.split(':')[1] : data.w;
             const affiliateAddr = searchParams.get('ref');
             const isViral = data.a && affiliateAddr && (affiliateAddr !== sellerClean);
@@ -83,18 +96,16 @@ function UnlockContent() {
                         const aBal = await aRes.json();
                         const promoterOk = aBal.unconfirmed > 0 || aBal.confirmed > 0;
                         if (sellerOk && promoterOk) {
-                            setIsPaid(true);
-                            setChecking(false);
+                            startValidation();
                         }
                     } else if (sellerOk) {
-                        setIsPaid(true);
-                        setChecking(false);
+                        startValidation();
                     }
                 } catch (err) { console.error(err); }
             }, 3000);
         }
         return () => clearInterval(interval);
-    }, [checking, isPaid, data, searchParams]);
+    }, [checking, isPaid, isValidating, data, searchParams]);
 
     useEffect(() => {
         const affiliateAddr = searchParams.get('ref');
@@ -115,9 +126,8 @@ function UnlockContent() {
     const isViral = data.a && affiliateAddr && (affiliateAddr !== cleanAddr);
 
     const fullPriceBch = bchPrice || "0";
-    const discountTotal = bchPrice ? (parseFloat(bchPrice) * 0.95).toFixed(8) : "0";
-    const sellerAmt = isViral ? (parseFloat(discountTotal) * 0.9).toFixed(8) : fullPriceBch;
-    const affAmt = isViral ? (parseFloat(discountTotal) * 0.1).toFixed(8) : "0";
+    const sellerAmt = isViral ? (parseFloat(fullPriceBch) * 0.9).toFixed(8) : fullPriceBch;
+    const affAmt = isViral ? (parseFloat(fullPriceBch) * 0.1).toFixed(8) : "0";
 
     const standardLink = `bitcoincash:${cleanAddr}?amount=${fullPriceBch}`;
     const smartViralLink = `bitcoincash:${cleanAddr}?amount=${sellerAmt}&address=${affiliateAddr}&amount=${affAmt}`;
@@ -133,12 +143,41 @@ function UnlockContent() {
             
             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top,_rgba(34,197,94,0.1)_0%,_transparent_60%)] pointer-events-none"></div>
 
-            {!isPaid ? (
+            {isValidating && (
+                 <div className="w-full max-w-[440px] bg-[#121214] p-10 rounded-[40px] border-2 border-zinc-800 text-center shadow-2xl relative z-50 animate-in fade-in zoom-in-95 duration-300">
+                    <div className="flex flex-col items-center justify-center h-64">
+                         <div className="relative w-24 h-24 mb-8">
+                            <div className="absolute inset-0 border-4 border-zinc-800 rounded-full"></div>
+                            <div className="absolute inset-0 border-4 border-t-green-500 rounded-full animate-spin"></div>
+                            {securityStep >= 1 && <div className="absolute inset-0 flex items-center justify-center text-green-500 text-3xl animate-pulse">⚡</div>}
+                         </div>
+                         
+                         <h2 className="text-xl font-black uppercase italic text-white mb-6 tracking-tight">Securing Transaction...</h2>
+                         
+                         <div className="w-full space-y-3">
+                            <div className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-500 ${securityStep >= 0 ? 'bg-green-900/20 border-green-500/30' : 'bg-zinc-900 border-zinc-800 opacity-50'}`}>
+                                <span className="text-[10px] font-bold uppercase text-zinc-300">1. Mempool Detection</span>
+                                {securityStep >= 0 && <span className="text-green-500 text-xs font-black">✓</span>}
+                            </div>
+                            <div className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-500 ${securityStep >= 1 ? 'bg-green-900/20 border-green-500/30' : 'bg-zinc-900 border-zinc-800 opacity-50'}`}>
+                                <span className="text-[10px] font-bold uppercase text-zinc-300">2. Double-Spend Analysis</span>
+                                {securityStep >= 1 && <span className="text-green-500 text-xs font-black">✓</span>}
+                            </div>
+                            <div className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-500 ${securityStep >= 2 ? 'bg-green-900/20 border-green-500/30' : 'bg-zinc-900 border-zinc-800 opacity-50'}`}>
+                                <span className="text-[10px] font-bold uppercase text-zinc-300">3. Decrypting Asset</span>
+                                {securityStep >= 2 && <span className="text-green-500 text-xs font-black">✓</span>}
+                            </div>
+                         </div>
+                    </div>
+                 </div>
+            )}
+
+            {!isPaid && !isValidating && (
                 <div className="w-full max-w-[480px] bg-[#121214] rounded-[32px] border border-white/5 shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-500">
                     
                     {isViral && (
                         <div className="absolute -right-12 top-8 bg-green-500 text-black text-[10px] font-black px-12 py-1 rotate-45 uppercase shadow-[0_0_20px_rgba(34,197,94,0.4)] z-20 tracking-widest">
-                            5% OFF
+                            VIRAL DEAL
                         </div>
                     )}
 
@@ -282,12 +321,12 @@ function UnlockContent() {
                             <p className="text-[9px] text-zinc-500 font-black uppercase mb-1 tracking-widest">Total to Send</p>
                             <div className="flex items-baseline justify-center gap-2">
                                 <span className="text-4xl font-black text-white tracking-tighter tabular-nums">
-                                    {isViral ? discountTotal : fullPriceBch}
+                                    {fullPriceBch}
                                 </span>
                                 <span className="text-lg font-bold text-green-500 tracking-tight">BCH</span>
                             </div>
                             <p className="text-[10px] text-zinc-500 mt-1 font-bold">≈ ${currentPrice} USD</p>
-                            {isViral && <span className="inline-block mt-2 text-[9px] bg-green-500/10 text-green-500 px-2 py-0.5 rounded border border-green-500/20 font-bold uppercase">Viral Discount Applied</span>}
+                            {isViral && <span className="inline-block mt-2 text-[9px] bg-green-500/10 text-green-500 px-2 py-0.5 rounded border border-green-500/20 font-bold uppercase">Viral Mode Applied</span>}
                         </div>
 
                         <button 
@@ -327,7 +366,9 @@ function UnlockContent() {
 
                     </div>
                 </div>
-            ) : (
+            )}
+
+            {isPaid && !isValidating && (
                 <div className="w-full max-w-[440px] bg-[#121214] p-10 rounded-[40px] border-2 border-green-500/30 text-center shadow-[0_0_100px_rgba(34,197,94,0.15)] animate-in zoom-in-95 duration-500 relative overflow-hidden">
                     
                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
