@@ -266,7 +266,7 @@ function UnlockContent() {
                                 <div className="flex bg-black p-1 rounded-xl border border-white/10 w-full mb-6">
                                     {isViral ? (
                                         <>
-                                            <button onClick={() => setQrMode('smart')} className={`flex-1 py-2.5 rounded-lg text-[9px] font-black uppercase transition-all ${qrMode === 'smart' ? 'bg-green-600 text-black shadow' : 'text-zinc-500 hover:text-white'}`}>Auto Split (Recommended)</button>
+                                            <button onClick={() => setQrMode('smart')} className={`flex-1 py-2.5 rounded-lg text-[9px] font-black uppercase transition-all ${qrMode === 'smart' ? 'bg-green-600 text-black shadow' : 'text-zinc-500 hover:text-white'}`}>Smart Pay (Electron)</button>
                                             <button onClick={() => setQrMode('manual')} className={`flex-1 py-2.5 rounded-lg text-[9px] font-black uppercase transition-all ${qrMode === 'manual' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-white'}`}>Manual Pay</button>
                                         </>
                                     ) : (
