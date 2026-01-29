@@ -61,6 +61,7 @@ Developers can now embed non-custodial checkout buttons into **any app, game, or
 **Generate buttons instantly at: payonce-cash.vercel.app/developers**
 
 ---
+
 ## 🔑 Core Capabilities
 
 | Capability | Web2 Platforms | PayOnce |
@@ -155,17 +156,17 @@ PayOnce is built for people who **sell value**, not ads or attention.
 - X (Twitter): [@PayOnceCash](https://x.com/PayOnceCash)
 ---
 
-🔐 Security & Trust Model
+### 🔐 Security & Trust Model
 We don't just "hope" 0-conf works; we visualize it.
 
-1. Real-Time Security Visualizer
+** Real-Time Security Visualizer**
 Our checkout engine bridges the gap between "Broadcast" and "Confirmation" to eliminate double-spend anxiety:
 
-Mempool Detection: Instantly sees the transaction.
+- **Mempool Detection:** Instantly sees the transaction.
 
-Double-Spend Analysis: Checks network propagation risks.
+- **Double-Spend Analysis:** Checks network propagation risks.
 
-UX Feedback: Shows a "Validating -> Secured" animation to reassure the user before unlocking content.  
+- **UX Feedback:** Shows a "Validating -> Secured" animation to reassure the user before unlocking content.  
 
 
 ---
