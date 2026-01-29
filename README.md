@@ -1,13 +1,13 @@
 # 🟢 PayOnce.cash  
-### The Sovereign Commerce Protocol on Bitcoin Cash
+### Instant, Non-Custodial Commerce on Bitcoin Cash
 
 <div align="center">
   <a href="https://payonce-cash.vercel.app">
     <img src="https://payonce-cash.vercel.app/logo.png" alt="PayOnce Logo" width="120" height="120">
   </a>
 
-  <p><b>Non-custodial, zero-platform-fee payments for digital & real-world commerce.</b></p>
-  <p><i>Instant. Permissionless. Built for Bitcoin Cash.</i></p>
+  <p><b>PayOnce enables creators and merchants to accept Bitcoin Cash payments instantly, without fees, custody, or intermediaries.</b></p>
+  <p><i>Stripe-level UX. Bitcoin-level sovereignty.</i></p>
 
   [![Live App](https://img.shields.io/badge/🚀_Live_App-Launch-success?style=for-the-badge)](https://payonce-cash.vercel.app)
   [![Powered by BCH](https://img.shields.io/badge/⚡_Powered_By-Bitcoin_Cash-green?style=for-the-badge)](https://bch.info)
@@ -18,34 +18,35 @@
 ---
 
 ## 🧩 Problem
-Modern creators and small merchants are trapped inside centralized payment platforms.
+Digital commerce today is controlled by centralized payment platforms that extract value and impose friction.
 
-- **High Fees:** 5–15% lost to processors and marketplaces  
-- **Delayed Settlement:** payouts take days or weeks  
-- **Custodial Risk:** platforms can freeze funds at any time  
-- **Global Exclusion:** millions remain unbanked or restricted  
+- **High fees:** 5–15% lost to processors  
+- **Slow settlement:** payouts delayed for days or weeks  
+- **Custodial risk:** accounts and funds can be frozen  
+- **Global exclusion:** creators in unbanked regions are locked out  
 
-Bitcoin Cash was designed for peer-to-peer money — yet most commerce tools still behave like Web2 gatekeepers.
+Bitcoin Cash was designed for peer-to-peer payments — yet most commerce tools still behave like Web2 gatekeepers.
 
 ---
 
-## ✅ Solution: PayOnce.cash
-**PayOnce** is a non-custodial commerce layer on **Bitcoin Cash** that enables anyone to sell digital goods, services, or in-person products with:
+## ✅ Solution
+**PayOnce.cash** is a non-custodial commerce protocol built on **Bitcoin Cash**, designed for real-world usage.
 
-- **0% platform fees**
-- **Instant 0-conf settlement**
-- **No KYC, no intermediaries**
-- **Direct BCH payments, peer-to-peer**
+It allows anyone to:
+- Sell digital products or services
+- Accept in-person BCH payments
+- Receive funds instantly via 0-conf settlement
+- Keep **100%** of their revenue
 
 PayOnce is not a marketplace.  
-It is a **payment primitive** creators own.
+It is a **payment primitive** creators and merchants own.
 
 ---
 
 ## 🔑 Core Capabilities
 
 | Capability | Web2 Platforms | PayOnce |
-|---------|---------------|---------|
+|----------|----------------|---------|
 | Platform Fees | 3–15% | **0%** |
 | Settlement | Days / Weeks | **Instant (0-conf)** |
 | Custody | Platform-held | **User-controlled** |
@@ -54,20 +55,19 @@ It is a **payment primitive** creators own.
 
 ---
 
-## 🧬 Viral Mode (On-Chain Affiliate Logic)
-PayOnce introduces a **native growth mechanic** for Bitcoin Cash commerce.
+## 🧬 Viral Mode — On-Chain Affiliate Logic
+PayOnce introduces a native growth mechanism for Bitcoin Cash commerce.
 
-**How it works**
-- Seller enables *Viral Mode*
-- Anyone can share the product link
-- Smart logic **splits the payment atomically** at purchase time
+- Sellers enable **Viral Mode**
+- Anyone can share a product link
+- Payments are **atomically split on-chain** at purchase time
 
 **Default split**
 - 90% → Seller  
 - 10% → Promoter  
 
 No dashboards. No payout delays.  
-Promoters are paid **the moment the transaction hits the mempool**.
+Promoters are paid the moment the transaction enters the mempool.
 
 ---
 
@@ -75,60 +75,129 @@ Promoters are paid **the moment the transaction hits the mempool**.
 
 ### Retail POS
 - Phone or tablet acts as a BCH terminal
-- Customer scans QR → payment detected in <2 seconds
+- Customer scans QR code
+- Payment detected in <2 seconds (0-conf)
 - No hardware, no chargebacks, no settlement delay
 
 ### Freelance Invoicing
 - Generate a BCH invoice link
-- Send to client globally
-- Paid instantly, no FX loss, no waiting cycles
+- Send it globally
+- Get paid instantly, without FX or banking friction
 
 ---
 
-## 📦 Supported Commerce Types
-PayOnce supports **real economic activity**, not demos.
+## 📦 Who Is PayOnce For? (Real Use Cases)
 
-- Source code & scripts  
-- PDFs, e-books, research  
-- Video courses & digital media  
-- Event tickets & access passes  
-- Game assets & gift codes  
-- Encrypted ZIPs & bulk data  
+PayOnce is built for people who **sell value**, not ads or attention.
+
+### 💻 Developers & Indie Builders — Source Code & Scripts
+- **Problem:** Marketplaces take up to 30% and control distribution.
+- **With PayOnce:** Sell code, bots, templates, or licenses directly.
+- **Result:** Instant BCH payments, no platform cut, no account risk.
 
 ---
 
-## ⚙️ Technical Design (BCH-Native)
+### 📄 Authors & Experts — PDFs and E-Books
+- **Problem:** Platforms take fees and own customer relationships.
+- **With PayOnce:** Sell reports, books, and research directly.
+- **Result:** Full ownership, encrypted delivery, instant payout.
 
-- **0-Conf Fulfillment**  
-  Mempool monitoring enables instant delivery without waiting for block confirmations.
+---
 
-- **Real-Time BCH Pricing**  
-  Fiat-to-satoshi value is locked at invoice creation using live market data.
+### 🎬 Educators & Creators — Video Courses & Digital Media
+- **Problem:** Monthly platforms delay payouts and lock creators in.
+- **With PayOnce:** Sell courses, tutorials, or exclusive videos as one-time purchases.
+- **Result:** Students get instant access. Creators get paid immediately.
 
-- **Encrypted IPFS Delivery**  
-  Content is encrypted before upload.  
-  Decryption keys are released only after valid payment detection.
+---
+
+### 🎟 Event Organizers — Tickets & Access Passes
+- **Problem:** Ticketing platforms add heavy service fees and friction.
+- **With PayOnce:** Issue BCH-paid QR tickets or access links.
+- **Result:** No middlemen, no chargebacks, verifiable ownership.
+
+---
+
+### 🎮 Gamers & Digital Sellers — Game Assets & Gift Codes
+- **Problem:** Grey markets are risky and full of scams.
+- **With PayOnce:** Peer-to-peer sale of in-game items, mods, or gift codes.
+- **Result:** Trustless delivery backed by blockchain payment proof.
+
+---
+
+### 📁 Data Sellers & Creatives — Encrypted ZIPs & Bulk Data
+- **Problem:** Large file sales require trust and manual delivery.
+- **With PayOnce:** Sell datasets, photo packs, music kits, or archives.
+- **Result:** Encrypted storage, automatic unlock after payment.
+  
+
+---
+
+## 🔐 Security & Trust Model (Why 0-Conf Works on BCH)
+
+PayOnce is built for instant commerce, where waiting 10+ minutes for confirmations is unacceptable.
+
+### Why 0-Conf is Viable on Bitcoin Cash
+- No Replace-By-Fee enabled by default  
+- Low-fee environment reduces double-spend incentives  
+- Proven history of 0-conf retail usage on BCH  
+
+---
+
+### Double-Spend Threat Model
+An attacker attempts to broadcast two conflicting transactions:
+- TX₁ → Merchant invoice  
+- TX₂ → Self (double-spend attempt)
+
+---
+
+### PayOnce Mitigations
+
+1. **Mempool Conflict Detection**  
+   Continuous monitoring for conflicting inputs or replace attempts.  
+   Any detected conflict immediately **locks fulfillment**.
+
+2. **Value-Based Risk Thresholds**  
+   Instant delivery applies under configurable value limits.  
+   Higher-value invoices can require 1 confirmation.
+
+3. **One-Time Encrypted Delivery**  
+   Content is encrypted and delivered once.  
+   Decryption keys cannot be replayed or reused.
+
+4. **No Custody, No Attack Surface**  
+   PayOnce never holds funds.  
+   No hot wallets. No withdrawal logic.
+
+---
+
+### Security Philosophy
+> We optimize for **honest-majority commerce**, not adversarial edge cases that break real-world usability.
+
+Designed by a security-minded builder, with explicit risk boundaries and minimal trust assumptions.
 
 ---
 
 ## 🧠 Why Bitcoin Cash
-PayOnce is intentionally built on BCH because:
-- Low fees enable true micro-commerce
-- 0-conf usability supports real-world POS
-- CashTokens unlock future programmable commerce primitives
+Bitcoin Cash enables:
+- Near-zero fees
+- Instant user experience
+- Scalable peer-to-peer payments
+
+PayOnce demonstrates how BCH can power real commerce — not just settlement.
 
 ---
 
 ## 🛣 Roadmap
 
 - **Phase 1 (Completed)**  
-  Core platform, invoices, retail mode, viral logic
+  Core platform, invoices, retail POS, viral logic
 
 - **Phase 2**  
-  CashTokens: NFT tickets, token-gated content
+  CashTokens: NFT tickets and token-gated content
 
 - **Phase 3**  
-  On-chain reputation & merchant trust scoring
+  On-chain merchant reputation system
 
 - **Phase 4**  
   PayOnce SDK & embeddable payment button
