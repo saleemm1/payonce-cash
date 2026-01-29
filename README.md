@@ -11,8 +11,7 @@
 
   [![Live App](https://img.shields.io/badge/🚀_Live_App-Launch-success?style=for-the-badge)](https://payonce-cash.vercel.app)
   [![Powered by BCH](https://img.shields.io/badge/⚡_Powered_By-Bitcoin_Cash-green?style=for-the-badge)](https://bch.info)
-  [![BCH-1 Track](https://img.shields.io/badge/🏆_BCH--1-Applications-blue?style=for-the-badge)](https://dorahacks.io)
-  [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
+  
 </div>
 
 ---
