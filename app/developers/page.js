@@ -8,6 +8,7 @@ export default function DevelopersPage() {
   const [productName, setProductName] = useState('My Product');
   const [secret, setSecret] = useState('');
   const [generatedCode, setGeneratedCode] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const generateCode = () => {
     if (!wallet) return alert('Please enter a BCH wallet address');
@@ -21,14 +22,20 @@ export default function DevelopersPage() {
     };
     
     const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-    
     const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://payonce-cash.vercel.app'}/unlock?id=${encodedId}`;
     
-    const code = `<a href="${url}" target="_blank" style="background-color: #22c55e; color: black; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-family: sans-serif; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.3);">
+    const code = `<a href="${url}" target="_blank" style="background-color: #22c55e; color: black; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-family: sans-serif; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.3); transition: transform 0.2s ease;">
   <span>⚡ Pay with BCH</span>
 </a>`;
     
     setGeneratedCode(code);
+    setCopied(false);
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(generatedCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -125,15 +132,32 @@ export default function DevelopersPage() {
             </div>
 
             {generatedCode && (
-                <div className="animate-in fade-in slide-in-from-bottom-4">
-                    <div className="flex justify-between items-center mb-2">
-                        <label className="text-[10px] uppercase font-bold text-zinc-500">Preview</label>
-                        <label className="text-[10px] uppercase font-bold text-zinc-500">HTML Code</label>
+                <div className="animate-in fade-in slide-in-from-bottom-4 mt-8 pt-8 border-t border-white/5">
+                    {/* قسم المعاينة (Preview) منفصل */}
+                    <div className="mb-6">
+                        <label className="text-[10px] uppercase font-bold text-zinc-500 block mb-3">Button Preview</label>
+                        <div className="p-8 bg-black/30 border border-dashed border-zinc-700 rounded-2xl flex justify-center items-center min-h-[100px]">
+                             <div dangerouslySetInnerHTML={{ __html: generatedCode }} />
+                        </div>
                     </div>
-                    <div className="bg-black rounded-xl p-4 border border-white/10 relative group">
-                        <div className="absolute top-4 right-4" dangerouslySetInnerHTML={{ __html: generatedCode }} />
-                        <textarea readOnly value={generatedCode} className="w-full bg-transparent text-zinc-400 text-xs font-mono h-24 resize-none outline-none p-1" />
-                        <button onClick={() => navigator.clipboard.writeText(generatedCode)} className="absolute bottom-4 right-4 text-[10px] bg-zinc-800 text-white px-3 py-1 rounded hover:bg-green-500 transition-colors">Copy</button>
+
+                    {/* قسم الكود (Code) منفصل */}
+                    <div className="relative">
+                         <label className="text-[10px] uppercase font-bold text-zinc-500 block mb-2">HTML Embed Code</label>
+                         <div className="bg-black rounded-xl border border-white/10 relative group overflow-hidden">
+                            <textarea 
+                                readOnly 
+                                value={generatedCode} 
+                                className="w-full bg-[#080808] text-zinc-400 text-xs font-mono h-32 p-4 resize-none outline-none leading-relaxed"
+                                onClick={(e) => e.target.select()}
+                            />
+                            <button 
+                                onClick={handleCopy} 
+                                className={`absolute top-3 right-3 text-[10px] font-bold px-4 py-2 rounded-lg transition-all shadow-lg z-10 ${copied ? 'bg-green-500 text-black' : 'bg-zinc-800 text-white hover:bg-white hover:text-black'}`}
+                            >
+                                {copied ? 'COPIED!' : 'COPY CODE'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
