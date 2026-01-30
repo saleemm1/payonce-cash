@@ -221,9 +221,11 @@ console.log(invoice.url);
                     </div>
                     
                     <div className="mt-6 flex gap-3">
-                        <button className="flex-1 bg-white text-black font-black uppercase py-3 rounded-xl hover:bg-zinc-200 transition-colors text-xs">
-                           Read Full Docs
-                        </button>
+                        <a href="https://github.com/saleemm1/payonce-sdk#readme" target="_blank" rel="noopener noreferrer" className="flex-1">
+                            <button className="w-full h-full bg-white text-black font-black uppercase py-3 rounded-xl hover:bg-zinc-200 transition-colors text-xs">
+                               Read Full Docs
+                            </button>
+                        </a>
                         
                         <a href="https://github.com/saleemm1/payonce-sdk" target="_blank" rel="noopener noreferrer" className="flex-1">
                             <button className="w-full h-full border border-white/20 text-white font-black uppercase py-3 rounded-xl hover:bg-white/5 transition-colors text-xs flex items-center justify-center gap-2">
