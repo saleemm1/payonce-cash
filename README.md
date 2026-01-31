@@ -47,11 +47,6 @@ It is a **payment primitive** creators and merchants own.
 
 Developers can now embed non-custodial checkout buttons into **any app, game, or website** with a single line of code. No backend required.
 
-```html
-<a href="[https://payonce.cash/unlock?id=eyJ3IjoiYml0Y29pbmNh](https://payonce.cash/unlock?id=eyJ3IjoiYml0Y29pbmNh)..." target="_blank">
-  ⚡ Pay with BCH
-</a>
-```
 **Stateless:** Logic is encoded in the URL.
 
 **Tamper-Proof:** Includes HMAC-SHA256 signatures to prevent client-side price manipulation.
@@ -59,6 +54,8 @@ Developers can now embed non-custodial checkout buttons into **any app, game, or
 **Instant**: Zero setup time.
 
 **Generate buttons instantly at: payonce-cash.vercel.app/developers**
+
+**https://payonce-cash.vercel.app/developers**
 
 ---
 
