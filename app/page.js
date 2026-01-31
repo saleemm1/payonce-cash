@@ -45,6 +45,13 @@ export default function HomePage() {
              <button onClick={scrollToInvoice} className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">Solutions</button>
              <button onClick={scrollToDev} className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">Developers</button>
              
+             {/* 🔥 NEW LOYALTY BUTTON ADDED HERE */}
+             <Link href="/loyalty">
+               <button className="text-[11px] font-bold uppercase tracking-widest text-yellow-500 hover:text-yellow-400 transition-colors flex items-center gap-2">
+                 Loyalty <span className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[8px] px-1.5 py-0.5 rounded">NEW</span>
+               </button>
+             </Link>
+             
              <div className="h-4 w-[1px] bg-white/10"></div>
              
              <div className="flex gap-4">
@@ -251,10 +258,10 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-16 items-center">
               <div className="flex-1">
                   <div className="inline-block bg-green-500/10 text-green-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 border border-green-500/20">
-                     For Developers
+                      For Developers
                   </div>
                   <h2 className="text-4xl md:text-5xl font-black uppercase italic text-white mb-6 leading-none">
-                     Integration in <br/> <span className="text-zinc-500">Milliseconds.</span>
+                      Integration in <br/> <span className="text-zinc-500">Milliseconds.</span>
                   </h2>
                   <p className="text-zinc-400 text-lg mb-8 leading-relaxed max-w-xl">
                       Embed non-custodial checkout buttons into your app, game, or website with a single line of code. Zero backend required.
