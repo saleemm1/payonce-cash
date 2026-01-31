@@ -45,7 +45,7 @@ export default function HomePage() {
              <button onClick={scrollToInvoice} className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">Solutions</button>
              <button onClick={scrollToDev} className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">Developers</button>
              
-             {/* 🔥 NEW LOYALTY BUTTON ADDED HERE */}
+             
              <Link href="/loyalty">
                <button className="text-[11px] font-bold uppercase tracking-widest text-yellow-500 hover:text-yellow-400 transition-colors flex items-center gap-2">
                  Loyalty <span className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[8px] px-1.5 py-0.5 rounded">NEW</span>
