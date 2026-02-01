@@ -96,35 +96,25 @@ Accept Bitcoin Cash instantly — in-store or online.
         </Link>
 
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Link href="/pos" className="group bg-[#121214] border border-white/5 hover:border-green-500/40 p-6 rounded-[32px] transition-all hover:-translate-y-1 flex items-center gap-6 relative overflow-hidden">
-                <div className="absolute right-0 top-0 w-32 h-32 bg-green-500/5 blur-[50px]"></div>
-                <div className="w-16 h-16 bg-zinc-900 rounded-2xl flex items-center justify-center text-3xl border border-white/5 group-hover:scale-110 transition-transform">
-                    📱
+        <Link href="/pos" className="group w-full bg-[#121214] border border-white/5 hover:border-green-500/40 p-6 rounded-[32px] transition-all hover:-translate-y-1 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
+            <div className="absolute right-0 top-0 w-64 h-full bg-green-500/5 blur-[60px]"></div>
+            <div className="w-20 h-20 bg-zinc-900 rounded-2xl flex items-center justify-center text-4xl border border-white/5 group-hover:scale-110 transition-transform shadow-2xl">
+                📱
+            </div>
+            <div className="text-center md:text-left">
+                <h4 className="text-2xl font-black uppercase italic text-white group-hover:text-green-500 transition-colors">
+                    Live Web POS
+                </h4>
+                <p className="text-sm text-zinc-400 font-medium mt-1 max-w-lg">
+                    Turn any smartphone or tablet into a <span className="text-white font-bold">Bitcoin Cash Point of Sale</span>. <br className="hidden md:block"/> No hardware required. Auto-saved wallets. Real-time rates.
+                </p>
+            </div>
+            <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 hidden md:block">
+                <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-black">
+                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </div>
-                <div>
-                    <h4 className="text-xl font-black uppercase italic text-white group-hover:text-green-500 transition-colors">Live Web POS</h4>
-                    <p className="text-xs text-zinc-500 font-bold uppercase tracking-wide mt-1">For Cafes & Retail</p>
-                </div>
-                <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </div>
-            </Link>
-
-            <Link href="/billing" className="group bg-[#121214] border border-white/5 hover:border-blue-500/40 p-6 rounded-[32px] transition-all hover:-translate-y-1 flex items-center gap-6 relative overflow-hidden">
-                <div className="absolute right-0 top-0 w-32 h-32 bg-blue-500/5 blur-[50px]"></div>
-                <div className="w-16 h-16 bg-zinc-900 rounded-2xl flex items-center justify-center text-3xl border border-white/5 group-hover:scale-110 transition-transform">
-                    🔄
-                </div>
-                <div>
-                    <h4 className="text-xl font-black uppercase italic text-white group-hover:text-blue-500 transition-colors">Recurring Billing</h4>
-                    <p className="text-xs text-zinc-500 font-bold uppercase tracking-wide mt-1">For SaaS & Services</p>
-                </div>
-                <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </div>
-            </Link>
-        </div>
+            </div>
+        </Link>
       </div>
 
       <div className="w-full max-w-5xl">
