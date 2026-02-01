@@ -151,6 +151,19 @@ PayOnce is built for people who **sell value**, not ads or attention.
 
 - Telegram: [@PayOnceCash](https://t.me/PayOnceCash) 
 - X (Twitter): [@PayOnceCash](https://x.com/PayOnceCash)
+
+---
+
+### 🏪 PayOnce WebPOS (Universal Retail Terminal)
+A zero-hardware POS built for real-world adoption in cafes and retail.
+* **Dual-Mode Compatibility:** Bridges DeFi and CeFi.
+    * ⚡ **Smart Pay (BIP-21):** Instant one-tap payments for non-custodial wallets.
+    * 🏦 **Exchange Mode:** Optimized for **Binance/OKX** users with manual address tools.
+* **100% Privacy:** Merchant details stored locally (`localStorage`). No accounts, no database tracking.
+* **Live Oracle:** Real-time USD → BCH conversion at checkout.
+
+
+
 ---
 
 ### 🔐 Security & Trust Model
