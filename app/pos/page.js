@@ -142,11 +142,26 @@ export default function POSPage() {
                         <p className="text-[10px] text-zinc-500 mt-2">Scan with Bitcoin.com, Paytaca, or Electron Cash</p>
                     </div>
                 ) : (
-                    <div className="animate-fade-in">
-                        <h3 className="text-lg font-bold text-white mb-1 break-all px-2">{merchantAddress}</h3>
-                        <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-xl mt-2">
-                             <p className="text-blue-400 text-xs font-bold uppercase mb-1">⚠️ Manual Input Required</p>
-                             <p className="text-zinc-400 text-[10px]">Send exactly <span className="text-white font-bold">{bchAmount} BCH</span> via Binance/OKX Network.</p>
+                    <div className="animate-fade-in w-full">
+                        <h3 className="text-2xl font-black text-white mb-1">${amount}</h3>
+                        <p className="text-blue-500 font-mono text-sm mb-4 bg-blue-500/10 px-4 py-1 rounded-full border border-blue-500/20 inline-block">{bchAmount} BCH</p>
+                        
+                        <div 
+                            onClick={() => navigator.clipboard.writeText(merchantAddress)}
+                            className="w-full bg-zinc-900/80 border border-white/5 p-4 rounded-2xl cursor-pointer hover:bg-zinc-900 transition-colors group"
+                        >
+                            <p className="text-[9px] text-zinc-500 uppercase font-bold mb-2 tracking-widest flex justify-between">
+                                Destination Address
+                                <span className="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">Copy</span>
+                            </p>
+                            <p className="font-mono text-xs text-zinc-300 break-all text-left">
+                                {merchantAddress}
+                            </p>
+                            <div className="w-full h-[1px] bg-white/5 my-3"></div>
+                            <p className="text-[10px] text-zinc-400 text-left flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                Manual Transfer: Use <span className="text-white font-bold">BCH Network</span> only.
+                            </p>
                         </div>
                     </div>
                 )}
