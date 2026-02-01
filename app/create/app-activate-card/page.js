@@ -81,6 +81,11 @@ export default function AppLicensePage() {
 
       const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       setGeneratedLink(`${window.location.origin}/unlock?id=${encodedId}`);
+      
+      const history = JSON.parse(localStorage.getItem('payonce_history') || '[]');
+      history.push({ title: productName, price: usdPrice + ' USD', url: `${window.location.origin}/unlock?id=${encodedId}` });
+      localStorage.setItem('payonce_history', JSON.stringify(history));
+
     } catch (err) {
       alert("Error: Processing Failed");
     } finally {
