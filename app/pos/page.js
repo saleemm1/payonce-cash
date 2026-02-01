@@ -16,8 +16,7 @@ export default function POSPage() {
         const data = await res.json();
         setBchPrice(data['bitcoin-cash'].usd);
       } catch (error) {
-        console.error("Error fetching price", error);
-        setBchPrice(400);
+        setBchPrice(400); 
       }
     };
     fetchPrice();
@@ -53,10 +52,11 @@ export default function POSPage() {
   
   const paymentLink = `bitcoincash:${merchantAddress}?amount=${bchAmount}`;
   
-  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(paymentLink)}&bgcolor=ffffff`;
+  const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(paymentLink)}&size=300&centerImageUrl=https://cryptologos.cc/logos/bitcoin-cash-bch-logo.png&centerImageSizeRatio=0.2&dark=000000&light=ffffff`;
 
   return (
     <div className="min-h-screen bg-black text-white font-sans flex items-center justify-center p-4 selection:bg-green-500/30">
+      
       {isSettingsOpen && (
           <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-6 backdrop-blur-sm">
               <div className="bg-[#1a1a1a] border border-white/10 p-8 rounded-3xl w-full max-w-sm animate-fade-in-up">
@@ -84,6 +84,7 @@ export default function POSPage() {
       )}
 
       <div className="w-full max-w-sm bg-[#111] border border-zinc-800 rounded-[40px] shadow-2xl overflow-hidden relative flex flex-col h-[600px]">
+        
         <button onClick={() => setIsSettingsOpen(true)} className="absolute top-6 right-6 text-zinc-600 hover:text-white transition-colors z-10 p-2">
             ⚙️
         </button>
@@ -145,6 +146,7 @@ export default function POSPage() {
         >
             CHARGE
         </button>
+
       </div>
     </div>
   );
