@@ -206,7 +206,7 @@ We are executing a focused strategy to become the standard checkout layer for BC
     - Retail POS, Invoicing, Viral Protocol, Security Visualizer.
 - [x] **Phase 2: Developer Tooling (Completed)**
     - PayOnce SDK, Embeddable Buttons, HMAC Protection.
-- [ ] **Phase 3: CashTokens (Hackcelerator Goal)**
+- [ ] **Phase 3: CashTokens **
     - **Loyalty Protocols:** Automated "Store Token" airdrops to customers instantly after payment.
     - **Native Stablecoins:** Support for USDT/USDC on BCH to solve merchant volatility risk (while burning BCH for gas).
 - [ ] **Phase 4: The Ecosystem**
