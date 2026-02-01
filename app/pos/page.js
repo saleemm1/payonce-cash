@@ -9,30 +9,54 @@ export default function POSPage() {
   const [merchantAddress, setMerchantAddress] = useState('');
   const [isSettingsOpen, setIsSettingsOpen] = useState(true);
   const [qrTab, setQrTab] = useState('smart'); 
+  const [currency, setCurrency] = useState('usd');
+  const [rates, setRates] = useState({});
+
+  const currencies = [
+    { code: 'usd', symbol: '$', flag: '🇺🇸' },
+    { code: 'jod', symbol: 'JD', flag: '🇯🇴' },
+    { code: 'sar', symbol: '﷼', flag: '🇸🇦' },
+    { code: 'aed', symbol: 'د.إ', flag: '🇦🇪' },
+    { code: 'eur', symbol: '€', flag: '🇪🇺' },
+  ];
 
   useEffect(() => {
     const fetchPrice = async () => {
       try {
-        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd');
+        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd,jod,sar,aed,eur');
         const data = await res.json();
-        setBchPrice(data['bitcoin-cash'].usd);
+        setRates(data['bitcoin-cash']);
+        setBchPrice(data['bitcoin-cash'][currency]);
       } catch (error) {
         setBchPrice(400); 
       }
     };
     fetchPrice();
+    const interval = setInterval(fetchPrice, 60000);
     
     const savedAddr = localStorage.getItem('pos_wallet');
+    const savedCurr = localStorage.getItem('pos_currency');
+    
     if (savedAddr) {
         setMerchantAddress(savedAddr);
         setIsSettingsOpen(false);
     }
-  }, []);
+    if (savedCurr) setCurrency(savedCurr);
+
+    return () => clearInterval(interval);
+  }, [currency]);
+
+  useEffect(() => {
+      if (rates[currency]) {
+          setBchPrice(rates[currency]);
+      }
+  }, [currency, rates]);
 
   const handleSaveSettings = (e) => {
       e.preventDefault();
       const cleanAddr = merchantAddress.replace('bitcoincash:', '');
       localStorage.setItem('pos_wallet', cleanAddr);
+      localStorage.setItem('pos_currency', currency);
       setMerchantAddress(cleanAddr);
       setIsSettingsOpen(false);
   };
@@ -59,6 +83,7 @@ export default function POSPage() {
   const simpleLink = merchantAddress;
 
   const currentLink = qrTab === 'smart' ? smartLink : simpleLink;
+  const activeCurrency = currencies.find(c => c.code === currency);
   
   const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(currentLink)}&size=300&centerImageUrl=https://cryptologos.cc/logos/bitcoin-cash-bch-logo.png&centerImageSizeRatio=0.2&dark=000000&light=ffffff`;
 
@@ -68,9 +93,9 @@ export default function POSPage() {
       {isSettingsOpen && (
           <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-6 backdrop-blur-sm">
               <div className="bg-[#1a1a1a] border border-white/10 p-8 rounded-3xl w-full max-w-sm animate-fade-in-up">
-                  <h2 className="text-xl font-black uppercase italic mb-4">Setup Terminal</h2>
+                  <h2 className="text-xl font-black uppercase italic mb-4">Terminal Setup</h2>
                   <div className="mb-4">
-                      <label className="text-xs text-zinc-500 uppercase font-bold">Merchant BCH Address</label>
+                      <label className="text-xs text-zinc-500 uppercase font-bold">Merchant Address</label>
                       <input 
                         type="text" 
                         placeholder="qpm2q..." 
@@ -78,7 +103,20 @@ export default function POSPage() {
                         onChange={(e) => setMerchantAddress(e.target.value)}
                         className="w-full bg-black border border-white/10 rounded-xl p-3 mt-2 text-sm focus:border-green-500 outline-none transition-colors"
                       />
-                      <p className="text-[10px] text-zinc-600 mt-2">Funds will go directly to this wallet.</p>
+                  </div>
+                  <div className="mb-6">
+                      <label className="text-xs text-zinc-500 uppercase font-bold">Local Currency</label>
+                      <div className="grid grid-cols-3 gap-2 mt-2">
+                          {currencies.map((c) => (
+                              <button 
+                                key={c.code}
+                                onClick={() => setCurrency(c.code)}
+                                className={`p-2 rounded-lg text-xs font-bold border ${currency === c.code ? 'bg-green-600 border-green-500 text-white' : 'bg-black border-white/10 text-zinc-500'}`}
+                              >
+                                  {c.flag} {c.code.toUpperCase()}
+                              </button>
+                          ))}
+                      </div>
                   </div>
                   <button 
                     onClick={handleSaveSettings}
@@ -91,15 +129,22 @@ export default function POSPage() {
           </div>
       )}
 
-      <div className="w-full max-w-sm bg-[#111] border border-zinc-800 rounded-[40px] shadow-2xl overflow-hidden relative flex flex-col h-[700px]">
+      <div className="w-full max-w-sm bg-[#111] border border-zinc-800 rounded-[40px] shadow-2xl overflow-hidden relative flex flex-col h-[750px]">
         
+        <div className="absolute top-6 left-6 z-10">
+            <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/5">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span className="text-[10px] font-bold text-zinc-300 uppercase tracking-wider">Live</span>
+            </div>
+        </div>
+
         <button onClick={() => setIsSettingsOpen(true)} className="absolute top-6 right-6 text-zinc-600 hover:text-white transition-colors z-10 p-2">
             ⚙️
         </button>
 
         <div className="flex-1 flex flex-col justify-end p-8 text-right bg-gradient-to-b from-[#0a0a0a] to-[#141414]">
-            <div className="text-[10px] font-black uppercase tracking-widest text-green-500 mb-auto text-center opacity-60 bg-green-900/10 py-1 rounded-full border border-green-500/10">
-                {bchPrice ? `1 BCH ≈ $${bchPrice}` : 'Connecting...'}
+            <div className="text-[10px] font-black uppercase tracking-widest text-green-500 mb-auto text-center opacity-60 bg-green-900/10 py-1 rounded-full border border-green-500/10 mx-auto px-4 mt-8">
+                1 BCH ≈ {activeCurrency.symbol}{bchPrice}
             </div>
             
             <div className="text-zinc-500 text-sm font-mono mb-1">
@@ -117,7 +162,7 @@ export default function POSPage() {
                 )}
                 
                 <div className="flex items-end gap-1">
-                    <span className="text-zinc-500 text-3xl font-light mb-2">$</span>
+                    <span className="text-zinc-500 text-3xl font-light mb-2">{activeCurrency.symbol}</span>
                     <span className={`text-7xl font-black tracking-tighter transition-all ${amount === '0' ? 'text-zinc-700' : 'text-white'}`}>
                         {amount}
                     </span>
@@ -153,13 +198,13 @@ export default function POSPage() {
 
                 {qrTab === 'smart' ? (
                     <div className="animate-fade-in">
-                        <h3 className="text-2xl font-black text-white mb-1">${amount}</h3>
+                        <h3 className="text-2xl font-black text-white mb-1">{activeCurrency.symbol}{amount}</h3>
                         <p className="text-green-500 font-mono text-sm mb-2 bg-green-500/10 px-4 py-1 rounded-full border border-green-500/20 inline-block">{bchAmount} BCH</p>
                         <p className="text-[10px] text-zinc-500 mt-2">Scan with Bitcoin.com, Paytaca, or Electron Cash</p>
                     </div>
                 ) : (
                     <div className="animate-fade-in w-full">
-                        <h3 className="text-2xl font-black text-white mb-1">${amount}</h3>
+                        <h3 className="text-2xl font-black text-white mb-1">{activeCurrency.symbol}{amount}</h3>
                         <p className="text-green-500 font-mono text-sm mb-4 bg-green-500/10 px-4 py-1 rounded-full border border-green-500/20 inline-block">{bchAmount} BCH</p>
                         
                         <div 
