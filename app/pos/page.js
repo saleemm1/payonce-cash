@@ -121,13 +121,13 @@ export default function POSPage() {
                     </button>
                     <button 
                         onClick={() => setQrTab('exchange')}
-                        className={`flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wide transition-all ${qrTab === 'exchange' ? 'bg-blue-600 text-white shadow-lg' : 'text-zinc-500 hover:text-white'}`}
+                        className={`flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wide transition-all ${qrTab === 'exchange' ? 'bg-zinc-700 text-white shadow-lg' : 'text-zinc-500 hover:text-white'}`}
                     >
                         🏦 Exchange
                     </button>
                 </div>
 
-                <div className={`bg-white p-4 rounded-3xl mb-4 shadow-[0_0_60px_rgba(0,0,0,0.5)] ring-4 transition-all duration-300 transform hover:scale-105 ${qrTab === 'smart' ? 'ring-green-500/20' : 'ring-blue-500/20'}`}>
+                <div className="bg-white p-4 rounded-3xl mb-4 shadow-[0_0_60px_rgba(0,0,0,0.5)] ring-4 ring-green-500/20 transition-all duration-300 transform hover:scale-105">
                     <img 
                         src={qrImageUrl} 
                         alt="Payment QR"
@@ -144,7 +144,7 @@ export default function POSPage() {
                 ) : (
                     <div className="animate-fade-in w-full">
                         <h3 className="text-2xl font-black text-white mb-1">${amount}</h3>
-                        <p className="text-blue-500 font-mono text-sm mb-4 bg-blue-500/10 px-4 py-1 rounded-full border border-blue-500/20 inline-block">{bchAmount} BCH</p>
+                        <p className="text-green-500 font-mono text-sm mb-4 bg-green-500/10 px-4 py-1 rounded-full border border-green-500/20 inline-block">{bchAmount} BCH</p>
                         
                         <div 
                             onClick={() => navigator.clipboard.writeText(merchantAddress)}
@@ -152,15 +152,15 @@ export default function POSPage() {
                         >
                             <p className="text-[9px] text-zinc-500 uppercase font-bold mb-2 tracking-widest flex justify-between">
                                 Destination Address
-                                <span className="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">Copy</span>
+                                <span className="text-green-500 opacity-0 group-hover:opacity-100 transition-opacity">Copy</span>
                             </p>
                             <p className="font-mono text-xs text-zinc-300 break-all text-left">
                                 {merchantAddress}
                             </p>
                             <div className="w-full h-[1px] bg-white/5 my-3"></div>
-                            <p className="text-[10px] text-zinc-400 text-left flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                                Manual Transfer: Use <span className="text-white font-bold">BCH Network</span> only.
+                            <p className="text-[10px] text-zinc-400 text-left">
+                                <span className="block text-white font-bold mb-1">⚠️ Centralized Exchanges Only</span>
+                                Use this for <span className="text-white">Binance, OKX, Bybit</span> manually.
                             </p>
                         </div>
                     </div>
