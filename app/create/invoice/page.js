@@ -72,6 +72,8 @@ export default function InvoiceUploadPage() {
         formData.append("file", file);
         const res = await fetch("/api/upload", { method: "POST", body: formData });
         const json = await res.json();
+        
+        if (!json.ipfsHash) throw new Error("Upload Failed");
         assetId = json.ipfsHash;
       }
 
@@ -94,6 +96,11 @@ export default function InvoiceUploadPage() {
 
       const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       setGeneratedLink(`${window.location.origin}/unlock?id=${encodedId}`);
+      
+      const history = JSON.parse(localStorage.getItem('payonce_history') || '[]');
+      history.push({ title: productName, price: usdPrice + ' USD', url: `${window.location.origin}/unlock?id=${encodedId}` });
+      localStorage.setItem('payonce_history', JSON.stringify(history));
+
     } catch (err) {
       alert("Error generating invoice");
     } finally {
