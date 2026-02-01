@@ -38,6 +38,7 @@ export default function GameCardUploadPage() {
   const handleGenerate = async (e) => {
     e.preventDefault();
     let fileToUpload = file;
+    
     if (deliveryType === 'code') {
       if (!textCode) return alert("Please enter codes");
       fileToUpload = new File([textCode], "card_codes.txt", { type: "text/plain" });
@@ -56,8 +57,11 @@ export default function GameCardUploadPage() {
 
       const formData = new FormData();
       formData.append("file", fileToUpload);
+      
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       const json = await res.json();
+
+      if (!json.ipfsHash) throw new Error("File Upload Failed");
 
       const payload = {
         w: wallet, 
@@ -75,8 +79,13 @@ export default function GameCardUploadPage() {
 
       const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       setGeneratedLink(`${window.location.origin}/unlock?id=${encodedId}`);
+      
+      const history = JSON.parse(localStorage.getItem('payonce_history') || '[]');
+      history.push({ title: productName, price: usdPrice + ' USD', url: `${window.location.origin}/unlock?id=${encodedId}` });
+      localStorage.setItem('payonce_history', JSON.stringify(history));
+
     } catch (err) {
-      alert("Error processing");
+      alert("Error processing upload");
     } finally {
       setUploading(false);
     }
