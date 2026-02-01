@@ -7,7 +7,8 @@ export default function POSPage() {
   const [bchPrice, setBchPrice] = useState(null);
   const [showQR, setShowQR] = useState(false);
   const [merchantAddress, setMerchantAddress] = useState('');
-  const [isSettingsOpen, setIsSettingsOpen] = useState(true); 
+  const [isSettingsOpen, setIsSettingsOpen] = useState(true);
+  const [qrTab, setQrTab] = useState('smart'); 
 
   useEffect(() => {
     const fetchPrice = async () => {
@@ -50,9 +51,12 @@ export default function POSPage() {
 
   const bchAmount = bchPrice ? (parseFloat(amount) / bchPrice).toFixed(8) : '0.00';
   
-  const paymentLink = `bitcoincash:${merchantAddress}?amount=${bchAmount}`;
+  const smartLink = `bitcoincash:${merchantAddress}?amount=${bchAmount}`;
+  const simpleLink = merchantAddress;
+
+  const currentLink = qrTab === 'smart' ? smartLink : simpleLink;
   
-  const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(paymentLink)}&size=300&centerImageUrl=https://cryptologos.cc/logos/bitcoin-cash-bch-logo.png&centerImageSizeRatio=0.2&dark=000000&light=ffffff`;
+  const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(currentLink)}&size=300&centerImageUrl=https://cryptologos.cc/logos/bitcoin-cash-bch-logo.png&centerImageSizeRatio=0.2&dark=000000&light=ffffff`;
 
   return (
     <div className="min-h-screen bg-black text-white font-sans flex items-center justify-center p-4 selection:bg-green-500/30">
@@ -83,7 +87,7 @@ export default function POSPage() {
           </div>
       )}
 
-      <div className="w-full max-w-sm bg-[#111] border border-zinc-800 rounded-[40px] shadow-2xl overflow-hidden relative flex flex-col h-[600px]">
+      <div className="w-full max-w-sm bg-[#111] border border-zinc-800 rounded-[40px] shadow-2xl overflow-hidden relative flex flex-col h-[700px]">
         
         <button onClick={() => setIsSettingsOpen(true)} className="absolute top-6 right-6 text-zinc-600 hover:text-white transition-colors z-10 p-2">
             ⚙️
@@ -106,22 +110,52 @@ export default function POSPage() {
         </div>
 
         {showQR && (
-            <div className="absolute inset-0 bg-black/95 z-20 flex flex-col items-center justify-center animate-fade-in px-6 text-center backdrop-blur-md">
-                <div className="bg-white p-4 rounded-3xl mb-6 shadow-[0_0_60px_rgba(34,197,94,0.3)] ring-4 ring-green-500/20 transform hover:scale-105 transition-transform duration-300">
+            <div className="absolute inset-0 bg-black/95 z-20 flex flex-col items-center justify-start pt-10 animate-fade-in px-6 text-center backdrop-blur-md">
+                
+                <div className="flex bg-zinc-900 p-1 rounded-xl w-full mb-6 border border-white/10">
+                    <button 
+                        onClick={() => setQrTab('smart')}
+                        className={`flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wide transition-all ${qrTab === 'smart' ? 'bg-green-600 text-white shadow-lg' : 'text-zinc-500 hover:text-white'}`}
+                    >
+                        ⚡ Smart Pay
+                    </button>
+                    <button 
+                        onClick={() => setQrTab('exchange')}
+                        className={`flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wide transition-all ${qrTab === 'exchange' ? 'bg-blue-600 text-white shadow-lg' : 'text-zinc-500 hover:text-white'}`}
+                    >
+                        🏦 Exchange
+                    </button>
+                </div>
+
+                <div className={`bg-white p-4 rounded-3xl mb-4 shadow-[0_0_60px_rgba(0,0,0,0.5)] ring-4 transition-all duration-300 transform hover:scale-105 ${qrTab === 'smart' ? 'ring-green-500/20' : 'ring-blue-500/20'}`}>
                     <img 
                         src={qrImageUrl} 
                         alt="Payment QR"
                         className="w-[220px] h-[220px] object-contain"
                     />
                 </div>
-                <h3 className="text-3xl font-black text-white mb-2">${amount}</h3>
-                <p className="text-green-500 font-mono text-sm mb-8 bg-green-500/10 px-4 py-1 rounded-full border border-green-500/20">{bchAmount} BCH</p>
+
+                {qrTab === 'smart' ? (
+                    <div className="animate-fade-in">
+                        <h3 className="text-2xl font-black text-white mb-1">${amount}</h3>
+                        <p className="text-green-500 font-mono text-sm mb-2 bg-green-500/10 px-4 py-1 rounded-full border border-green-500/20 inline-block">{bchAmount} BCH</p>
+                        <p className="text-[10px] text-zinc-500 mt-2">Scan with Bitcoin.com, Paytaca, or Electron Cash</p>
+                    </div>
+                ) : (
+                    <div className="animate-fade-in">
+                        <h3 className="text-lg font-bold text-white mb-1 break-all px-2">{merchantAddress}</h3>
+                        <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-xl mt-2">
+                             <p className="text-blue-400 text-xs font-bold uppercase mb-1">⚠️ Manual Input Required</p>
+                             <p className="text-zinc-400 text-[10px]">Send exactly <span className="text-white font-bold">{bchAmount} BCH</span> via Binance/OKX Network.</p>
+                        </div>
+                    </div>
+                )}
                 
                 <button 
                     onClick={() => setShowQR(false)}
-                    className="w-full bg-zinc-800 text-white py-4 rounded-2xl font-bold hover:bg-zinc-700 border border-white/5 transition-all"
+                    className="w-full bg-zinc-800 text-white py-4 rounded-2xl font-bold hover:bg-zinc-700 border border-white/5 transition-all mt-auto mb-6"
                 >
-                    Cancel Order
+                    Close / New Order
                 </button>
             </div>
         )}
