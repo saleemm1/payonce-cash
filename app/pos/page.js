@@ -4,13 +4,19 @@ import { useState, useEffect } from 'react';
 
 export default function POSPage() {
   const [amount, setAmount] = useState('0');
-  const [bchPrice, setBchPrice] = useState(null);
   const [showQR, setShowQR] = useState(false);
   const [merchantAddress, setMerchantAddress] = useState('');
   const [isSettingsOpen, setIsSettingsOpen] = useState(true);
   const [qrTab, setQrTab] = useState('smart'); 
   const [currency, setCurrency] = useState('usd');
-  const [rates, setRates] = useState({});
+  
+  const [rates, setRates] = useState({
+    usd: 450.00,
+    jod: 319.05,
+    sar: 1687.50,
+    aed: 1652.85,
+    eur: 415.20
+  });
 
   const currencies = [
     { code: 'usd', symbol: '$', flag: '🇺🇸' },
@@ -24,15 +30,18 @@ export default function POSPage() {
     const fetchPrice = async () => {
       try {
         const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd,jod,sar,aed,eur');
+        if (!res.ok) throw new Error('API Limit');
         const data = await res.json();
-        setRates(data['bitcoin-cash']);
-        setBchPrice(data['bitcoin-cash'][currency]);
+        if (data['bitcoin-cash']) {
+            setRates(data['bitcoin-cash']);
+        }
       } catch (error) {
-        setBchPrice(400); 
+        console.log("Using demo rates due to API limit");
       }
     };
+    
     fetchPrice();
-    const interval = setInterval(fetchPrice, 60000);
+    const interval = setInterval(fetchPrice, 60000); 
     
     const savedAddr = localStorage.getItem('pos_wallet');
     const savedCurr = localStorage.getItem('pos_currency');
@@ -41,16 +50,12 @@ export default function POSPage() {
         setMerchantAddress(savedAddr);
         setIsSettingsOpen(false);
     }
-    if (savedCurr) setCurrency(savedCurr);
+    if (savedCurr && currencies.some(c => c.code === savedCurr)) {
+        setCurrency(savedCurr);
+    }
 
     return () => clearInterval(interval);
   }, []);
-
-  useEffect(() => {
-      if (rates && rates[currency]) {
-          setBchPrice(rates[currency]);
-      }
-  }, [currency, rates]);
 
   const handleSaveSettings = (e) => {
       e.preventDefault();
@@ -77,13 +82,14 @@ export default function POSPage() {
     setAmount(prev => (prev.length > 1 ? prev.slice(0, -1) : '0'));
   };
 
-  const bchAmount = bchPrice ? (parseFloat(amount) / bchPrice).toFixed(8) : '0.00';
+  const activeCurrency = currencies.find(c => c.code === currency) || currencies[0];
+  const currentRate = rates[currency] || 0;
+  const bchAmount = currentRate > 0 ? (parseFloat(amount) / currentRate).toFixed(8) : '0.00';
   
   const smartLink = `bitcoincash:${merchantAddress}?amount=${bchAmount}`;
   const simpleLink = merchantAddress;
 
   const currentLink = qrTab === 'smart' ? smartLink : simpleLink;
-  const activeCurrency = currencies.find(c => c.code === currency) || currencies[0];
   
   const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(currentLink)}&size=300&centerImageUrl=https://cryptologos.cc/logos/bitcoin-cash-bch-logo.png&centerImageSizeRatio=0.2&dark=000000&light=ffffff`;
 
@@ -144,7 +150,7 @@ export default function POSPage() {
 
         <div className="flex-1 flex flex-col justify-end p-8 text-right bg-gradient-to-b from-[#0a0a0a] to-[#141414]">
             <div className="text-[10px] font-black uppercase tracking-widest text-green-500 mb-auto text-center opacity-60 bg-green-900/10 py-1 rounded-full border border-green-500/10 mx-auto px-4 mt-8">
-                1 BCH ≈ {activeCurrency.symbol}{bchPrice ? bchPrice : '...'}
+                1 BCH ≈ {activeCurrency.symbol}{currentRate}
             </div>
             
             <div className="text-zinc-500 text-sm font-mono mb-1">
