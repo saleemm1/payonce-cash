@@ -49,6 +49,10 @@ export default function POSPage() {
     setAmount(prev => (prev === '0' ? val : prev + val));
   };
 
+  const handleBackspace = () => {
+    setAmount(prev => (prev.length > 1 ? prev.slice(0, -1) : '0'));
+  };
+
   const bchAmount = bchPrice ? (parseFloat(amount) / bchPrice).toFixed(8) : '0.00';
   
   const smartLink = `bitcoincash:${merchantAddress}?amount=${bchAmount}`;
@@ -101,11 +105,23 @@ export default function POSPage() {
             <div className="text-zinc-500 text-sm font-mono mb-1">
                 ≈ {bchAmount} BCH
             </div>
-            <div className="flex justify-end items-end gap-1">
-                <span className="text-zinc-500 text-3xl font-light mb-2">$</span>
-                <span className={`text-7xl font-black tracking-tighter transition-all ${amount === '0' ? 'text-zinc-700' : 'text-white'}`}>
-                    {amount}
-                </span>
+            
+            <div className="flex justify-end items-center gap-4">
+                {amount !== '0' && (
+                    <button 
+                        onClick={handleBackspace}
+                        className="text-zinc-500 hover:text-red-500 transition-colors text-2xl p-2"
+                    >
+                        ⌫
+                    </button>
+                )}
+                
+                <div className="flex items-end gap-1">
+                    <span className="text-zinc-500 text-3xl font-light mb-2">$</span>
+                    <span className={`text-7xl font-black tracking-tighter transition-all ${amount === '0' ? 'text-zinc-700' : 'text-white'}`}>
+                        {amount}
+                    </span>
+                </div>
             </div>
         </div>
 
