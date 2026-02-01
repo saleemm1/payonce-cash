@@ -1,12 +1,43 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import axios from 'axios';
 
 export default function POSPage() {
   const [amount, setAmount] = useState('0');
+  const [bchPrice, setBchPrice] = useState(null);
   const [showQR, setShowQR] = useState(false);
-  
+  const [merchantAddress, setMerchantAddress] = useState('');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(true);
+
+  useEffect(() => {
+    const fetchPrice = async () => {
+      try {
+        const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd');
+        setBchPrice(response.data['bitcoin-cash'].usd);
+      } catch (error) {
+        console.error("Error fetching price", error);
+        setBchPrice(400); 
+      }
+    };
+    fetchPrice();
+    
+    const savedAddr = localStorage.getItem('pos_wallet');
+    if (savedAddr) {
+        setMerchantAddress(savedAddr);
+        setIsSettingsOpen(false);
+    }
+  }, []);
+
+  const handleSaveSettings = (e) => {
+      e.preventDefault();
+      const cleanAddr = merchantAddress.replace('bitcoincash:', '');
+      localStorage.setItem('pos_wallet', cleanAddr);
+      setMerchantAddress(cleanAddr);
+      setIsSettingsOpen(false);
+  };
+
   const handlePress = (val) => {
     if (showQR) setShowQR(false);
     if (val === 'C') {
@@ -19,53 +50,88 @@ export default function POSPage() {
     setAmount(prev => (prev === '0' ? val : prev + val));
   };
 
-  const generatePayment = () => {
-    if (amount === '0') return;
-    setShowQR(true);
-  };
+  const bchAmount = bchPrice ? (parseFloat(amount) / bchPrice).toFixed(8) : '0.00';
+
+  const paymentLink = `bitcoincash:${merchantAddress}?amount=${bchAmount}`;
 
   return (
     <div className="min-h-screen bg-black text-white font-sans flex items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-[#111] border border-zinc-800 rounded-[40px] shadow-2xl overflow-hidden relative">
-        <div className="pt-8 pb-4 text-center">
-            <div className="text-[10px] font-black uppercase tracking-widest text-green-500 mb-1">PayOnce Terminal</div>
-            <div className="flex justify-center items-end gap-1">
-                <span className="text-zinc-500 text-2xl font-light">$</span>
-                <span className={`text-6xl font-black tracking-tighter ${showQR ? 'text-zinc-600' : 'text-white'}`}>
+      {isSettingsOpen && (
+          <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-6 backdrop-blur-sm">
+              <div className="bg-[#1a1a1a] border border-white/10 p-8 rounded-3xl w-full max-w-sm">
+                  <h2 className="text-xl font-black uppercase italic mb-4">Setup Terminal</h2>
+                  <div className="mb-4">
+                      <label className="text-xs text-zinc-500 uppercase font-bold">Merchant BCH Address</label>
+                      <input 
+                        type="text" 
+                        placeholder="qpm2q..." 
+                        value={merchantAddress}
+                        onChange={(e) => setMerchantAddress(e.target.value)}
+                        className="w-full bg-black border border-white/10 rounded-xl p-3 mt-2 text-sm focus:border-green-500 outline-none"
+                      />
+                      <p className="text-[10px] text-zinc-600 mt-2">Funds will go directly to this wallet.</p>
+                  </div>
+                  <button 
+                    onClick={handleSaveSettings}
+                    disabled={!merchantAddress}
+                    className="w-full bg-green-500 text-black font-bold py-3 rounded-xl disabled:opacity-50 hover:bg-green-400 transition-all"
+                  >
+                      Save & Start
+                  </button>
+              </div>
+          </div>
+      )}
+
+      <div className="w-full max-w-sm bg-[#111] border border-zinc-800 rounded-[40px] shadow-2xl overflow-hidden relative flex flex-col h-[600px]">
+        <button onClick={() => setIsSettingsOpen(true)} className="absolute top-6 right-6 text-zinc-600 hover:text-white transition-colors z-10">
+            ⚙️
+        </button>
+
+        <div className="flex-1 flex flex-col justify-end p-8 text-right bg-gradient-to-b from-[#111] to-[#161616]">
+            <div className="text-[10px] font-black uppercase tracking-widest text-green-500 mb-auto text-center opacity-50">
+                {bchPrice ? `1 BCH ≈ $${bchPrice}` : 'Connecting...'}
+            </div>
+            
+            <div className="text-zinc-500 text-sm font-mono mb-1">
+                ≈ {bchAmount} BCH
+            </div>
+            <div className="flex justify-end items-end gap-1">
+                <span className="text-zinc-500 text-3xl font-light mb-2">$</span>
+                <span className={`text-7xl font-black tracking-tighter transition-all ${amount === '0' ? 'text-zinc-700' : 'text-white'}`}>
                     {amount}
                 </span>
             </div>
         </div>
 
         {showQR && (
-            <div className="absolute inset-0 bg-black/95 z-20 flex flex-col items-center justify-center animate-fade-in">
-                <div className="bg-white p-4 rounded-3xl mb-6 shadow-[0_0_40px_rgba(34,197,94,0.3)]">
+            <div className="absolute inset-0 bg-black/95 z-20 flex flex-col items-center justify-center animate-fade-in px-6 text-center">
+                <div className="bg-white p-4 rounded-3xl mb-6 shadow-[0_0_50px_rgba(34,197,94,0.4)] ring-4 ring-green-500/20">
                     <QRCodeSVG 
-                        value={`bitcoincash:?amount=${amount}&label=POS_Order`} 
-                        size={200} 
+                        value={paymentLink} 
+                        size={220} 
                         level={"H"}
                         includeMargin={true}
                     />
                 </div>
-                <p className="text-zinc-400 text-sm animate-pulse mb-8">Waiting for payment...</p>
+                <h3 className="text-2xl font-black text-white mb-1">${amount}</h3>
+                <p className="text-green-500 font-mono text-sm mb-8">{bchAmount} BCH</p>
+                
                 <button 
                     onClick={() => setShowQR(false)}
-                    className="bg-zinc-800 text-white px-8 py-3 rounded-full font-bold text-sm hover:bg-zinc-700"
+                    className="w-full bg-zinc-800 text-white py-4 rounded-2xl font-bold hover:bg-zinc-700 border border-white/5"
                 >
                     Cancel / New Order
                 </button>
             </div>
         )}
 
-        <div className="grid grid-cols-3 gap-3 p-6 bg-zinc-900/50 rounded-t-[40px]">
+        <div className="grid grid-cols-3 gap-[1px] bg-zinc-800 border-t border-zinc-800">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0, 'C'].map((btn) => (
                 <button 
                     key={btn}
                     onClick={() => handlePress(btn.toString())}
-                    className={`h-20 rounded-2xl text-2xl font-bold transition-all active:scale-95 ${
-                        btn === 'C' 
-                        ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20' 
-                        : 'bg-[#1a1a1a] text-white hover:bg-[#252525]'
+                    className={`h-20 text-2xl font-bold transition-all active:bg-zinc-700 ${
+                        btn === 'C' ? 'bg-[#1a1111] text-red-400' : 'bg-[#1a1a1a] text-white'
                     }`}
                 >
                     {btn}
@@ -73,14 +139,12 @@ export default function POSPage() {
             ))}
         </div>
 
-        <div className="p-6 pt-0 bg-zinc-900/50">
-            <button 
-                onClick={generatePayment}
-                className="w-full bg-green-500 text-black font-black text-xl py-5 rounded-2xl hover:bg-green-400 active:scale-95 transition-all shadow-lg shadow-green-900/20"
-            >
-                CHARGE
-            </button>
-        </div>
+        <button 
+            onClick={() => amount !== '0' && setShowQR(true)}
+            className="w-full bg-green-600 text-white font-black text-xl py-6 hover:bg-green-500 transition-all active:scale-[0.99]"
+        >
+            CHARGE
+        </button>
       </div>
     </div>
   );
