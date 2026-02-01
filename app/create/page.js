@@ -45,7 +45,7 @@ export default function CreatePage() {
 
         <Link
             href="/create/invoice"
-            className="group relative w-full bg-[#121214] border border-white/5 hover:border-green-500/40 p-1 rounded-[40px] transition-all duration-500 hover:-translate-y-2 block"
+            className="group relative w-full bg-[#121214] border border-white/5 hover:border-green-500/40 p-1 rounded-[40px] transition-all duration-500 hover:-translate-y-2 block mb-6"
           >
             <div className="bg-zinc-950/50 rounded-[38px] p-8 md:p-12 flex flex-col lg:flex-row items-center justify-between gap-10 overflow-hidden relative">
               <div className="absolute top-0 right-0 w-64 h-64 bg-green-600/5 blur-[100px] -z-10"></div>
@@ -56,10 +56,10 @@ export default function CreatePage() {
                 </div>
                 <div className="text-center md:text-left">
                    <h3 className="text-3xl md:text-4xl font-black mb-3 tracking-tighter text-white uppercase italic">
-                    Merchant <span className="text-green-500 text-shadow-glow">Terminal</span>
+                   Merchant <span className="text-green-500 text-shadow-glow">Terminal</span>
                    </h3>
                    <p className="text-zinc-400 text-lg font-medium leading-relaxed max-w-xl mb-6">
-                      Deploy a real-world BCH payment system for your business.
+                     Deploy a real-world BCH payment system for your business.
 Accept Bitcoin Cash instantly — in-store or online.
                    </p>
                    
@@ -94,6 +94,37 @@ Accept Bitcoin Cash instantly — in-store or online.
               </div>
             </div>
         </Link>
+
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Link href="/pos" className="group bg-[#121214] border border-white/5 hover:border-green-500/40 p-6 rounded-[32px] transition-all hover:-translate-y-1 flex items-center gap-6 relative overflow-hidden">
+                <div className="absolute right-0 top-0 w-32 h-32 bg-green-500/5 blur-[50px]"></div>
+                <div className="w-16 h-16 bg-zinc-900 rounded-2xl flex items-center justify-center text-3xl border border-white/5 group-hover:scale-110 transition-transform">
+                    📱
+                </div>
+                <div>
+                    <h4 className="text-xl font-black uppercase italic text-white group-hover:text-green-500 transition-colors">Live Web POS</h4>
+                    <p className="text-xs text-zinc-500 font-bold uppercase tracking-wide mt-1">For Cafes & Retail</p>
+                </div>
+                <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+            </Link>
+
+            <Link href="/billing" className="group bg-[#121214] border border-white/5 hover:border-blue-500/40 p-6 rounded-[32px] transition-all hover:-translate-y-1 flex items-center gap-6 relative overflow-hidden">
+                <div className="absolute right-0 top-0 w-32 h-32 bg-blue-500/5 blur-[50px]"></div>
+                <div className="w-16 h-16 bg-zinc-900 rounded-2xl flex items-center justify-center text-3xl border border-white/5 group-hover:scale-110 transition-transform">
+                    🔄
+                </div>
+                <div>
+                    <h4 className="text-xl font-black uppercase italic text-white group-hover:text-blue-500 transition-colors">Recurring Billing</h4>
+                    <p className="text-xs text-zinc-500 font-bold uppercase tracking-wide mt-1">For SaaS & Services</p>
+                </div>
+                <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+            </Link>
+        </div>
       </div>
 
       <div className="w-full max-w-5xl">
@@ -130,10 +161,10 @@ Accept Bitcoin Cash instantly — in-store or online.
           ))}
 
           <div className="border-2 border-dashed border-white/5 p-8 rounded-[32px] flex flex-col items-center justify-center text-center group hover:bg-zinc-900/20 transition-all">
-               <div className="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center mb-4 text-zinc-700 font-bold group-hover:scale-110 transition-transform">
-                 +
-               </div>
-               <span className="text-xs font-black uppercase tracking-widest text-zinc-600">More assets<br/>Coming Soon</span>
+                <div className="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center mb-4 text-zinc-700 font-bold group-hover:scale-110 transition-transform">
+                  +
+                </div>
+                <span className="text-xs font-black uppercase tracking-widest text-zinc-600">More assets<br/>Coming Soon</span>
           </div>
         </div>
       </div>
