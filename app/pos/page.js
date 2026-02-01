@@ -44,10 +44,10 @@ export default function POSPage() {
     if (savedCurr) setCurrency(savedCurr);
 
     return () => clearInterval(interval);
-  }, [currency]);
+  }, []);
 
   useEffect(() => {
-      if (rates[currency]) {
+      if (rates && rates[currency]) {
           setBchPrice(rates[currency]);
       }
   }, [currency, rates]);
@@ -83,7 +83,7 @@ export default function POSPage() {
   const simpleLink = merchantAddress;
 
   const currentLink = qrTab === 'smart' ? smartLink : simpleLink;
-  const activeCurrency = currencies.find(c => c.code === currency);
+  const activeCurrency = currencies.find(c => c.code === currency) || currencies[0];
   
   const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(currentLink)}&size=300&centerImageUrl=https://cryptologos.cc/logos/bitcoin-cash-bch-logo.png&centerImageSizeRatio=0.2&dark=000000&light=ffffff`;
 
@@ -144,7 +144,7 @@ export default function POSPage() {
 
         <div className="flex-1 flex flex-col justify-end p-8 text-right bg-gradient-to-b from-[#0a0a0a] to-[#141414]">
             <div className="text-[10px] font-black uppercase tracking-widest text-green-500 mb-auto text-center opacity-60 bg-green-900/10 py-1 rounded-full border border-green-500/10 mx-auto px-4 mt-8">
-                1 BCH ≈ {activeCurrency.symbol}{bchPrice}
+                1 BCH ≈ {activeCurrency.symbol}{bchPrice ? bchPrice : '...'}
             </div>
             
             <div className="text-zinc-500 text-sm font-mono mb-1">
