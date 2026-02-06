@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function POSPage() {
   const [amount, setAmount] = useState('0');
@@ -9,6 +9,8 @@ export default function POSPage() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(true);
   const [qrTab, setQrTab] = useState('smart'); 
   const [currency, setCurrency] = useState('usd');
+  const [paymentStatus, setPaymentStatus] = useState('pending');
+  const [txHash, setTxHash] = useState('');
   
   const [rates, setRates] = useState({
     usd: 450.00,
@@ -17,6 +19,9 @@ export default function POSPage() {
     aed: 1652.85,
     eur: 415.20
   });
+
+  const initialTxHistory = useRef(new Set());
+  const isHistoryLoaded = useRef(false);
 
   const currencies = [
     { code: 'usd', symbol: '$', flag: '🇺🇸' },
@@ -67,7 +72,10 @@ export default function POSPage() {
   };
 
   const handlePress = (val) => {
-    if (showQR) setShowQR(false);
+    if (showQR) {
+        setShowQR(false);
+        setPaymentStatus('pending');
+    }
     if (val === 'C') {
       setAmount('0');
       return;
@@ -90,8 +98,64 @@ export default function POSPage() {
   const simpleLink = merchantAddress;
 
   const currentLink = qrTab === 'smart' ? smartLink : simpleLink;
-  
   const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(currentLink)}&size=300&centerImageUrl=https://cryptologos.cc/logos/bitcoin-cash-bch-logo.png&centerImageSizeRatio=0.2&dark=000000&light=ffffff`;
+
+  useEffect(() => {
+      let interval;
+      
+      const loadInitialHistory = async () => {
+          if (!merchantAddress) return;
+          try {
+              const res = await fetch(`https://rest.mainnet.cash/v1/address/history/${merchantAddress}`);
+              const history = await res.json();
+              history.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
+              isHistoryLoaded.current = true;
+          } catch (e) {}
+      };
+
+      if (merchantAddress && !isHistoryLoaded.current) {
+          loadInitialHistory();
+      }
+
+      if (showQR && paymentStatus === 'pending' && merchantAddress && bchAmount > 0) {
+          const expectedSats = Math.floor(parseFloat(bchAmount) * 100000000) - 1000;
+
+          interval = setInterval(async () => {
+              try {
+                  const res = await fetch(`https://rest.mainnet.cash/v1/address/history/${merchantAddress}`);
+                  const history = await res.json();
+                  
+                  const newTx = history.find(tx => 
+                      !initialTxHistory.current.has(tx.tx_hash) && 
+                      tx.value >= expectedSats
+                  );
+
+                  if (newTx) {
+                      clearInterval(interval);
+                      setPaymentStatus('verifying');
+                      setTxHash(newTx.tx_hash);
+                      
+                      try {
+                          const blockRes = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/transaction/${newTx.tx_hash}`);
+                          const blockJson = await blockRes.json();
+                          const txData = blockJson.data[newTx.tx_hash];
+                          
+                          if (txData && !txData.is_double_spend_detected) {
+                              setPaymentStatus('success');
+                          } else {
+                              alert("Warning: Double Spend Attempt Detected!");
+                              setPaymentStatus('pending'); 
+                          }
+                      } catch (e) {
+                          setPaymentStatus('success');
+                      }
+                  }
+              } catch (err) {}
+          }, 3000);
+      }
+      return () => clearInterval(interval);
+  }, [showQR, paymentStatus, merchantAddress, bchAmount]);
+
 
   return (
     <div className="min-h-screen bg-black text-white font-sans flex items-center justify-center p-4 selection:bg-green-500/30">
@@ -179,66 +243,104 @@ export default function POSPage() {
         {showQR && (
             <div className="absolute inset-0 bg-black/95 z-20 flex flex-col items-center justify-start pt-10 animate-fade-in px-6 text-center backdrop-blur-md">
                 
-                <div className="flex bg-zinc-900 p-1 rounded-xl w-full mb-6 border border-white/10">
-                    <button 
-                        onClick={() => setQrTab('smart')}
-                        className={`flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wide transition-all ${qrTab === 'smart' ? 'bg-green-600 text-white shadow-lg' : 'text-zinc-500 hover:text-white'}`}
-                    >
-                        ⚡ Smart Pay
-                    </button>
-                    <button 
-                        onClick={() => setQrTab('exchange')}
-                        className={`flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wide transition-all ${qrTab === 'exchange' ? 'bg-zinc-700 text-white shadow-lg' : 'text-zinc-500 hover:text-white'}`}
-                    >
-                        🏦 Exchange
-                    </button>
-                </div>
-
-                <div className="bg-white p-4 rounded-3xl mb-4 shadow-[0_0_60px_rgba(0,0,0,0.5)] ring-4 ring-green-500/20 transition-all duration-300 transform hover:scale-105">
-                    <img 
-                        src={qrImageUrl} 
-                        alt="Payment QR"
-                        className="w-[220px] h-[220px] object-contain"
-                    />
-                </div>
-
-                {qrTab === 'smart' ? (
-                    <div className="animate-fade-in">
-                        <h3 className="text-2xl font-black text-white mb-1">{activeCurrency.symbol}{amount}</h3>
-                        <p className="text-green-500 font-mono text-sm mb-2 bg-green-500/10 px-4 py-1 rounded-full border border-green-500/20 inline-block">{bchAmount} BCH</p>
-                        <p className="text-[10px] text-zinc-500 mt-2">Scan with Bitcoin.com, Paytaca, or Electron Cash</p>
-                    </div>
-                ) : (
-                    <div className="animate-fade-in w-full">
-                        <h3 className="text-2xl font-black text-white mb-1">{activeCurrency.symbol}{amount}</h3>
-                        <p className="text-green-500 font-mono text-sm mb-4 bg-green-500/10 px-4 py-1 rounded-full border border-green-500/20 inline-block">{bchAmount} BCH</p>
-                        
-                        <div 
-                            onClick={() => navigator.clipboard.writeText(merchantAddress)}
-                            className="w-full bg-zinc-900/80 border border-white/5 p-4 rounded-2xl cursor-pointer hover:bg-zinc-900 transition-colors group"
-                        >
-                            <p className="text-[9px] text-zinc-500 uppercase font-bold mb-2 tracking-widest flex justify-between">
-                                Destination Address
-                                <span className="text-green-500 opacity-0 group-hover:opacity-100 transition-opacity">Copy</span>
-                            </p>
-                            <p className="font-mono text-xs text-zinc-300 break-all text-left">
-                                {merchantAddress}
-                            </p>
-                            <div className="w-full h-[1px] bg-white/5 my-3"></div>
-                            <p className="text-[10px] text-zinc-400 text-left">
-                                <span className="block text-white font-bold mb-1">⚠️ Centralized Exchanges Only</span>
-                                Use this for <span className="text-white">Binance, OKX, Bybit</span> manually.
-                            </p>
+                {paymentStatus === 'pending' && (
+                    <>
+                        <div className="flex bg-zinc-900 p-1 rounded-xl w-full mb-6 border border-white/10">
+                            <button 
+                                onClick={() => setQrTab('smart')}
+                                className={`flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wide transition-all ${qrTab === 'smart' ? 'bg-green-600 text-white shadow-lg' : 'text-zinc-500 hover:text-white'}`}
+                            >
+                                ⚡ Smart Pay
+                            </button>
+                            <button 
+                                onClick={() => setQrTab('exchange')}
+                                className={`flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wide transition-all ${qrTab === 'exchange' ? 'bg-zinc-700 text-white shadow-lg' : 'text-zinc-500 hover:text-white'}`}
+                            >
+                                🏦 Exchange
+                            </button>
                         </div>
+
+                        <div className="bg-white p-4 rounded-3xl mb-4 shadow-[0_0_60px_rgba(0,0,0,0.5)] ring-4 ring-green-500/20 transition-all duration-300 transform hover:scale-105 relative">
+                            <img 
+                                src={qrImageUrl} 
+                                alt="Payment QR"
+                                className="w-[220px] h-[220px] object-contain"
+                            />
+                        </div>
+
+                        {qrTab === 'smart' ? (
+                            <div className="animate-fade-in">
+                                <h3 className="text-2xl font-black text-white mb-1">{activeCurrency.symbol}{amount}</h3>
+                                <p className="text-green-500 font-mono text-sm mb-2 bg-green-500/10 px-4 py-1 rounded-full border border-green-500/20 inline-block">{bchAmount} BCH</p>
+                                <p className="text-[10px] text-zinc-500 mt-2">Scan with Bitcoin.com, Paytaca, or Electron Cash</p>
+                            </div>
+                        ) : (
+                            <div className="animate-fade-in w-full">
+                                <h3 className="text-2xl font-black text-white mb-1">{activeCurrency.symbol}{amount}</h3>
+                                <p className="text-green-500 font-mono text-sm mb-4 bg-green-500/10 px-4 py-1 rounded-full border border-green-500/20 inline-block">{bchAmount} BCH</p>
+                                
+                                <div 
+                                    onClick={() => navigator.clipboard.writeText(merchantAddress)}
+                                    className="w-full bg-zinc-900/80 border border-white/5 p-4 rounded-2xl cursor-pointer hover:bg-zinc-900 transition-colors group"
+                                >
+                                    <p className="text-[9px] text-zinc-500 uppercase font-bold mb-2 tracking-widest flex justify-between">
+                                        Destination Address
+                                        <span className="text-green-500 opacity-0 group-hover:opacity-100 transition-opacity">Copy</span>
+                                    </p>
+                                    <p className="font-mono text-xs text-zinc-300 break-all text-left">
+                                        {merchantAddress}
+                                    </p>
+                                    <div className="w-full h-[1px] bg-white/5 my-3"></div>
+                                    <p className="text-[10px] text-zinc-400 text-left">
+                                        <span className="block text-white font-bold mb-1">⚠️ Centralized Exchanges Only</span>
+                                        Use this for <span className="text-white">Binance, OKX, Bybit</span> manually.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                        
+                        <div className="mt-auto mb-6 w-full space-y-3">
+                            <div className="flex items-center justify-center gap-2 text-[10px] text-green-500/70 font-mono animate-pulse">
+                                <span>Scanning Mempool...</span>
+                            </div>
+                            <button 
+                                onClick={() => { setShowQR(false); setPaymentStatus('pending'); }}
+                                className="w-full text-zinc-500 py-2 text-xs font-bold hover:text-white transition-all"
+                            >
+                                Cancel Order
+                            </button>
+                        </div>
+                    </>
+                )}
+
+                {paymentStatus === 'verifying' && (
+                    <div className="flex flex-col items-center justify-center h-full animate-in fade-in zoom-in-95">
+                        <div className="w-20 h-20 border-4 border-zinc-800 border-t-green-500 rounded-full animate-spin mb-6"></div>
+                        <h2 className="text-xl font-black uppercase italic text-white tracking-tight">Verifying 0-Conf...</h2>
+                        <p className="text-xs text-zinc-500 mt-2 font-mono">Checking Double-Spend Proofs</p>
                     </div>
                 )}
-                
-                <button 
-                    onClick={() => setShowQR(false)}
-                    className="w-full bg-zinc-800 text-white py-4 rounded-2xl font-bold hover:bg-zinc-700 border border-white/5 transition-all mt-auto mb-6"
-                >
-                    Close / New Order
-                </button>
+
+                {paymentStatus === 'success' && (
+                    <div className="flex flex-col items-center justify-center h-full w-full bg-green-500 animate-in slide-in-from-bottom-10 duration-500">
+                        <div className="bg-white text-green-600 w-24 h-24 rounded-full flex items-center justify-center text-5xl mb-6 shadow-2xl scale-110">
+                            ✓
+                        </div>
+                        <h1 className="text-4xl font-black uppercase italic text-black tracking-tighter mb-2">PAID</h1>
+                        <p className="text-black font-bold text-lg">{activeCurrency.symbol}{amount}</p>
+                        <div className="bg-black/10 px-6 py-2 rounded-full mt-4">
+                            <p className="text-black text-[10px] font-black uppercase tracking-widest">Safe Transaction Detected</p>
+                        </div>
+                        <p className="text-black/50 text-[9px] font-mono mt-2">TxID: {txHash.slice(0, 15)}...</p>
+                        
+                        <button 
+                            onClick={() => { setShowQR(false); setPaymentStatus('pending'); setAmount('0'); }}
+                            className="mt-12 bg-black text-white px-10 py-4 rounded-2xl font-bold uppercase tracking-widest hover:scale-105 transition-transform shadow-xl"
+                        >
+                            New Order
+                        </button>
+                    </div>
+                )}
             </div>
         )}
 
