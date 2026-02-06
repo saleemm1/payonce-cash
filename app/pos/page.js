@@ -304,11 +304,11 @@ export default function POSPage() {
                                 <span>Scanning Mempool...</span>
                             </div>
                             <button 
-                                onClick={() => { setShowQR(false); setPaymentStatus('pending'); }}
-                                className="w-full text-zinc-500 py-2 text-xs font-bold hover:text-white transition-all"
-                            >
-                                Cancel Order
-                            </button>
+                    onClick={() => setShowQR(false)}
+                    className="w-full bg-zinc-800 text-white py-4 rounded-2xl font-bold hover:bg-zinc-700 border border-white/5 transition-all mt-auto mb-6"
+                >
+                    Close / New Order
+                </button>
                         </div>
                     </>
                 )}
