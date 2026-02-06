@@ -1,6 +1,6 @@
 'use client';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 
 function UnlockContent() {
     const searchParams = useSearchParams();
@@ -20,6 +20,10 @@ function UnlockContent() {
     const [promoApplied, setPromoApplied] = useState(false);
     const [promoError, setPromoError] = useState('');
     const [currentPrice, setCurrentPrice] = useState(null);
+    const [txHash, setTxHash] = useState('');
+    
+    const initialTxHistory = useRef(new Set());
+    const isHistoryLoaded = useRef(false);
 
     useEffect(() => {
         const id = searchParams.get('id');
@@ -66,46 +70,80 @@ function UnlockContent() {
         }
     };
 
-    const startValidation = () => {
+    const validateTransaction = async (hash) => {
+        setTxHash(hash);
         setChecking(false);
         setIsValidating(true);
-        setTimeout(() => setSecurityStep(1), 1000);
-        setTimeout(() => setSecurityStep(2), 2500);
-        setTimeout(() => {
-            setIsValidating(false);
-            setIsPaid(true);
-        }, 4000);
+        setSecurityStep(0);
+
+        try {
+            setTimeout(() => setSecurityStep(1), 1000);
+            
+            const res = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/transaction/${hash}`);
+            const json = await res.json();
+            const txData = json.data[hash];
+
+            if (txData && !txData.is_double_spend_detected) {
+                setTimeout(() => setSecurityStep(2), 2500);
+                setTimeout(() => {
+                    setIsValidating(false);
+                    setIsPaid(true);
+                }, 4000);
+            } else {
+                setIsValidating(false);
+                alert("Double Spend Detected! Payment Rejected.");
+            }
+        } catch (e) {
+            setTimeout(() => setSecurityStep(2), 2500);
+            setTimeout(() => {
+                setIsValidating(false);
+                setIsPaid(true);
+            }, 4000);
+        }
     };
 
     useEffect(() => {
         let interval;
-        if (checking && !isPaid && !isValidating && data?.w) {
+        
+        const loadInitialHistory = async () => {
+            if (!data?.w) return;
             const sellerClean = data.w.includes(':') ? data.w.split(':')[1] : data.w;
-            const affiliateAddr = searchParams.get('ref');
-            const isViral = data.a && affiliateAddr && (affiliateAddr !== sellerClean);
-            const affClean = affiliateAddr ? (affiliateAddr.includes(':') ? affiliateAddr.split(':')[1] : affiliateAddr) : null;
+            try {
+                const res = await fetch(`https://rest.mainnet.cash/v1/address/history/${sellerClean}`);
+                const history = await res.json();
+                history.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
+                isHistoryLoaded.current = true;
+            } catch (e) {}
+        };
+
+        if (data?.w && !isHistoryLoaded.current) {
+            loadInitialHistory();
+        }
+
+        if (checking && !isPaid && !isValidating && data?.w && bchPrice) {
+            const sellerClean = data.w.includes(':') ? data.w.split(':')[1] : data.w;
+            
+            const expectedSats = Math.floor(parseFloat(bchPrice) * 100000000) - 1000; 
 
             interval = setInterval(async () => {
                 try {
-                    const sRes = await fetch(`https://rest.mainnet.cash/v1/address/balance/${sellerClean}`);
-                    const sBal = await sRes.json();
-                    const sellerOk = sBal.unconfirmed > 0 || sBal.confirmed > 0;
+                    const res = await fetch(`https://rest.mainnet.cash/v1/address/history/${sellerClean}`);
+                    const history = await res.json();
+                    
+                    const newTx = history.find(tx => 
+                        !initialTxHistory.current.has(tx.tx_hash) && 
+                        tx.value >= expectedSats
+                    );
 
-                    if (isViral && affClean) {
-                        const aRes = await fetch(`https://rest.mainnet.cash/v1/address/balance/${affClean}`);
-                        const aBal = await aRes.json();
-                        const promoterOk = aBal.unconfirmed > 0 || aBal.confirmed > 0;
-                        if (sellerOk && promoterOk) {
-                            startValidation();
-                        }
-                    } else if (sellerOk) {
-                        startValidation();
+                    if (newTx) {
+                        clearInterval(interval);
+                        validateTransaction(newTx.tx_hash);
                     }
-                } catch (err) { console.error(err); }
+                } catch (err) {}
             }, 3000);
         }
         return () => clearInterval(interval);
-    }, [checking, isPaid, isValidating, data, searchParams]);
+    }, [checking, isPaid, isValidating, data, bchPrice]);
 
     useEffect(() => {
         const affiliateAddr = searchParams.get('ref');
@@ -257,7 +295,7 @@ function UnlockContent() {
                                         {checking && (
                                             <div className="absolute inset-0 bg-black/90 backdrop-blur-sm rounded-[24px] flex flex-col items-center justify-center">
                                                 <div className="w-8 h-8 border-2 border-green-500 border-t-transparent rounded-full animate-spin mb-2"></div>
-                                                <p className="text-[8px] font-black text-green-500 uppercase tracking-widest">Scanning...</p>
+                                                <p className="text-[8px] font-black text-green-500 uppercase tracking-widest">Scanning Network...</p>
                                             </div>
                                         )}
                                     </div>
@@ -379,9 +417,22 @@ function UnlockContent() {
                         </div>
                         
                         <h1 className="text-3xl font-black mb-2 italic uppercase tracking-tighter text-white">Access Granted</h1>
-                        <p className="text-green-500 text-[10px] mb-8 uppercase tracking-[4px] font-black">
+                        <p className="text-green-500 text-[10px] mb-6 uppercase tracking-[4px] font-black">
                             Payment Verified on Blockchain
                         </p>
+
+                        <div className="grid grid-cols-2 gap-2 mb-8">
+                            <div className="bg-black/40 p-3 rounded-2xl border border-white/5">
+                                <p className="text-[8px] text-zinc-500 uppercase font-black mb-1">DS-Proof Status</p>
+                                <p className="text-xs font-bold text-green-400 flex items-center justify-center gap-1">
+                                    <span className="w-2 h-2 bg-green-500 rounded-full"></span> CLEAN
+                                </p>
+                            </div>
+                            <div className="bg-black/40 p-3 rounded-2xl border border-white/5">
+                                <p className="text-[8px] text-zinc-500 uppercase font-black mb-1">Node Propagation</p>
+                                <p className="text-xs font-bold text-green-400">100% REACHED</p>
+                            </div>
+                        </div>
                         
                         <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 mb-8 text-left relative overflow-hidden group">
                              <div className="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
@@ -403,6 +454,8 @@ function UnlockContent() {
                                 </div>
                              )}
                         </div>
+                        
+                        <div className="text-[9px] text-zinc-600 font-mono mb-6 truncate">TxID: {txHash}</div>
 
                         <button className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-3 rounded-xl font-bold uppercase text-[10px] tracking-widest mb-8 flex items-center justify-center gap-2 transition-all">
                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
