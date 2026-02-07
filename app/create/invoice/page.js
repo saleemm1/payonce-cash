@@ -180,7 +180,7 @@ export default function InvoiceUploadPage() {
 
         <div className="grid grid-cols-2 gap-3">
           <input required type="text" placeholder="Merchant Name" onChange={(e)=>setSellerName(e.target.value)} className="p-4 bg-zinc-900 border border-zinc-700 rounded-xl text-white outline-none focus:border-green-500 transition-all text-sm" />
-          <input required type="email" placeholder="Email (For Notifications)" onChange={(e)=>setSellerEmail(e.target.value)} className="p-4 bg-zinc-900 border border-zinc-700 rounded-xl text-white outline-none focus:border-green-500 transition-all text-sm" />
+          <input required type="email" placeholder="Email " onChange={(e)=>setSellerEmail(e.target.value)} className="p-4 bg-zinc-900 border border-zinc-700 rounded-xl text-white outline-none focus:border-green-500 transition-all text-sm" />
         </div>
 
         <div className="relative group">
@@ -217,7 +217,7 @@ export default function InvoiceUploadPage() {
            <div className="bg-zinc-900/50 p-4 rounded-xl border border-dashed border-zinc-700 flex items-center justify-between animate-in fade-in">
              <div>
                <h3 className="text-xs font-black uppercase text-white">Viral Mode 🚀</h3>
-               <p className="text-[9px] text-zinc-500">10% Commission · 5% Discount</p>
+               <p className="text-[9px] text-zinc-500">10% Commission </p>
              </div>
              <input type="checkbox" checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500 cursor-pointer" />
            </div>
