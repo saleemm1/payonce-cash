@@ -5,6 +5,7 @@ import Link from 'next/link';
 export default function CreatePage() {
   const digitalAssets = [
     { name: 'Source Code', slug: 'code', icon: '💻', desc: 'Scripts, plugins, or software' },
+    { name: 'Secure Link', slug: 'link', icon: '🔗', desc: 'Zoom, Forms, or Invites' },
     { name: 'Secure Folder', slug: 'folder', icon: '📁', desc: 'Archives & bulk data' },
     { name: 'PDF Document', slug: 'pdf', icon: '📄', desc: 'E-books, guides, or reports' },
     { name: 'Office Files', slug: 'office', icon: '📊', desc: 'Word, Excel, & PowerPoint docs' },
