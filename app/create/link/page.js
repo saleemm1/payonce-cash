@@ -78,18 +78,19 @@ export default function LinkSellPage() {
         <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-green-500 uppercase italic font-black">Sell Secure Link</h1>
             <div className="flex flex-wrap justify-center gap-2 mt-2">
-                <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-400">Zoom / Meet</span>
+                <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-400">Zoom / Google Meet</span>
+                <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-400">Google Forms / Sheets</span>
                 <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-400">Unlisted YouTube</span>
                 <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-400">Telegram Invite</span>
-                <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-400">Calendly</span>
+                <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-400">Any Secure URL</span>
             </div>
         </div>
         
-        <input required type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 transition-all" placeholder="Service Title (e.g. 1h Consultation)" />
+        <input required type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 transition-all" placeholder="Service Title (e.g. Consultation, Survey Access)" />
         
         <div className="relative group">
           <label className="text-[10px] text-zinc-400 mb-1 block ml-1 uppercase font-bold">The Secret URL (Hidden)</label>
-          <input required type="url" value={secretLink} onChange={(e)=>setSecretLink(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white text-sm outline-none focus:border-green-500 placeholder:text-zinc-600 font-mono" placeholder="https://zoom.us/j/..." />
+          <input required type="url" value={secretLink} onChange={(e)=>setSecretLink(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white text-sm outline-none focus:border-green-500 placeholder:text-zinc-600 font-mono" placeholder="https://..." />
           <div className="absolute right-3 top-8 text-lg">🔒</div>
         </div>
 
