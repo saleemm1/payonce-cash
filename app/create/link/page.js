@@ -75,9 +75,14 @@ export default function LinkSellPage() {
   return (
     <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center px-6 py-10 font-sans">
       <form onSubmit={handleGenerate} className="w-full max-w-md bg-[#18181b] p-8 rounded-2xl border border-white/10 shadow-2xl space-y-4">
-        <div className="text-center mb-4">
+        <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-green-500 uppercase italic font-black">Sell Secure Link</h1>
-            <p className="text-[10px] text-zinc-500">For Zoom, Telegram Invites, or Calendly</p>
+            <div className="flex flex-wrap justify-center gap-2 mt-2">
+                <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-400">Zoom / Meet</span>
+                <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-400">Unlisted YouTube</span>
+                <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-400">Telegram Invite</span>
+                <span className="text-[9px] bg-zinc-800 px-2 py-1 rounded text-zinc-400">Calendly</span>
+            </div>
         </div>
         
         <input required type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-white outline-none focus:border-green-500 transition-all" placeholder="Service Title (e.g. 1h Consultation)" />
