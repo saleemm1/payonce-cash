@@ -250,7 +250,7 @@ function UnlockContent() {
                             
                             {isViral && (
                                <p className="text-[10px] text-green-500 font-bold uppercase tracking-widest block">
-                                  Affiliate Reward Applied 💸
+                                 Affiliate Reward Applied 💸
                                </p>
                             )}
                             
@@ -438,9 +438,17 @@ function UnlockContent() {
                              <div className="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
                              
                              <p className="text-[9px] text-zinc-500 uppercase font-black mb-2 tracking-wider">
-                                {data.dt === 'file' ? 'Decrypted Content:' : 'Your Asset'}
+                                {data.dt === 'link' ? 'Secure Redirect:' : (data.dt === 'file' ? 'Decrypted Content:' : 'Your Asset')}
                              </p>
-                             {data.dt === 'file' ? (
+
+                             {data.dt === 'link' ? (
+                                <div className="text-center py-2">
+                                    <a href={data.i} target="_blank" className="block w-full bg-white hover:bg-zinc-200 text-black font-black py-3 rounded-xl uppercase tracking-widest text-sm transition-all mb-2 shadow-lg">
+                                        🚀 Open Link Now
+                                    </a>
+                                    <p className="text-[8px] text-zinc-500 font-mono break-all opacity-50">Target: {data.i.substring(0, 30)}...</p>
+                                </div>
+                             ) : data.dt === 'file' ? (
                                 <div className="flex items-center justify-between">
                                     <span className="text-white font-bold truncate pr-4">{data.fn || 'Download File'}</span>
                                     <a href={`https://gateway.pinata.cloud/ipfs/${data.i}`} target="_blank" className="bg-white text-black px-4 py-2 rounded-lg text-[10px] font-black uppercase hover:scale-105 transition-transform">
