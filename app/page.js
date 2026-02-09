@@ -45,7 +45,6 @@ export default function HomePage() {
              <button onClick={scrollToInvoice} className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">Solutions</button>
              <button onClick={scrollToDev} className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">Developers</button>
              
-             
              <Link href="/loyalty">
                <button className="text-[11px] font-bold uppercase tracking-widest text-yellow-500 hover:text-yellow-400 transition-colors flex items-center gap-2">
                  Loyalty <span className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[8px] px-1.5 py-0.5 rounded">NEW</span>
@@ -78,12 +77,15 @@ export default function HomePage() {
           <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-300">Live on Bitcoin Cash Network</span>
         </div>
 
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter max-w-4xl mb-6 leading-tight uppercase italic">
-          <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-zinc-400">Monetize Your</span> <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600 drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]">Digital Assets.</span>
+        
+        <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter max-w-5xl mb-6 leading-tight uppercase italic">
+          <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-zinc-400">The Sovereign</span> <br/>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600 drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]">Commerce Layer.</span>
         </h1>
 
-        <p className="text-zinc-400 text-base md:text-lg max-w-xl mb-10 leading-relaxed font-medium">
-          The non-custodial gateway to sell goods. Upload files, lock them with crypto, and sell instantly. No signup, no banks, no limits.
+        <p className="text-zinc-400 text-base md:text-lg max-w-2xl mb-10 leading-relaxed font-medium">
+           Accept crypto anywhere. Turn your phone into a <span className="text-white font-bold">Retail POS</span>, sell <span className="text-white font-bold">Digital Content</span>, or build with our <span className="text-white font-bold">SDK</span>.
+           <br/><span className="text-sm opacity-50 mt-2 block">No accounts. No databases. Instant settlement.</span>
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md sm:max-w-none justify-center px-4">
@@ -92,17 +94,17 @@ export default function HomePage() {
               START SELLING
             </button>
           </Link>
-          <button 
-            onClick={scrollToInvoice}
-            className="w-full sm:w-auto bg-zinc-900/50 backdrop-blur border border-white/10 text-white font-bold px-10 py-4 rounded-2xl text-lg transition-all hover:bg-zinc-800 hover:border-white/20"
-          >
-            Explore Solutions
-          </button>
+          
+          <Link href="/pos">
+            <button className="w-full sm:w-auto bg-zinc-900/50 backdrop-blur border border-white/10 text-white font-bold px-10 py-4 rounded-2xl text-lg transition-all hover:bg-zinc-800 hover:border-green-500/30 flex items-center justify-center gap-2">
+                <span className="text-xl">📱</span> Open Web POS
+            </button>
+          </Link>
         </div>
 
         <div className="mt-20 flex flex-wrap justify-center gap-4 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-           {['Source Code', 'PDFs', 'Videos', 'Tickets', 'Designs', 'Data'].map((item) => (
-               <div key={item} className="px-4 py-2 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest bg-zinc-900/30">
+           {['Retail POS', 'React SDK', 'Zoom Links', 'Coffee Shop', 'E-books', 'SaaS Payments'].map((item) => (
+               <div key={item} className="px-4 py-2 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest bg-zinc-900/30 hover:bg-zinc-800 hover:border-green-500/50 transition-colors cursor-default">
                   {item}
                </div>
            ))}
@@ -120,15 +122,15 @@ export default function HomePage() {
                <div className="group relative bg-zinc-900/40 p-10 rounded-[40px] border border-white/5 hover:border-green-500/30 transition-all hover:-translate-y-2">
                   <div className="absolute top-10 right-10 text-8xl font-black text-white/5 group-hover:text-green-500/10 transition-colors">1</div>
                   <div className="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-transform">📤</div>
-                  <h4 className="text-xl font-black uppercase italic mb-3">Upload & Encrypt</h4>
-                  <p className="text-zinc-500 text-sm leading-relaxed">Upload your file. We encrypt it on IPFS. Only the buyer with the key can unlock it.</p>
+                  <h4 className="text-xl font-black uppercase italic mb-3">Create Asset</h4>
+                  <p className="text-zinc-500 text-sm leading-relaxed">Upload a file, enter a secure link, or set up a POS terminal for your store.</p>
                </div>
                
                <div className="group relative bg-zinc-900/40 p-10 rounded-[40px] border border-white/5 hover:border-green-500/30 transition-all hover:-translate-y-2">
                   <div className="absolute top-10 right-10 text-8xl font-black text-white/5 group-hover:text-green-500/10 transition-colors">2</div>
                   <div className="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 transition-transform">🔗</div>
-                  <h4 className="text-xl font-black uppercase italic mb-3">Share Link</h4>
-                  <p className="text-zinc-500 text-sm leading-relaxed">Set your price in USD (paid in BCH). Get a secure link to post on social media or send to clients.</p>
+                  <h4 className="text-xl font-black uppercase italic mb-3">Share / Scan</h4>
+                  <p className="text-zinc-500 text-sm leading-relaxed">Share the link with clients, or let customers scan the QR code in your shop.</p>
                </div>
 
                <div className="group relative bg-zinc-900/40 p-10 rounded-[40px] border border-white/5 hover:border-green-500/30 transition-all hover:-translate-y-2">
@@ -144,12 +146,13 @@ export default function HomePage() {
       <section ref={invoiceRef} className="py-32 px-6 relative overflow-hidden border-t border-white/5">
         <div className="max-w-7xl mx-auto">
              <div className="text-center mb-16">
-               <h2 className="text-green-500 text-sm font-black uppercase tracking-[5px] mb-3">One Terminal. Infinite Uses.</h2>
-               <h3 className="text-3xl md:text-5xl font-black uppercase italic text-white max-w-3xl mx-auto">Powerful Invoice Solutions <br/> for Every Business</h3>
+               <h2 className="text-green-500 text-sm font-black uppercase tracking-[5px] mb-3">One Protocol. Infinite Uses.</h2>
+               <h3 className="text-3xl md:text-5xl font-black uppercase italic text-white max-w-3xl mx-auto">Powerful Solutions <br/> for Every Economy</h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="bg-zinc-900/20 border border-white/10 rounded-[30px] p-8 hover:bg-zinc-900/40 transition-all">
+                <div className="bg-zinc-900/20 border border-white/10 rounded-[30px] p-8 hover:bg-zinc-900/40 transition-all relative overflow-hidden">
+                    <div className="absolute top-0 right-0 bg-white/5 px-3 py-1 text-[9px] font-black uppercase text-zinc-500 rounded-bl-xl">In-Store</div>
                     <div className="flex items-center gap-4 mb-6">
                         <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center text-2xl">🏪</div>
                         <div>
@@ -161,24 +164,23 @@ export default function HomePage() {
                         <li className="flex gap-2"><span className="text-green-500">✓</span> 0-Hardware Setup (Just your phone/laptop)</li>
                         <li className="flex gap-2"><span className="text-green-500">✓</span> Instant "Order Paid" confirmation</li>
                         <li className="flex gap-2"><span className="text-green-500">✓</span> Perfect for University Cafeterias & Food Trucks</li>
-                        <li className="flex gap-2"><span className="text-green-500">✓</span> No credit card fees (Save 3%)</li>
+                        <li className="flex gap-2"><span className="text-green-500">✓</span> Multi-currency (USD/JOD/SAR)</li>
                     </ul>
                 </div>
 
-                <div className="bg-zinc-900/20 border border-white/10 rounded-[30px] p-8 hover:bg-zinc-900/40 transition-all relative overflow-hidden">
-                    <div className="absolute top-0 right-0 bg-white/5 px-3 py-1 text-[9px] font-black uppercase text-zinc-500 rounded-bl-xl">Popular</div>
+                <div className="bg-zinc-900/20 border border-white/10 rounded-[30px] p-8 hover:bg-zinc-900/40 transition-all">
                     <div className="flex items-center gap-4 mb-6">
                         <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center text-2xl">👤</div>
                         <div>
-                            <h4 className="text-xl font-black uppercase italic">Freelance</h4>
-                            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Designers • Devs • Writers</p>
+                            <h4 className="text-xl font-black uppercase italic">Freelance & Service</h4>
+                            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Designers • Consultants</p>
                         </div>
                     </div>
                     <ul className="space-y-4 text-sm text-zinc-400">
                         <li className="flex gap-2"><span className="text-blue-500">✓</span> Send professional crypto invoices</li>
-                        <li className="flex gap-2"><span className="text-blue-500">✓</span> No cross-border fees or delays</li>
+                        <li className="flex gap-2"><span className="text-blue-500">✓</span> Sell <span className="text-white font-bold">Secure Links</span> (Zoom/Meet)</li>
                         <li className="flex gap-2"><span className="text-blue-500">✓</span> Direct wallet-to-wallet settlement</li>
-                        <li className="flex gap-2"><span className="text-blue-500">✓</span> Client gets instant receipt</li>
+                        <li className="flex gap-2"><span className="text-blue-500">✓</span> Automated client redirection</li>
                     </ul>
                 </div>
 
@@ -191,7 +193,7 @@ export default function HomePage() {
                         </div>
                     </div>
                     <ul className="space-y-4 text-sm text-zinc-400">
-                        <li className="flex gap-2"><span className="text-purple-500">✓</span> Sell Files, Codes, or Secret Links</li>
+                        <li className="flex gap-2"><span className="text-purple-500">✓</span> Sell Files, Codes, or Content</li>
                         <li className="flex gap-2"><span className="text-purple-500">✓</span> Automated delivery after payment</li>
                         <li className="flex gap-2"><span className="text-purple-500">✓</span> Viral Affiliate System included</li>
                         <li className="flex gap-2"><span className="text-purple-500">✓</span> 100% Non-custodial</li>
