@@ -77,14 +77,13 @@ export default function HomePage() {
           <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-300">Live on Bitcoin Cash Network</span>
         </div>
 
-        
         <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter max-w-5xl mb-6 leading-tight uppercase italic">
           <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-zinc-400">The Sovereign</span> <br/>
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600 drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]">Commerce Layer.</span>
         </h1>
 
         <p className="text-zinc-400 text-base md:text-lg max-w-2xl mb-10 leading-relaxed font-medium">
-           Accept crypto anywhere. Turn your phone into a <span className="text-white font-bold">Retail POS</span>, sell <span className="text-white font-bold">Digital Content</span>, or build with our <span className="text-white font-bold">SDK</span>.
+           Native infrastructure for <span className="text-green-500 font-bold">Bitcoin Cash</span>. Turn your phone into a <span className="text-white font-bold">Retail POS</span>, sell <span className="text-white font-bold">Digital Content</span>, or build with our <span className="text-white font-bold">SDK</span>.
            <br/><span className="text-sm opacity-50 mt-2 block">No accounts. No databases. Instant settlement.</span>
         </p>
 
