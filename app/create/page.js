@@ -1,169 +1,182 @@
 'use client';
-import { useState, useEffect } from 'react';
 
-export default function VideoUploadPage() {
-  const [productName, setProductName] = useState('');
-  const [sellerName, setSellerName] = useState('');
-  const [sellerEmail, setSellerEmail] = useState('');
-  const [previewLink, setPreviewLink] = useState('');
-  const [previewFile, setPreviewFile] = useState(null);
-  const [usdPrice, setUsdPrice] = useState(19.99);
-  const [wallet, setWallet] = useState('');
-  const [bchPreview, setBchPreview] = useState('0.00');
-  const [file, setFile] = useState(null);
-  const [enableAffiliate, setEnableAffiliate] = useState(true);
-  const [uploading, setUploading] = useState(false);
-  const [generatedLink, setGeneratedLink] = useState('');
-  const [copied, setCopied] = useState(false);
-  const [enablePromo, setEnablePromo] = useState(false);
-  const [promoCode, setPromoCode] = useState('');
-  const [promoDiscount, setPromoDiscount] = useState('');
+import Link from 'next/link';
 
-  useEffect(() => {
-    const getBCH = async () => {
-      try {
-        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd');
-        const data = await res.json();
-        const price = parseFloat(usdPrice);
-        if (!isNaN(price) && price > 0) {
-          setBchPreview((price / data['bitcoin-cash'].usd).toFixed(8));
-        }
-      } catch (e) {}
-    };
-    getBCH();
-  }, [usdPrice]);
-
-  const handleGenerate = async (e) => {
-    e.preventDefault();
-    if (!file) return alert("Please select the Video file");
-
-    setUploading(true);
-    try {
-      let finalPreview = previewLink;
-      let originalFileName = file.name;
-
-      if (previewFile) {
-        const imgData = new FormData();
-        imgData.append("file", previewFile);
-        const imgRes = await fetch("/api/upload", { method: "POST", body: imgData });
-        const imgJson = await imgRes.json();
-        if (imgJson.ipfsHash) finalPreview = `https://gateway.pinata.cloud/ipfs/${imgJson.ipfsHash}`;
-      }
-
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      const json = await res.json();
-
-      const payload = {
-        w: wallet, p: usdPrice, n: productName, sn: sellerName,
-        se: sellerEmail, pr: finalPreview, i: json.ipfsHash, fn: originalFileName, a: enableAffiliate,
-        pc: enablePromo && promoCode && promoDiscount ? { code: promoCode.toUpperCase(), discount: promoDiscount } : null
-      };
-
-      const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-      setGeneratedLink(`${window.location.origin}/unlock?id=${encodedId}`);
-    } catch (err) {
-      alert("Error: Video upload failed");
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const inputBaseStyles = "w-full p-3 bg-zinc-900/50 backdrop-blur-sm border border-zinc-700/50 rounded-xl text-white outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500/50 transition-all duration-300 placeholder:text-zinc-600 hover:bg-zinc-900/80 hover:border-zinc-600";
+export default function CreatePage() {
+  const digitalAssets = [
+    { name: 'Source Code', slug: 'code', icon: '💻', desc: 'Scripts, plugins, or software' },
+    { name: 'Secure Link', slug: 'link', icon: '🔗', desc: 'Zoom, Forms, or Invites' },
+    { name: 'Secure Folder', slug: 'folder', icon: '📁', desc: 'Archives & bulk data' },
+    { name: 'PDF Document', slug: 'pdf', icon: '📄', desc: 'E-books, guides, or reports' },
+    { name: 'Office Files', slug: 'office', icon: '📊', desc: 'Word, Excel, & PowerPoint docs' },
+    { name: 'Video Content', slug: 'video', icon: '🎬', desc: 'Tutorials, movies, or clips' },
+    { name: 'Mini-Course', slug: 'mini-course', icon: '🎓', desc: 'Structured learning lessons' },
+    { name: 'Digital Book', slug: 'books', icon: '📚', desc: 'Full length digital publications' },
+    { name: 'Event Ticket', slug: 'ticket', icon: '🎟️', desc: 'Access to exclusive events' },
+    { name: 'Game Card', slug: 'game-card', icon: '🎮', desc: 'In-game items and assets' },
+    { name: 'App License', slug: 'app-activate-card', icon: '🔑', desc: 'Software activation keys' },
+  ];
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center px-4 py-12 font-sans relative overflow-hidden">
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-green-600/10 rounded-full blur-[128px] pointer-events-none"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-green-500/5 rounded-full blur-[128px] pointer-events-none"></div>
-
-      <form onSubmit={handleGenerate} className="relative z-10 w-full max-w-lg bg-[#18181b]/80 backdrop-blur-2xl p-8 rounded-3xl border border-white/5 shadow-2xl shadow-black/50 space-y-6 transform transition-all hover:border-white/10">
-        <div className="text-center space-y-1">
-            <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600 uppercase italic tracking-tighter drop-shadow-sm">Upload Premium Video</h1>
-            <div className="h-1 w-20 bg-green-500/50 rounded-full mx-auto"></div>
-        </div>
-        
-        <input required type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className={inputBaseStyles} placeholder="Video Title" />
-        
-        <div className="bg-zinc-900/30 p-4 rounded-xl border border-dashed border-zinc-700 group hover:border-green-500/50 transition-colors duration-300">
-          <label className="text-[11px] text-zinc-400 mb-2 block uppercase font-bold tracking-wider group-hover:text-green-400 transition-colors text-center">Master Video (.mp4, .mov, .avi)</label>
-          <input required type="file" accept="video/*" onChange={(e)=>setFile(e.target.files[0])} className="w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-green-600 file:text-white hover:file:bg-green-500 file:transition-colors cursor-pointer" />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <input required type="text" placeholder="Creator Name" onChange={(e)=>setSellerName(e.target.value)} className={inputBaseStyles} />
-          <input required type="email" placeholder="Support Email" onChange={(e)=>setSellerEmail(e.target.value)} className={inputBaseStyles} />
-        </div>
-
-        <div className="p-4 bg-zinc-800/20 rounded-xl border border-white/5 space-y-3">
-          <label className="text-[10px] text-zinc-400 block uppercase text-center font-black tracking-widest opacity-70">Trailer / Preview (File or URL) (Optional)</label>
-          <input type="file" accept="video/*,image/*" onChange={(e)=>setPreviewFile(e.target.files[0])} className="w-full text-xs text-zinc-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-zinc-700 file:text-white file:hover:bg-zinc-600 cursor-pointer transition-all" />
-          <div className="relative">
-             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><span className="text-zinc-500 text-xs">🔗</span></div>
-             <input type="url" placeholder="Or Preview URL" value={previewLink} onChange={(e)=>setPreviewLink(e.target.value)} className={`${inputBaseStyles} pl-8 py-2 text-xs`} />
+    <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center py-20 px-6 relative overflow-hidden font-sans">
+      
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_rgba(34,197,94,0.08)_0%,_transparent_70%)] -z-10"></div>
+      
+      <div className="text-center max-w-3xl mb-16">
+        <Link href="/">
+          <div className="inline-flex items-center gap-2 mb-8 group cursor-pointer">
+            <div className="w-8 h-8 bg-zinc-900 rounded-full flex items-center justify-center border border-white/10 group-hover:border-green-500/50 transition-all">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </div>
+            <span className="text-xs font-black uppercase tracking-widest text-zinc-500 group-hover:text-white transition-colors">Back to Home</span>
           </div>
-        </div>
-
-        <div className="relative bg-zinc-900/40 p-4 rounded-xl border border-zinc-800">
-          <label className="text-[10px] text-green-400/80 mb-2 block italic font-bold text-center tracking-wide">
-             BCH Rate: <span className="text-white bg-zinc-800 px-1.5 py-0.5 rounded ml-1">{bchPreview}</span>
-          </label>
-          <div className="relative flex items-center group">
-            <span className="absolute left-4 text-green-500 font-black text-lg pointer-events-none group-hover:scale-110 transition-transform">USD</span>
-            <input required type="number" step="any" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className="w-full p-4 pl-16 bg-zinc-900 border border-zinc-700 rounded-xl text-white text-2xl outline-none focus:border-green-500 text-center font-black transition-all shadow-inner" />
-          </div>
-        </div>
-
-        <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className={inputBaseStyles} placeholder="BCH Wallet Address" />
+        </Link>
         
-        <div className="bg-gradient-to-br from-zinc-900/80 to-zinc-900/40 p-4 rounded-xl border border-dashed border-zinc-700 hover:border-zinc-500 transition-colors flex flex-col gap-3 group">
-            <div className="flex items-center justify-between">
-                <div>
-                   <h3 className="text-sm font-bold uppercase italic text-white flex items-center gap-2">Promo Code {enablePromo && <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>}</h3>
-                   <p className="text-[9px] text-zinc-500 group-hover:text-zinc-400 transition-colors">Offer a secret discount</p>
+        <h1 className="text-5xl md:text-6xl font-black tracking-tighter mb-4 uppercase italic leading-none">
+          What do you want to <span className="text-green-500"> SELL?</span>
+        </h1>
+        <p className="text-zinc-500 font-bold uppercase tracking-widest text-sm">Decentralized Payment Infrastructure for Bitcoin Cash</p>
+      </div>
+
+      <div className="w-full max-w-5xl mb-16">
+        <div className="flex items-center gap-4 mb-8">
+           <span className="text-[11px] uppercase font-black tracking-[4px] text-green-500 whitespace-nowrap">Business & Retail Solutions</span>
+           <div className="h-[1px] bg-gradient-to-r from-green-500/50 to-transparent flex-1"></div>
+        </div>
+
+        <Link
+            href="/create/invoice"
+            className="group relative w-full bg-[#121214] border border-white/5 hover:border-green-500/40 p-1 rounded-[40px] transition-all duration-500 hover:-translate-y-2 block mb-6"
+          >
+            <div className="bg-zinc-950/50 rounded-[38px] p-8 md:p-12 flex flex-col lg:flex-row items-center justify-between gap-10 overflow-hidden relative">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-green-600/5 blur-[100px] -z-10"></div>
+              
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-8 relative z-10">
+                <div className="text-6xl bg-zinc-900 w-28 h-28 flex items-center justify-center rounded-3xl border border-white/5 shadow-2xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                  🧾
                 </div>
-                <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                    <input type="checkbox" checked={enablePromo} onChange={(e) => setEnablePromo(e.target.checked)} className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-green-500 right-5 border-zinc-600 transition-all duration-300"/>
-                    <label className="toggle-label block overflow-hidden h-5 rounded-full bg-zinc-700 cursor-pointer"></label>
+                <div className="text-center md:text-left">
+                   <h3 className="text-3xl md:text-4xl font-black mb-3 tracking-tighter text-white uppercase italic">
+                   Merchant <span className="text-green-500 text-shadow-glow">Terminal</span>
+                   </h3>
+                   <p className="text-zinc-400 text-lg font-medium leading-relaxed max-w-xl mb-6">
+                     Deploy a real-world BCH payment system for your business.
+Accept Bitcoin Cash instantly — in-store or online.
+                   </p>
+                   
+                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="bg-zinc-900/80 border border-white/5 p-3 rounded-2xl flex items-center gap-3">
+                        <span className="text-xl">🏪</span>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-black text-green-500 uppercase">POS Mode</span>
+                          <span className="text-[9px] text-zinc-500 uppercase font-bold">In-store Retail</span>
+                        </div>
+                      </div>
+                      <div className="bg-zinc-900/80 border border-white/5 p-3 rounded-2xl flex items-center gap-3">
+                        <span className="text-xl">👤</span>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-black text-blue-400 uppercase">Personal</span>
+                          <span className="text-[9px] text-zinc-500 uppercase font-bold">1-on-1 Billing</span>
+                        </div>
+                      </div>
+                      <div className="bg-zinc-900/80 border border-white/5 p-3 rounded-2xl flex items-center gap-3">
+                        <span className="text-xl">📦</span>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-black text-purple-400 uppercase">Digital Shop</span>
+                          <span className="text-[9px] text-zinc-500 uppercase font-bold">Public Listing</span>
+                        </div>
+                      </div>
+                   </div>
+                </div>
+              </div>
+
+              <div className="relative z-10 bg-white text-black px-10 py-5 rounded-2xl font-black uppercase text-sm tracking-tighter flex items-center gap-3 group-hover:bg-green-500 transition-all shadow-xl hover:scale-105 active:scale-95 whitespace-nowrap">
+                  Open Terminal <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </div>
+            </div>
+        </Link>
+
+        
+        <Link href="/pos" className="group w-full bg-[#121214] border border-white/5 hover:border-green-500/40 p-6 rounded-[32px] transition-all hover:-translate-y-1 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
+            <div className="absolute right-0 top-0 w-64 h-full bg-green-500/5 blur-[60px]"></div>
+            <div className="w-20 h-20 bg-zinc-900 rounded-2xl flex items-center justify-center text-4xl border border-white/5 group-hover:scale-110 transition-transform shadow-2xl">
+                📱
+            </div>
+            <div className="text-center md:text-left">
+                <h4 className="text-2xl font-black uppercase italic text-white group-hover:text-green-500 transition-colors">
+                    Live Web POS
+                </h4>
+                <p className="text-sm text-zinc-400 font-medium mt-1 max-w-lg">
+                    Turn any smartphone or tablet into a <span className="text-white font-bold">Bitcoin Cash Point of Sale</span>. <br className="hidden md:block"/> No hardware required. Auto-saved wallets. Real-time rates.
+                </p>
+            </div>
+            <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 hidden md:block">
+                <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-black">
+                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </div>
             </div>
-            {enablePromo && (
-                <div className="flex gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                    <input type="text" maxLength={5} placeholder="CODE" value={promoCode} onChange={(e)=>setPromoCode(e.target.value.toUpperCase())} className="flex-1 p-2 bg-black/50 border border-zinc-700 rounded-lg text-xs text-white uppercase outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 tracking-widest font-bold" />
-                    <input type="number" placeholder="%" min="1" max="100" value={promoDiscount} onChange={(e)=>setPromoDiscount(e.target.value)} className="w-20 p-2 bg-black/50 border border-zinc-700 rounded-lg text-xs text-white outline-none focus:border-green-500 text-center font-bold" />
+        </Link>
+      </div>
+
+      <div className="w-full max-w-5xl">
+        <div className="flex items-center gap-4 mb-8">
+           <span className="text-[11px] uppercase font-black tracking-[4px] text-zinc-600 whitespace-nowrap">Digital Asset Locking</span>
+           <div className="h-[1px] bg-zinc-800 flex-1"></div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {digitalAssets.map((type) => (
+            <Link
+              key={type.slug}
+              href={`/create/${type.slug}`}
+              className="group relative bg-[#121214] hover:bg-zinc-900/50 border border-white/5 hover:border-white/20 p-8 rounded-[32px] transition-all duration-300 hover:-translate-y-2 overflow-hidden"
+            >
+              <div className="relative z-10">
+                <div className="text-4xl mb-6 bg-zinc-900 w-16 h-16 flex items-center justify-center rounded-2xl border border-white/5 group-hover:scale-110 group-hover:rotate-6 transition-transform">
+                  {type.icon}
                 </div>
-            )}
-        </div>
+                
+                <h3 className="text-xl font-black mb-2 tracking-tight group-hover:text-green-500 transition-colors uppercase italic">
+                  {type.name}
+                </h3>
+                
+                <p className="text-zinc-500 text-sm font-medium leading-relaxed mb-4">
+                  {type.desc}
+                </p>
+                
+                <div className="mt-6 flex justify-end opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+              </div>
+            </Link>
+          ))}
 
-        <div className="bg-gradient-to-r from-zinc-900 to-zinc-800/50 p-4 rounded-xl border border-zinc-700/50 flex items-center justify-between hover:shadow-lg hover:shadow-green-900/10 transition-all duration-300">
-          <div>
-            <h3 className="text-sm font-bold uppercase italic text-white group flex items-center gap-1">Viral Mode <span className="text-[10px] bg-green-600/20 text-green-400 px-1.5 rounded ml-2 not-italic">Recommended</span></h3>
-            <p className="text-[10px] text-zinc-400 leading-tight mt-1">10% promoter commission</p>
+          <div className="border-2 border-dashed border-white/5 p-8 rounded-[32px] flex flex-col items-center justify-center text-center group hover:bg-zinc-900/20 transition-all">
+                <div className="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center mb-4 text-zinc-700 font-bold group-hover:scale-110 transition-transform">
+                  +
+                </div>
+                <span className="text-xs font-black uppercase tracking-widest text-zinc-600">More assets<br/>Coming Soon</span>
           </div>
-          <input type="checkbox" checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500 cursor-pointer rounded bg-zinc-700 border-zinc-600 focus:ring-green-500 focus:ring-offset-zinc-900" />
         </div>
+      </div>
 
-        <button type="submit" disabled={uploading} className="w-full relative overflow-hidden group bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 py-4 rounded-xl font-black transition-all uppercase italic text-lg shadow-xl shadow-green-900/20 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.99]">
-          <span className="relative z-10 flex items-center justify-center gap-2">
-            {uploading ? (
-                <>
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                Uploading Video...
-                </>
-            ) : "Generate Video Link"}
-          </span>
-          <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine" />
-        </button>
-
-        {generatedLink && (
-          <div className="mt-4 p-4 bg-black/80 rounded-xl border border-green-500/30 flex gap-3 animate-in fade-in slide-in-from-bottom-2 shadow-lg shadow-green-900/10">
-            <input readOnly value={generatedLink} className="flex-1 bg-zinc-900/50 p-2 text-[10px] rounded border border-zinc-800 outline-none text-zinc-300 font-mono tracking-tight" />
-            <button type="button" onClick={()=>{navigator.clipboard.writeText(generatedLink); setCopied(true); setTimeout(()=>setCopied(false),2000)}} className={`px-4 py-1 rounded-lg text-xs font-bold transition-all duration-200 ${copied ? 'bg-green-500 text-white' : 'bg-zinc-800 text-green-500 hover:bg-zinc-700'}`}>
-                {copied ? '✅' : 'Copy'}
-            </button>
+      <footer className="mt-32 flex flex-col items-center gap-4">
+          <div className="flex gap-8 text-[10px] font-black uppercase tracking-[3px] text-zinc-700">
+            <span>Non-Custodial</span>
+            <span className="text-green-900">•</span>
+            <span>Instant Settlement</span>
+            <span className="text-green-900">•</span>
+            <span>Zero Fees</span>
           </div>
-        )}
-      </form>
+          <p className="text-[10px] font-black uppercase tracking-[5px] text-green-500/40">Powered by Bitcoin Cash</p>
+      </footer>
+
+      <style jsx>{`
+        .text-shadow-glow {
+          text-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+        }
+      `}</style>
+
     </div>
   );
 }
