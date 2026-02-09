@@ -108,27 +108,32 @@ export default function InvoiceUploadPage() {
     }
   };
 
+  const inputBaseStyles = "w-full p-3 bg-zinc-900/50 backdrop-blur-sm border border-zinc-700/50 rounded-xl text-white outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500/50 transition-all duration-300 placeholder:text-zinc-600 hover:bg-zinc-900/80 hover:border-zinc-600";
+
   return (
-    <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center px-6 py-10 font-sans">
-      <form onSubmit={handleGenerate} className="w-full max-w-md bg-[#18181b] p-6 sm:p-8 rounded-[2rem] border border-white/10 shadow-2xl space-y-5">
+    <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center px-4 py-12 font-sans relative overflow-hidden">
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-green-600/10 rounded-full blur-[128px] pointer-events-none"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-green-500/5 rounded-full blur-[128px] pointer-events-none"></div>
+
+      <form onSubmit={handleGenerate} className="relative z-10 w-full max-w-lg bg-[#18181b]/80 backdrop-blur-2xl p-8 rounded-[2rem] border border-white/5 shadow-2xl shadow-black/50 space-y-5 transform transition-all hover:border-white/10">
         
-        <div className="grid grid-cols-3 gap-1 bg-zinc-900 p-1.5 rounded-2xl border border-zinc-800">
-          <button type="button" onClick={() => setInvoiceType('retail')} className={`py-3 text-[9px] font-black uppercase rounded-xl transition-all flex flex-col items-center gap-1 ${invoiceType === 'retail' ? 'bg-green-600 text-black shadow-lg scale-105' : 'text-zinc-500 hover:text-zinc-300'}`}>
-            <span className="text-sm">🏪</span> Retail / POS
+        <div className="grid grid-cols-3 gap-2 bg-zinc-900/50 p-2 rounded-2xl border border-zinc-800/50 backdrop-blur-sm">
+          <button type="button" onClick={() => setInvoiceType('retail')} className={`py-3 text-[9px] font-black uppercase rounded-xl transition-all duration-300 flex flex-col items-center gap-1 ${invoiceType === 'retail' ? 'bg-gradient-to-br from-green-600 to-green-500 text-black shadow-lg shadow-green-900/20 scale-105' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'}`}>
+            <span className="text-lg">🏪</span> Retail / POS
           </button>
-          <button type="button" onClick={() => setInvoiceType('personal')} className={`py-3 text-[9px] font-black uppercase rounded-xl transition-all flex flex-col items-center gap-1 ${invoiceType === 'personal' ? 'bg-green-600 text-black shadow-lg scale-105' : 'text-zinc-500 hover:text-zinc-300'}`}>
-            <span className="text-sm">👤</span> Freelance
+          <button type="button" onClick={() => setInvoiceType('personal')} className={`py-3 text-[9px] font-black uppercase rounded-xl transition-all duration-300 flex flex-col items-center gap-1 ${invoiceType === 'personal' ? 'bg-gradient-to-br from-green-600 to-green-500 text-black shadow-lg shadow-green-900/20 scale-105' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'}`}>
+            <span className="text-lg">👤</span> Freelance
           </button>
-          <button type="button" onClick={() => setInvoiceType('digital')} className={`py-3 text-[9px] font-black uppercase rounded-xl transition-all flex flex-col items-center gap-1 ${invoiceType === 'digital' ? 'bg-green-600 text-black shadow-lg scale-105' : 'text-zinc-500 hover:text-zinc-300'}`}>
-            <span className="text-sm">📦</span> Digital Shop
+          <button type="button" onClick={() => setInvoiceType('digital')} className={`py-3 text-[9px] font-black uppercase rounded-xl transition-all duration-300 flex flex-col items-center gap-1 ${invoiceType === 'digital' ? 'bg-gradient-to-br from-green-600 to-green-500 text-black shadow-lg shadow-green-900/20 scale-105' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'}`}>
+            <span className="text-lg">📦</span> Digital Shop
           </button>
         </div>
 
         <div className="text-center mb-2">
-          <h1 className="text-2xl font-black text-white uppercase italic tracking-tighter">
-            {invoiceType === 'retail' && <span className="text-green-500">Quick Bill</span>}
-            {invoiceType === 'personal' && <span className="text-green-500">Personal Invoice</span>}
-            {invoiceType === 'digital' && <span className="text-green-500">Sell Digital Asset</span>}
+          <h1 className="text-2xl font-black text-white uppercase italic tracking-tighter drop-shadow-sm">
+            {invoiceType === 'retail' && <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600">Quick Bill</span>}
+            {invoiceType === 'personal' && <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600">Personal Invoice</span>}
+            {invoiceType === 'digital' && <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600">Sell Digital Asset</span>}
           </h1>
           <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">
             {invoiceType === 'retail' && "For Restaurants, Cafes & Stores"}
@@ -138,101 +143,116 @@ export default function InvoiceUploadPage() {
         </div>
         
         <div className="space-y-3">
-          <input required type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className="w-full p-4 bg-zinc-900 border border-zinc-700 rounded-xl text-white outline-none focus:border-green-500 transition-all font-bold placeholder:font-medium" placeholder={invoiceType === 'retail' ? "Item Name (e.g. Lunch Combo)" : "Invoice Title"} />
+          <input required type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className={inputBaseStyles} placeholder={invoiceType === 'retail' ? "Item Name (e.g. Lunch Combo)" : "Invoice Title"} />
           
           {invoiceType === 'personal' && (
-            <input required type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full p-4 bg-zinc-900 border border-zinc-700 rounded-xl text-white outline-none focus:border-green-500 transition-all animate-in fade-in" placeholder="Customer Name (Bill To)" />
+            <input required type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className={`${inputBaseStyles} animate-in fade-in slide-in-from-top-1`} placeholder="Customer Name (Bill To)" />
           )}
 
           {invoiceType === 'retail' && (
-            <input type="text" value={orderRef} onChange={(e) => setOrderRef(e.target.value)} className="w-full p-4 bg-zinc-900 border border-zinc-700 rounded-xl text-white outline-none focus:border-green-500 transition-all animate-in fade-in" placeholder="Table # / Order ID / Student ID (Optional)" />
+            <input type="text" value={orderRef} onChange={(e) => setOrderRef(e.target.value)} className={`${inputBaseStyles} animate-in fade-in slide-in-from-top-1`} placeholder="Table # / Order ID / Student ID (Optional)" />
           )}
         </div>
 
-        <textarea required value={productDesc} onChange={(e) => setProductDesc(e.target.value)} className="w-full p-4 bg-zinc-900 border border-zinc-700 rounded-xl text-white outline-none focus:border-green-500 h-24 text-sm resize-none" placeholder={invoiceType === 'retail' ? "Order details, items list..." : "Description, Terms & Conditions..."}></textarea>
+        <textarea required value={productDesc} onChange={(e) => setProductDesc(e.target.value)} className={`${inputBaseStyles} h-24 resize-none`} placeholder={invoiceType === 'retail' ? "Order details, items list..." : "Description, Terms & Conditions..."}></textarea>
 
         {invoiceType !== 'retail' && (
           <div className="animate-in fade-in slide-in-from-top-2">
-             <div className="flex bg-zinc-900 p-1 rounded-xl border border-zinc-700 gap-1 mb-3">
-               <button type="button" onClick={() => setDeliveryType('file')} className={`flex-1 py-2 text-[9px] font-black uppercase rounded-lg transition-all ${deliveryType === 'file' ? 'bg-zinc-700 text-white' : 'text-zinc-500'}`}>Upload File</button>
-               <button type="button" onClick={() => setDeliveryType('link')} className={`flex-1 py-2 text-[9px] font-black uppercase rounded-lg transition-all ${deliveryType === 'link' ? 'bg-zinc-700 text-white' : 'text-zinc-500'}`}>Secret Link/Text</button>
+             <div className="flex bg-zinc-900/50 p-1.5 rounded-xl border border-zinc-700/50 gap-2 mb-3 backdrop-blur-sm">
+               <button type="button" onClick={() => setDeliveryType('file')} className={`flex-1 py-2 text-[9px] font-black uppercase rounded-lg transition-all duration-300 ${deliveryType === 'file' ? 'bg-zinc-700 text-white shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}>Upload File</button>
+               <button type="button" onClick={() => setDeliveryType('link')} className={`flex-1 py-2 text-[9px] font-black uppercase rounded-lg transition-all duration-300 ${deliveryType === 'link' ? 'bg-zinc-700 text-white shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}>Secret Link/Text</button>
              </div>
 
              {deliveryType === 'file' ? (
-               <input type="file" onChange={(e)=>setFile(e.target.files[0])} className="w-full p-2 bg-zinc-900 border border-zinc-700 rounded-xl text-xs text-zinc-400 file:bg-green-600 file:text-black file:border-0 file:rounded-lg file:px-3 file:py-1 file:font-black file:mr-3 cursor-pointer" />
+                <div className="bg-zinc-900/30 p-3 rounded-xl border border-dashed border-zinc-700 group hover:border-green-500/50 transition-colors">
+                    <input type="file" onChange={(e)=>setFile(e.target.files[0])} className="w-full text-xs text-zinc-400 file:bg-green-600 file:text-white file:border-0 file:rounded-lg file:px-3 file:py-1 file:font-black file:mr-3 cursor-pointer hover:file:bg-green-500 file:transition-colors" />
+                </div>
              ) : (
-               <input required type="text" value={linkOrText} onChange={(e)=>setLinkOrText(e.target.value)} className="w-full p-4 bg-zinc-900 border border-zinc-700 rounded-xl text-white outline-none focus:border-green-500 text-sm" placeholder="Paste Secure Link or Content" />
+               <input required type="text" value={linkOrText} onChange={(e)=>setLinkOrText(e.target.value)} className={inputBaseStyles} placeholder="Paste Secure Link or Content" />
              )}
           </div>
         )}
 
         {(invoiceType === 'digital' || invoiceType === 'retail') && (
-          <div className="p-4 bg-zinc-800/30 rounded-xl border border-white/5 animate-in fade-in">
-            <label className="text-[9px] text-zinc-400 mb-2 block uppercase font-black tracking-wider">
+          <div className="p-4 bg-zinc-800/20 rounded-xl border border-white/5 animate-in fade-in space-y-2">
+            <label className="text-[9px] text-zinc-400 block uppercase font-black tracking-wider text-center">
               {invoiceType === 'retail' ? 'Cover Image (Menu/Shop Logo) - Optional' : 'Cover Preview - Required'}
             </label>
-            <div className="flex gap-2">
-              <input type="file" accept="image/*" onChange={(e)=>setPreviewFile(e.target.files[0])} className="w-1/2 text-[10px] text-zinc-500 file:bg-zinc-700 file:text-white file:border-0 file:rounded-lg file:px-2 cursor-pointer" />
-              <input type="url" value={previewLink} onChange={(e)=>setPreviewLink(e.target.value)} placeholder="Or Image URL" className="w-1/2 p-2 bg-zinc-900 border border-zinc-700 rounded-lg text-xs outline-none focus:border-green-500" />
+            <div className="flex gap-2 items-center">
+              <input type="file" accept="image/*" onChange={(e)=>setPreviewFile(e.target.files[0])} className="w-1/2 text-[10px] text-zinc-500 file:bg-zinc-700 file:text-white file:border-0 file:rounded-lg file:px-2 file:hover:bg-zinc-600 cursor-pointer transition-colors" />
+              <input type="url" value={previewLink} onChange={(e)=>setPreviewLink(e.target.value)} placeholder="Or Image URL" className={`${inputBaseStyles} py-2 text-xs`} />
             </div>
           </div>
         )}
 
         <div className="grid grid-cols-2 gap-3">
-          <input required type="text" placeholder="Merchant Name" onChange={(e)=>setSellerName(e.target.value)} className="p-4 bg-zinc-900 border border-zinc-700 rounded-xl text-white outline-none focus:border-green-500 transition-all text-sm" />
-          <input required type="email" placeholder="Email " onChange={(e)=>setSellerEmail(e.target.value)} className="p-4 bg-zinc-900 border border-zinc-700 rounded-xl text-white outline-none focus:border-green-500 transition-all text-sm" />
+          <input required type="text" placeholder="Merchant Name" onChange={(e)=>setSellerName(e.target.value)} className={inputBaseStyles} />
+          <input required type="email" placeholder="Email " onChange={(e)=>setSellerEmail(e.target.value)} className={inputBaseStyles} />
         </div>
 
-        <div className="relative group">
-          <div className="absolute -top-2 left-4 bg-[#18181b] px-2 text-[9px] text-green-500 font-black uppercase tracking-widest z-10">Total Amount</div>
+        <div className="relative bg-zinc-900/40 p-4 rounded-xl border border-zinc-800 group">
+          <div className="absolute -top-3 left-4 bg-[#18181b] px-2 text-[9px] text-green-500 font-black uppercase tracking-widest z-10 border border-zinc-800 rounded-full">Total Amount</div>
           <div className="relative flex items-center">
-            <span className="absolute left-5 text-white font-black text-lg">$</span>
-            <input required type="number" step="any" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className="w-full p-5 pl-10 bg-zinc-900 border border-zinc-700 rounded-xl text-white outline-none focus:border-green-500 text-2xl font-black transition-all group-hover:border-green-500/50" />
-            <div className="absolute right-5 text-right">
+            <span className="absolute left-5 text-white font-black text-lg pointer-events-none">$</span>
+            <input required type="number" step="any" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className="w-full p-4 pl-10 bg-zinc-900 border border-zinc-700 rounded-xl text-white outline-none focus:border-green-500 text-2xl font-black transition-all group-hover:border-green-500/50 shadow-inner" />
+            <div className="absolute right-5 text-right pointer-events-none">
                <span className="block text-[10px] text-zinc-500 font-black">APPROX BCH</span>
-               <span className="block text-sm text-green-500 font-mono font-bold">{bchPreview}</span>
+               <span className="block text-sm text-green-500 font-mono font-bold bg-zinc-800 px-2 rounded">{bchPreview}</span>
             </div>
           </div>
         </div>
 
-        <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className="w-full p-4 bg-zinc-900 border border-zinc-700 rounded-xl text-white outline-none focus:border-green-500 transition-all text-xs font-mono text-center tracking-tight" placeholder="Your BCH Wallet Address (bitcoincash:qp...)" />
+        <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className={`${inputBaseStyles} text-xs font-mono text-center tracking-tight`} placeholder="Your BCH Wallet Address (bitcoincash:qp...)" />
 
-        <div className="bg-zinc-900/50 p-4 rounded-xl border border-dashed border-zinc-700 flex flex-col gap-3">
+        <div className="bg-gradient-to-br from-zinc-900/80 to-zinc-900/40 p-4 rounded-xl border border-dashed border-zinc-700 hover:border-zinc-500 transition-colors flex flex-col gap-3 group">
             <div className="flex items-center justify-between">
                 <div>
-                   <h3 className="text-sm font-bold uppercase italic text-white">Promo Code</h3>
-                   <p className="text-[9px] text-zinc-500">Offer a secret discount</p>
+                   <h3 className="text-sm font-bold uppercase italic text-white flex items-center gap-2">Promo Code {enablePromo && <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>}</h3>
+                   <p className="text-[9px] text-zinc-500 group-hover:text-zinc-400 transition-colors">Offer a secret discount</p>
                 </div>
-                <input type="checkbox" checked={enablePromo} onChange={(e) => setEnablePromo(e.target.checked)} className="w-5 h-5 accent-green-500 cursor-pointer" />
+                <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                    <input type="checkbox" checked={enablePromo} onChange={(e) => setEnablePromo(e.target.checked)} className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-green-500 right-5 border-zinc-600 transition-all duration-300"/>
+                    <label className="toggle-label block overflow-hidden h-5 rounded-full bg-zinc-700 cursor-pointer"></label>
+                </div>
             </div>
             {enablePromo && (
-                <div className="flex gap-2 animate-in fade-in slide-in-from-top-2">
-                    <input type="text" maxLength={5} placeholder="CODE (3-5 chars)" value={promoCode} onChange={(e)=>setPromoCode(e.target.value.toUpperCase())} className="flex-1 p-2 bg-black border border-zinc-700 rounded text-xs text-white uppercase outline-none focus:border-green-500" />
-                    <input type="number" placeholder="%" min="1" max="100" value={promoDiscount} onChange={(e)=>setPromoDiscount(e.target.value)} className="w-16 p-2 bg-black border border-zinc-700 rounded text-xs text-white outline-none focus:border-green-500 text-center" />
+                <div className="flex gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <input type="text" maxLength={5} placeholder="CODE" value={promoCode} onChange={(e)=>setPromoCode(e.target.value.toUpperCase())} className="flex-1 p-2 bg-black/50 border border-zinc-700 rounded-lg text-xs text-white uppercase outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 tracking-widest font-bold" />
+                    <input type="number" placeholder="%" min="1" max="100" value={promoDiscount} onChange={(e)=>setPromoDiscount(e.target.value)} className="w-20 p-2 bg-black/50 border border-zinc-700 rounded-lg text-xs text-white outline-none focus:border-green-500 text-center font-bold" />
                 </div>
             )}
         </div>
 
         {invoiceType === 'digital' && (
-           <div className="bg-zinc-900/50 p-4 rounded-xl border border-dashed border-zinc-700 flex items-center justify-between animate-in fade-in">
+           <div className="bg-gradient-to-r from-zinc-900 to-zinc-800/50 p-4 rounded-xl border border-zinc-700/50 flex items-center justify-between hover:shadow-lg hover:shadow-green-900/10 transition-all duration-300 animate-in fade-in">
              <div>
-               <h3 className="text-xs font-black uppercase text-white">Viral Mode 🚀</h3>
-               <p className="text-[9px] text-zinc-500">10% Commission </p>
+               <h3 className="text-xs font-black uppercase text-white flex items-center gap-1">Viral Mode 🚀</h3>
+               <p className="text-[9px] text-zinc-400 mt-0.5">10% Commission</p>
              </div>
-             <input type="checkbox" checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500 cursor-pointer" />
+             <input type="checkbox" checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500 cursor-pointer rounded bg-zinc-700 border-zinc-600 focus:ring-green-500 focus:ring-offset-zinc-900" />
            </div>
         )}
 
-        <button type="submit" disabled={uploading} className="w-full bg-green-600 hover:bg-green-500 text-black py-5 rounded-2xl font-black transition-all uppercase italic text-xl shadow-[0_10px_40px_rgba(22,163,74,0.3)] disabled:opacity-50 hover:scale-[1.02] active:scale-95">
-          {uploading ? "Creating Bill..." : invoiceType === 'retail' ? "Generate Quick Bill ⚡" : "Create Invoice"}
+        <button type="submit" disabled={uploading} className="w-full relative overflow-hidden group bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-black py-5 rounded-2xl font-black transition-all uppercase italic text-xl shadow-[0_10px_40px_rgba(22,163,74,0.3)] disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-95">
+          <span className="relative z-10 flex items-center justify-center gap-2 text-white shadow-black drop-shadow-md">
+             {uploading ? (
+                <>
+                 <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                 Creating Bill...
+                </>
+             ) : invoiceType === 'retail' ? "Generate Quick Bill ⚡" : "Create Invoice"}
+          </span>
+          <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine" />
         </button>
 
         {generatedLink && (
-          <div className="mt-4 p-4 bg-black/80 rounded-2xl border border-green-500/30 flex flex-col gap-2 animate-in slide-in-from-bottom-5">
+          <div className="mt-4 p-4 bg-black/80 rounded-2xl border border-green-500/30 flex flex-col gap-2 animate-in slide-in-from-bottom-5 shadow-lg shadow-green-900/10">
             <span className="text-[9px] text-green-500 uppercase font-black tracking-widest text-center">Payment Link Ready</span>
             <div className="flex gap-2">
-               <input readOnly value={generatedLink} className="flex-1 bg-zinc-900 p-3 text-[10px] rounded-xl border border-zinc-800 outline-none text-zinc-300 font-mono text-center" />
-               <button type="button" onClick={()=>{navigator.clipboard.writeText(generatedLink); setCopied(true); setTimeout(()=>setCopied(false),2000)}} className="bg-zinc-800 hover:bg-zinc-700 px-4 rounded-xl text-lg font-bold text-green-500 transition-all">{copied ? '✅' : '📋'}</button>
+               <input readOnly value={generatedLink} className="flex-1 bg-zinc-900/50 p-3 text-[10px] rounded-xl border border-zinc-800 outline-none text-zinc-300 font-mono text-center tracking-tight" />
+               <button type="button" onClick={()=>{navigator.clipboard.writeText(generatedLink); setCopied(true); setTimeout(()=>setCopied(false),2000)}} className={`px-4 rounded-xl text-lg font-bold transition-all duration-200 ${copied ? 'bg-green-500 text-white' : 'bg-zinc-800 text-green-500 hover:bg-zinc-700'}`}>
+                   {copied ? '✅' : '📋'}
+               </button>
             </div>
           </div>
         )}
