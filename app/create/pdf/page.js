@@ -180,7 +180,7 @@ export default function PDFUploadPage() {
                 Viral Mode
                 <span className="text-[10px] bg-green-600/20 text-green-400 px-1.5 rounded ml-2 not-italic">Recommended</span>
             </h3>
-            <p className="text-[10px] text-zinc-400 leading-tight mt-1">10% promoter commission · 5% buyer discount</p>
+            <p className="text-[10px] text-zinc-400 leading-tight mt-1">10% promoter commission</p>
           </div>
           <input type="checkbox" checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500 cursor-pointer rounded bg-zinc-700 border-zinc-600 focus:ring-green-500 focus:ring-offset-zinc-900" />
         </div>
