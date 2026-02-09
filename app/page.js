@@ -83,7 +83,7 @@ export default function HomePage() {
         </h1>
 
         <p className="text-zinc-400 text-base md:text-lg max-w-2xl mb-10 leading-relaxed font-medium">
-           Native infrastructure for <span className="text-green-500 font-bold">Bitcoin Cash</span>. Turn your phone into a <span className="text-white font-bold">Retail POS</span>, sell <span className="text-white font-bold">Digital Content</span>, or build with our <span className="text-white font-bold">SDK</span>.
+           Native infrastructure for <span className="text-green-500 font-bold">Bitcoin Cash</span>. Turn your phone into a <span className="text-white font-bold">POS</span>, sell <span className="text-white font-bold">Digital Content</span>, or build with our <span className="text-white font-bold">SDK</span>.
            <br/><span className="text-sm opacity-50 mt-2 block">No accounts. No databases. Instant settlement.</span>
         </p>
 
@@ -163,7 +163,7 @@ export default function HomePage() {
                         <li className="flex gap-2"><span className="text-green-500">✓</span> 0-Hardware Setup (Just your phone/laptop)</li>
                         <li className="flex gap-2"><span className="text-green-500">✓</span> Instant "Order Paid" confirmation</li>
                         <li className="flex gap-2"><span className="text-green-500">✓</span> Perfect for University Cafeterias & Food Trucks</li>
-                        <li className="flex gap-2"><span className="text-green-500">✓</span> Multi-currency (USD/JOD/SAR)</li>
+                        <li className="flex gap-2"><span className="text-green-500">✓</span> Multi-currency (USD/EUR/AED/JOD/SAR)</li>
                     </ul>
                 </div>
 
