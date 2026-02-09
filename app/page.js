@@ -83,7 +83,7 @@ export default function HomePage() {
         </h1>
 
         <p className="text-zinc-400 text-base md:text-lg max-w-2xl mb-10 leading-relaxed font-medium">
-           Native infrastructure for <span className="text-green-500 font-bold">Bitcoin Cash</span>. Turn your phone into a <span className="text-white font-bold">POS</span>, sell <span className="text-white font-bold">Digital Content</span>, or build with our <span className="text-white font-bold">SDK</span>.
+           Native infrastructure for <span className="text-green-500 font-bold">Bitcoin Cash</span>. Turn your phone into a <span className="text-white font-bold">Retail POS</span>, sell <span className="text-white font-bold">Digital Content</span>, or build with our <span className="text-white font-bold">SDK</span>.
            <br/><span className="text-sm opacity-50 mt-2 block">No accounts. No databases. Instant settlement.</span>
         </p>
 
@@ -155,7 +155,7 @@ export default function HomePage() {
                     <div className="flex items-center gap-4 mb-6">
                         <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center text-2xl">🏪</div>
                         <div>
-                            <h4 className="text-xl font-black uppercase italic">Retail POS</h4>
+                            <h4 className="text-xl font-black uppercase italic">POS</h4>
                             <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Restaurants • Cafes • Stores</p>
                         </div>
                     </div>
