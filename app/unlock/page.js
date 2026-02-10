@@ -45,11 +45,15 @@ function UnlockContent() {
                     const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd');
                     const json = await res.json();
                     if (json['bitcoin-cash']) {
-                        setBchPrice((currentPrice / json['bitcoin-cash'].usd).toFixed(8));
-                        setLoadingPrice(false);
+                        const price = json['bitcoin-cash'].usd;
+                        if (price > 0) {
+                            setBchPrice((currentPrice / price).toFixed(8));
+                            setLoadingPrice(false);
+                        }
                     }
                 } catch (e) {
-                    setLoadingPrice(false);
+                    console.error("Price fetch error", e);
+                    // Keep loading state if failed, or set a retry
                 }
             }
         };
@@ -162,6 +166,7 @@ function UnlockContent() {
     
     if (!data) return <div className="min-h-screen bg-[#09090b] text-white flex justify-center items-center animate-pulse font-black italic tracking-[10px]">LOADING...</div>;
 
+    // Strict cleaning: Lowercase and Trim prevents Electron Cash crashes
     const rawAddr = data.w || '';
     const cleanAddr = (rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr).trim().toLowerCase();
     
@@ -172,7 +177,10 @@ function UnlockContent() {
     const sellerAmt = isViral ? (parseFloat(fullPriceBch) * 0.9).toFixed(8) : fullPriceBch;
     const affAmt = isViral ? (parseFloat(fullPriceBch) * 0.1).toFixed(8) : "0";
 
+    // Standard BIP-21 Link (Safe & Universal)
     const standardLink = `bitcoincash:${cleanAddr}?amount=${fullPriceBch}`;
+    
+    // Viral Link (For QR / Advanced Wallets)
     const smartViralLink = `bitcoincash:${cleanAddr}?amount=${sellerAmt}&address=${affiliateAddr}&amount=${affAmt}`;
 
     const copyToClipboard = (text, type) => {
@@ -431,91 +439,6 @@ function UnlockContent() {
                              </div>
                         </div>
 
-                    </div>
-                </div>
-            )}
-
-            {isPaid && !isValidating && (
-                <div className="w-full max-w-[440px] bg-[#121214] p-10 rounded-[40px] border-2 border-green-500/30 text-center shadow-[0_0_100px_rgba(34,197,94,0.15)] animate-in zoom-in-95 duration-500 relative overflow-hidden">
-                    
-                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-                    
-                    <div className="relative z-10">
-                        <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_40px_rgba(34,197,94,0.5)]">
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        </div>
-                        
-                        <h1 className="text-3xl font-black mb-2 italic uppercase tracking-tighter text-white">Access Granted</h1>
-                        <p className="text-green-500 text-[10px] mb-6 uppercase tracking-[4px] font-black">
-                            Payment Verified on Blockchain
-                        </p>
-
-                        <div className="grid grid-cols-2 gap-2 mb-8">
-                            <div className="bg-black/40 p-3 rounded-2xl border border-white/5">
-                                <p className="text-[8px] text-zinc-500 uppercase font-black mb-1">DS-Proof Status</p>
-                                <p className="text-xs font-bold text-green-400 flex items-center justify-center gap-1">
-                                    <span className="w-2 h-2 bg-green-500 rounded-full"></span> CLEAN
-                                </p>
-                            </div>
-                            <div className="bg-black/40 p-3 rounded-2xl border border-white/5">
-                                <p className="text-[8px] text-zinc-500 uppercase font-black mb-1">Node Propagation</p>
-                                <p className="text-xs font-bold text-green-400">100% REACHED</p>
-                            </div>
-                        </div>
-                        
-                        <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 mb-8 text-left relative overflow-hidden group">
-                             <div className="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
-                             
-                             <p className="text-[9px] text-zinc-500 uppercase font-black mb-2 tracking-wider">
-                                {data.dt === 'link' ? 'Secure Redirect:' : (data.dt === 'file' ? 'Decrypted Content:' : 'Your Asset')}
-                             </p>
-
-                             {data.dt === 'link' ? (
-                                <div className="text-center py-2">
-                                    <a href={data.i} target="_blank" className="block w-full bg-white hover:bg-zinc-200 text-black font-black py-3 rounded-xl uppercase tracking-widest text-sm transition-all mb-2 shadow-lg">
-                                        🚀 Open Link Now
-                                    </a>
-                                    <p className="text-[8px] text-zinc-500 font-mono break-all opacity-50">Target: {data.i.substring(0, 30)}...</p>
-                                </div>
-                             ) : data.dt === 'file' ? (
-                                <div className="flex items-center justify-between">
-                                    <span className="text-white font-bold truncate pr-4">{data.fn || 'Download File'}</span>
-                                    <a href={`https://gateway.pinata.cloud/ipfs/${data.i}`} target="_blank" className="bg-white text-black px-4 py-2 rounded-lg text-[10px] font-black uppercase hover:scale-105 transition-transform">
-                                        Download
-                                    </a>
-                                </div>
-                             ) : (
-                                <div>
-                                    <p className="text-white font-mono text-sm break-all select-all leading-relaxed bg-black/50 p-3 rounded-lg border border-white/5">{data.i}</p>
-                                    <p className="text-[8px] text-zinc-600 mt-2 text-right">Click text to select</p>
-                                </div>
-                             )}
-                        </div>
-                        
-                        <div className="text-[9px] text-zinc-600 font-mono mb-6 truncate">TxID: {txHash}</div>
-
-                        <button className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-3 rounded-xl font-bold uppercase text-[10px] tracking-widest mb-8 flex items-center justify-center gap-2 transition-all">
-                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                             Download Official Receipt
-                        </button>
-
-                        {!rating ? (
-                            <div className="bg-black/40 p-5 rounded-[24px] border border-white/5">
-                                <p className="text-[9px] text-zinc-500 uppercase font-black mb-4 tracking-widest">Quality Feedback</p>
-                                <div className="flex gap-3">
-                                    <button onClick={() => setRating('pos')} className="flex-1 bg-zinc-900/50 hover:bg-green-500/10 rounded-2xl transition-all text-[10px] font-black uppercase border border-white/5 group border-b-2 border-b-transparent hover:border-b-green-500 p-5">
-                                        <span className="block text-2xl mb-2 group-hover:scale-110 transition-transform">👍</span> Trusted
-                                    </button>
-                                    <button onClick={() => setRating('neg')} className="flex-1 bg-zinc-900/50 hover:bg-red-500/10 rounded-2xl transition-all text-[10px] font-black uppercase border border-white/5 group border-b-2 border-b-transparent hover:border-b-red-500 p-5">
-                                        <span className="block text-2xl mb-2 group-hover:scale-110 transition-transform">👎</span> Avoid
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="py-5 bg-green-600/10 text-green-500 border border-green-500/20 rounded-2xl font-black text-[10px] uppercase italic tracking-[2px] animate-pulse">
-                                Verification Recorded
-                            </div>
-                        )}
                     </div>
                 </div>
             )}
