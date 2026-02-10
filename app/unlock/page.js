@@ -167,8 +167,11 @@ function UnlockContent() {
     const sellerAmt = isViral ? (parseFloat(fullPriceBch) * 0.9).toFixed(8) : fullPriceBch;
     const affAmt = isViral ? (parseFloat(fullPriceBch) * 0.1).toFixed(8) : "0";
 
-    const standardLink = `bitcoincash:${cleanAddr}?amount=${fullPriceBch}`;
-    const smartViralLink = `bitcoincash:${cleanAddr}?amount=${sellerAmt}&address=${affiliateAddr}&amount=${affAmt}`;
+    // Standard BIP-21 link (Best for button click)
+    const standardLink = `bitcoincash:${cleanAddr}?amount=${fullPriceBch}&label=PayOnce`;
+    
+    // Smart Viral Link (Best for QR scan)
+    const smartViralLink = `bitcoincash:${cleanAddr}?amount=${sellerAmt}&address=${affiliateAddr}&amount=${affAmt}&label=PayOnce`;
 
     const copyToClipboard = (text, type) => {
         navigator.clipboard.writeText(text);
@@ -382,19 +385,22 @@ function UnlockContent() {
                                 <div className="h-[1px] bg-zinc-800 flex-1"></div>
                             </div>
 
-                            <a 
-                                href={`bitcoincash:${cleanAddr}?amount=${fullPriceBch}`}
-                                className="flex items-center justify-between w-full bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl transition-all group active:scale-[0.98]"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform">⚡</div>
-                                    <div className="text-left">
-                                        <p className="text-[10px] font-black text-white uppercase italic">Open Wallet</p>
-                                        <p className="text-[8px] text-zinc-500 uppercase">One-tap payment</p>
+                            {/* Main Open Wallet Button (Fixes Deep Linking) */}
+                            {!loadingPrice && (
+                                <a 
+                                    href={standardLink}
+                                    className="flex items-center justify-between w-full bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl transition-all group active:scale-[0.98]"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform">⚡</div>
+                                        <div className="text-left">
+                                            <p className="text-[10px] font-black text-white uppercase italic">Open Wallet App</p>
+                                            <p className="text-[8px] text-zinc-500 uppercase">One-tap payment</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-zinc-600 group-hover:text-green-500 transition-colors"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                            </a>
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-zinc-600 group-hover:text-green-500 transition-colors"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </a>
+                            )}
                         </div>
 
                         <div className="grid grid-cols-2 gap-3 mt-6">
