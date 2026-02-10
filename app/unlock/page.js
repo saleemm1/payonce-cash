@@ -107,7 +107,8 @@ function UnlockContent() {
         
         const loadInitialHistory = async () => {
             if (!data?.w) return;
-            const sellerClean = data.w.includes(':') ? data.w.split(':')[1] : data.w;
+            const rawAddr = data.w;
+            const sellerClean = rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr;
             try {
                 const res = await fetch(`https://rest.mainnet.cash/v1/address/history/${sellerClean}`);
                 const history = await res.json();
@@ -121,7 +122,8 @@ function UnlockContent() {
         }
 
         if (checking && !isPaid && !isValidating && data?.w && bchPrice) {
-            const sellerClean = data.w.includes(':') ? data.w.split(':')[1] : data.w;
+            const rawAddr = data.w;
+            const sellerClean = rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr;
             
             const expectedSats = Math.floor(parseFloat(bchPrice) * 100000000) - 1000; 
 
@@ -147,7 +149,8 @@ function UnlockContent() {
 
     useEffect(() => {
         const affiliateAddr = searchParams.get('ref');
-        const sellerClean = data?.w?.includes(':') ? data.w.split(':')[1] : data?.w;
+        const rawAddr = data?.w || '';
+        const sellerClean = rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr;
         if (data?.a && affiliateAddr && affiliateAddr !== sellerClean) {
             setQrMode('smart');
         } else {
@@ -161,7 +164,6 @@ function UnlockContent() {
 
     const rawAddr = data.w || '';
     const cleanAddr = (rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr).trim();
-    
     const affiliateAddr = searchParams.get('ref');
     const isViral = data.a && affiliateAddr && (affiliateAddr !== cleanAddr);
 
@@ -172,10 +174,16 @@ function UnlockContent() {
     const standardLink = `bitcoincash:${cleanAddr}?amount=${fullPriceBch}`;
     const smartViralLink = `bitcoincash:${cleanAddr}?amount=${sellerAmt}&address=${affiliateAddr}&amount=${affAmt}`;
 
+    const buttonLink = qrMode === 'smart' && isViral ? smartViralLink : standardLink;
+
     const copyToClipboard = (text, type) => {
         navigator.clipboard.writeText(text);
         setCopied(type);
         setTimeout(() => setCopied(''), 2000);
+    };
+
+    const handleOpenWallet = () => {
+        window.location.assign(buttonLink);
     };
 
     return (
@@ -289,7 +297,7 @@ function UnlockContent() {
                                     <div className="bg-white p-4 rounded-[24px] shadow-lg mb-6 relative group cursor-pointer hover:shadow-[0_0_30px_rgba(34,197,94,0.2)] transition-shadow">
                                         {!loadingPrice ? (
                                             <img
-                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrMode === 'smart' ? (isViral ? smartViralLink : standardLink) : cleanAddr)}`}
+                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(buttonLink)}`}
                                                 alt="QR" className="w-[160px] h-[160px] mix-blend-multiply"
                                             />
                                         ) : <div className="w-[160px] h-[160px] bg-zinc-200 animate-pulse rounded-xl"></div>}
@@ -385,9 +393,9 @@ function UnlockContent() {
                             </div>
 
                             {!loadingPrice && (
-                                <a 
-                                    href={standardLink}
-                                    className="flex items-center justify-between w-full bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl transition-all group active:scale-[0.98]"
+                                <button 
+                                    onClick={handleOpenWallet}
+                                    className="flex items-center justify-between w-full bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl transition-all group active:scale-[0.98] cursor-pointer"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform">⚡</div>
@@ -397,7 +405,7 @@ function UnlockContent() {
                                         </div>
                                     </div>
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-zinc-600 group-hover:text-green-500 transition-colors"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                                </a>
+                                </button>
                             )}
                         </div>
 
