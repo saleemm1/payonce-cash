@@ -107,7 +107,9 @@ function UnlockContent() {
         
         const loadInitialHistory = async () => {
             if (!data?.w) return;
-            const sellerClean = data.w.includes(':') ? data.w.split(':')[1] : data.w;
+            // Clean Address Logic: Lowercase and Trim to fix Electron Cash issues
+            const rawAddr = data.w;
+            const sellerClean = rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr;
             try {
                 const res = await fetch(`https://rest.mainnet.cash/v1/address/history/${sellerClean}`);
                 const history = await res.json();
@@ -121,7 +123,8 @@ function UnlockContent() {
         }
 
         if (checking && !isPaid && !isValidating && data?.w && bchPrice) {
-            const sellerClean = data.w.includes(':') ? data.w.split(':')[1] : data.w;
+            const rawAddr = data.w;
+            const sellerClean = rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr;
             
             const expectedSats = Math.floor(parseFloat(bchPrice) * 100000000) - 1000; 
 
@@ -147,7 +150,8 @@ function UnlockContent() {
 
     useEffect(() => {
         const affiliateAddr = searchParams.get('ref');
-        const sellerClean = data?.w?.includes(':') ? data.w.split(':')[1] : data?.w;
+        const rawAddr = data?.w || '';
+        const sellerClean = rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr;
         if (data?.a && affiliateAddr && affiliateAddr !== sellerClean) {
             setQrMode('smart');
         } else {
@@ -159,7 +163,10 @@ function UnlockContent() {
     
     if (!data) return <div className="min-h-screen bg-[#09090b] text-white flex justify-center items-center animate-pulse font-black italic tracking-[10px]">LOADING...</div>;
 
-    const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
+    // Strict cleaning for Mobile Wallets (Lowercase + Trim)
+    const rawAddr = data.w || '';
+    const cleanAddr = (rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr).trim().toLowerCase();
+    
     const affiliateAddr = searchParams.get('ref');
     const isViral = data.a && affiliateAddr && (affiliateAddr !== cleanAddr);
 
@@ -167,12 +174,9 @@ function UnlockContent() {
     const sellerAmt = isViral ? (parseFloat(fullPriceBch) * 0.9).toFixed(8) : fullPriceBch;
     const affAmt = isViral ? (parseFloat(fullPriceBch) * 0.1).toFixed(8) : "0";
 
+    // Simplified Standard Link (Maximum Compatibility)
     const standardLink = `bitcoincash:${cleanAddr}?amount=${fullPriceBch}`;
-    // Using the same logic for smartViralLink
     const smartViralLink = `bitcoincash:${cleanAddr}?amount=${sellerAmt}&address=${affiliateAddr}&amount=${affAmt}`;
-    
-    // 🔥 Determine the FINAL deep link to use for the button
-    const activeDeepLink = isViral ? smartViralLink : standardLink;
 
     const copyToClipboard = (text, type) => {
         navigator.clipboard.writeText(text);
@@ -319,39 +323,6 @@ function UnlockContent() {
                                     )}
                                 </div>
 
-                                {/* 🔥🔥🔥 THE NEW PAYSTATION SECTION 🔥🔥🔥 */}
-                                <div className="w-full mb-6">
-                                    <a 
-                                        href={activeDeepLink}
-                                        className="relative w-full group overflow-hidden bg-[#1a1a1c] hover:bg-[#222224] border border-white/10 hover:border-green-500/50 p-4 rounded-xl flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer"
-                                    >
-                                        <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                        
-                                        <div className="flex items-center gap-3 relative z-10">
-                                            <div className="w-10 h-10 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center text-lg shadow-[0_0_15px_rgba(34,197,94,0.2)]">
-                                                👛
-                                            </div>
-                                            <div className="text-left">
-                                                <p className="text-[10px] text-green-500 font-black uppercase tracking-widest mb-0.5">One-Click Pay</p>
-                                                <p className="text-xs font-bold text-zinc-300">Open Wallet App</p>
-                                            </div>
-                                        </div>
-                                        <div className="relative z-10 bg-black/40 p-2 rounded-lg border border-white/5 text-zinc-500 group-hover:text-green-500 group-hover:border-green-500/30 transition-all">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                                        </div>
-                                    </a>
-                                    
-                                    {/* Wallet Trust Icons */}
-                                    <div className="flex justify-center gap-4 mt-3 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
-                                         {/* Simple representations of wallet logos to keep code clean */}
-                                         <div className="text-[8px] font-black uppercase text-zinc-400 flex items-center gap-1"><span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>Bitcoin.com</div>
-                                         <div className="text-[8px] font-black uppercase text-zinc-400 flex items-center gap-1"><span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>Electron</div>
-                                         <div className="text-[8px] font-black uppercase text-zinc-400 flex items-center gap-1"><span className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span>Zapit</div>
-                                    </div>
-                                </div>
-                                {/* 🔥🔥🔥 END PAYSTATION 🔥🔥🔥 */}
-
-
                                 {qrMode === 'address' && !isViral && (
                                     <div className="w-full bg-black/40 rounded-xl p-3 border border-white/5 flex items-center gap-3 group hover:border-white/20 transition-colors">
                                         <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-[10px]">🏁</div>
@@ -412,7 +383,31 @@ function UnlockContent() {
                             {checking ? 'Scanning Blockchain...' : 'Verify Transaction'}
                         </button>
 
-                        <div className="grid grid-cols-2 gap-3 mb-6">
+                        <div className="mt-8 w-full space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <div className="flex items-center gap-2 mb-2">
+                                <div className="h-[1px] bg-zinc-800 flex-1"></div>
+                                <span className="text-[9px] font-black text-zinc-500 uppercase tracking-[3px]">Instant Connect</span>
+                                <div className="h-[1px] bg-zinc-800 flex-1"></div>
+                            </div>
+
+                            {!loadingPrice && (
+                                <a 
+                                    href={standardLink}
+                                    className="flex items-center justify-between w-full bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl transition-all group active:scale-[0.98]"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform">⚡</div>
+                                        <div className="text-left">
+                                            <p className="text-[10px] font-black text-white uppercase italic">Open Wallet App</p>
+                                            <p className="text-[8px] text-zinc-500 uppercase">One-tap payment</p>
+                                        </div>
+                                    </div>
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-zinc-600 group-hover:text-green-500 transition-colors"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </a>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 mt-6">
                             <div className="bg-black/20 p-3 rounded-2xl border border-white/5">
                                 <span className="text-[7px] font-black text-zinc-600 uppercase block mb-1">Seller</span>
                                 <span className="text-[11px] font-bold text-white truncate block">{data.sn}</span>
@@ -424,7 +419,7 @@ function UnlockContent() {
                         </div>
                         
                         {data.a && !affiliateAddr && (
-                            <button onClick={() => router.push(`/affiliate?product=${searchParams.get('id')}`)} className="w-full py-3 rounded-xl border border-dashed border-zinc-700 text-zinc-500 hover:text-white hover:border-zinc-500 text-[9px] font-black uppercase tracking-widest transition-all">
+                            <button onClick={() => router.push(`/affiliate?product=${searchParams.get('id')}`)} className="w-full mt-4 py-3 rounded-xl border border-dashed border-zinc-700 text-zinc-500 hover:text-white hover:border-zinc-500 text-[9px] font-black uppercase tracking-widest transition-all">
                                 🚀 Become an Affiliate (Earn 10%)
                             </button>
                         )}
