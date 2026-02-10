@@ -375,7 +375,40 @@ function UnlockContent() {
                             {checking ? 'Scanning Blockchain...' : 'Verify Transaction'}
                         </button>
 
-                        <div className="grid grid-cols-2 gap-3 mb-6">
+                        <div className="mt-8 w-full space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <div className="flex items-center gap-2 mb-2">
+                                <div className="h-[1px] bg-zinc-800 flex-1"></div>
+                                <span className="text-[9px] font-black text-zinc-500 uppercase tracking-[3px]">Instant Connect</span>
+                                <div className="h-[1px] bg-zinc-800 flex-1"></div>
+                            </div>
+
+                            <a 
+                                href={qrMode === 'smart' ? (isViral ? smartViralLink : standardLink) : `bitcoincash:${cleanAddr}?amount=${fullPriceBch}`}
+                                className="flex items-center justify-between w-full bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl transition-all group active:scale-[0.98]"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform">⚡</div>
+                                    <div className="text-left">
+                                        <p className="text-[10px] font-black text-white uppercase italic">Open Default Wallet</p>
+                                        <p className="text-[8px] text-zinc-500 uppercase">One-tap payment</p>
+                                    </div>
+                                </div>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-zinc-600 group-hover:text-green-500 transition-colors"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                            </a>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <a href={`https://wallet.bitcoin.com/payment?uri=${encodeURIComponent(standardLink)}`} target="_blank" className="flex items-center gap-2 bg-zinc-900/50 p-3 rounded-xl border border-white/5 hover:border-green-500/30 transition-all">
+                                    <span className="text-xs">📱</span>
+                                    <span className="text-[9px] font-bold uppercase">Bitcoin.com</span>
+                                </a>
+                                <a href={`https://zapit.io/pay?uri=${encodeURIComponent(standardLink)}`} target="_blank" className="flex items-center gap-2 bg-zinc-900/50 p-3 rounded-xl border border-white/5 hover:border-green-500/30 transition-all">
+                                    <span className="text-xs">⚡</span>
+                                    <span className="text-[9px] font-bold uppercase">Zapit Wallet</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 mt-6">
                             <div className="bg-black/20 p-3 rounded-2xl border border-white/5">
                                 <span className="text-[7px] font-black text-zinc-600 uppercase block mb-1">Seller</span>
                                 <span className="text-[11px] font-bold text-white truncate block">{data.sn}</span>
@@ -387,7 +420,7 @@ function UnlockContent() {
                         </div>
                         
                         {data.a && !affiliateAddr && (
-                            <button onClick={() => router.push(`/affiliate?product=${searchParams.get('id')}`)} className="w-full py-3 rounded-xl border border-dashed border-zinc-700 text-zinc-500 hover:text-white hover:border-zinc-500 text-[9px] font-black uppercase tracking-widest transition-all">
+                            <button onClick={() => router.push(`/affiliate?product=${searchParams.get('id')}`)} className="w-full mt-4 py-3 rounded-xl border border-dashed border-zinc-700 text-zinc-500 hover:text-white hover:border-zinc-500 text-[9px] font-black uppercase tracking-widest transition-all">
                                 🚀 Become an Affiliate (Earn 10%)
                             </button>
                         )}
