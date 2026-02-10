@@ -107,7 +107,7 @@ function UnlockContent() {
         
         const loadInitialHistory = async () => {
             if (!data?.w) return;
-            // Clean Address Logic: Lowercase and Trim to fix Electron Cash issues
+            
             const rawAddr = data.w;
             const sellerClean = rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr;
             try {
@@ -163,7 +163,7 @@ function UnlockContent() {
     
     if (!data) return <div className="min-h-screen bg-[#09090b] text-white flex justify-center items-center animate-pulse font-black italic tracking-[10px]">LOADING...</div>;
 
-    // Strict cleaning for Mobile Wallets (Lowercase + Trim)
+    
     const rawAddr = data.w || '';
     const cleanAddr = (rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr).trim().toLowerCase();
     
@@ -174,7 +174,7 @@ function UnlockContent() {
     const sellerAmt = isViral ? (parseFloat(fullPriceBch) * 0.9).toFixed(8) : fullPriceBch;
     const affAmt = isViral ? (parseFloat(fullPriceBch) * 0.1).toFixed(8) : "0";
 
-    // Simplified Standard Link (Maximum Compatibility)
+    
     const standardLink = `bitcoincash:${cleanAddr}?amount=${fullPriceBch}`;
     const smartViralLink = `bitcoincash:${cleanAddr}?amount=${sellerAmt}&address=${affiliateAddr}&amount=${affAmt}`;
 
