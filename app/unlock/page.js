@@ -159,7 +159,8 @@ function UnlockContent() {
     
     if (!data) return <div className="min-h-screen bg-[#09090b] text-white flex justify-center items-center animate-pulse font-black italic tracking-[10px]">LOADING...</div>;
 
-    const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
+    const rawAddr = data.w || '';
+    const cleanAddr = (rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr).trim();
     const affiliateAddr = searchParams.get('ref');
     const isViral = data.a && affiliateAddr && (affiliateAddr !== cleanAddr);
 
@@ -169,6 +170,8 @@ function UnlockContent() {
 
     const standardLink = `bitcoincash:${cleanAddr}?amount=${fullPriceBch}`;
     const smartViralLink = `bitcoincash:${cleanAddr}?amount=${sellerAmt}&address=${affiliateAddr}&amount=${affAmt}`;
+
+    const buttonLink = qrMode === 'smart' && isViral ? smartViralLink : standardLink;
 
     const copyToClipboard = (text, type) => {
         navigator.clipboard.writeText(text);
@@ -287,7 +290,7 @@ function UnlockContent() {
                                     <div className="bg-white p-4 rounded-[24px] shadow-lg mb-6 relative group cursor-pointer hover:shadow-[0_0_30px_rgba(34,197,94,0.2)] transition-shadow">
                                         {!loadingPrice ? (
                                             <img
-                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrMode === 'smart' ? (isViral ? smartViralLink : standardLink) : cleanAddr)}`}
+                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(buttonLink)}`}
                                                 alt="QR" className="w-[160px] h-[160px] mix-blend-multiply"
                                             />
                                         ) : <div className="w-[160px] h-[160px] bg-zinc-200 animate-pulse rounded-xl"></div>}
@@ -375,7 +378,31 @@ function UnlockContent() {
                             {checking ? 'Scanning Blockchain...' : 'Verify Transaction'}
                         </button>
 
-                        <div className="grid grid-cols-2 gap-3 mb-6">
+                        <div className="mt-8 w-full space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <div className="flex items-center gap-2 mb-2">
+                                <div className="h-[1px] bg-zinc-800 flex-1"></div>
+                                <span className="text-[9px] font-black text-zinc-500 uppercase tracking-[3px]">Instant Connect</span>
+                                <div className="h-[1px] bg-zinc-800 flex-1"></div>
+                            </div>
+
+                            {!loadingPrice && (
+                                <a 
+                                    href={buttonLink}
+                                    className="flex items-center justify-between w-full bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl transition-all group active:scale-[0.98]"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform">⚡</div>
+                                        <div className="text-left">
+                                            <p className="text-[10px] font-black text-white uppercase italic">Open Wallet App</p>
+                                            <p className="text-[8px] text-zinc-500 uppercase">One-tap payment</p>
+                                        </div>
+                                    </div>
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-zinc-600 group-hover:text-green-500 transition-colors"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </a>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 mt-6">
                             <div className="bg-black/20 p-3 rounded-2xl border border-white/5">
                                 <span className="text-[7px] font-black text-zinc-600 uppercase block mb-1">Seller</span>
                                 <span className="text-[11px] font-bold text-white truncate block">{data.sn}</span>
@@ -387,7 +414,7 @@ function UnlockContent() {
                         </div>
                         
                         {data.a && !affiliateAddr && (
-                            <button onClick={() => router.push(`/affiliate?product=${searchParams.get('id')}`)} className="w-full py-3 rounded-xl border border-dashed border-zinc-700 text-zinc-500 hover:text-white hover:border-zinc-500 text-[9px] font-black uppercase tracking-widest transition-all">
+                            <button onClick={() => router.push(`/affiliate?product=${searchParams.get('id')}`)} className="w-full mt-4 py-3 rounded-xl border border-dashed border-zinc-700 text-zinc-500 hover:text-white hover:border-zinc-500 text-[9px] font-black uppercase tracking-widest transition-all">
                                 🚀 Become an Affiliate (Earn 10%)
                             </button>
                         )}
