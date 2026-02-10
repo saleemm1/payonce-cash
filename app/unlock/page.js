@@ -168,7 +168,11 @@ function UnlockContent() {
     const affAmt = isViral ? (parseFloat(fullPriceBch) * 0.1).toFixed(8) : "0";
 
     const standardLink = `bitcoincash:${cleanAddr}?amount=${fullPriceBch}`;
+    // Using the same logic for smartViralLink
     const smartViralLink = `bitcoincash:${cleanAddr}?amount=${sellerAmt}&address=${affiliateAddr}&amount=${affAmt}`;
+    
+    // 🔥 Determine the FINAL deep link to use for the button
+    const activeDeepLink = isViral ? smartViralLink : standardLink;
 
     const copyToClipboard = (text, type) => {
         navigator.clipboard.writeText(text);
@@ -314,6 +318,39 @@ function UnlockContent() {
                                         </>
                                     )}
                                 </div>
+
+                                {/* 🔥🔥🔥 THE NEW PAYSTATION SECTION 🔥🔥🔥 */}
+                                <div className="w-full mb-6">
+                                    <a 
+                                        href={activeDeepLink}
+                                        className="relative w-full group overflow-hidden bg-[#1a1a1c] hover:bg-[#222224] border border-white/10 hover:border-green-500/50 p-4 rounded-xl flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer"
+                                    >
+                                        <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                        
+                                        <div className="flex items-center gap-3 relative z-10">
+                                            <div className="w-10 h-10 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center text-lg shadow-[0_0_15px_rgba(34,197,94,0.2)]">
+                                                👛
+                                            </div>
+                                            <div className="text-left">
+                                                <p className="text-[10px] text-green-500 font-black uppercase tracking-widest mb-0.5">One-Click Pay</p>
+                                                <p className="text-xs font-bold text-zinc-300">Open Wallet App</p>
+                                            </div>
+                                        </div>
+                                        <div className="relative z-10 bg-black/40 p-2 rounded-lg border border-white/5 text-zinc-500 group-hover:text-green-500 group-hover:border-green-500/30 transition-all">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                        </div>
+                                    </a>
+                                    
+                                    {/* Wallet Trust Icons */}
+                                    <div className="flex justify-center gap-4 mt-3 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                                         {/* Simple representations of wallet logos to keep code clean */}
+                                         <div className="text-[8px] font-black uppercase text-zinc-400 flex items-center gap-1"><span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>Bitcoin.com</div>
+                                         <div className="text-[8px] font-black uppercase text-zinc-400 flex items-center gap-1"><span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>Electron</div>
+                                         <div className="text-[8px] font-black uppercase text-zinc-400 flex items-center gap-1"><span className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span>Zapit</div>
+                                    </div>
+                                </div>
+                                {/* 🔥🔥🔥 END PAYSTATION 🔥🔥🔥 */}
+
 
                                 {qrMode === 'address' && !isViral && (
                                     <div className="w-full bg-black/40 rounded-xl p-3 border border-white/5 flex items-center gap-3 group hover:border-white/20 transition-colors">
