@@ -107,7 +107,9 @@ function UnlockContent() {
         
         const loadInitialHistory = async () => {
             if (!data?.w) return;
-            const sellerClean = data.w.includes(':') ? data.w.split(':')[1] : data.w;
+            // Clean Address Logic: Lowercase and Trim to fix Electron Cash issues
+            const rawAddr = data.w;
+            const sellerClean = rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr;
             try {
                 const res = await fetch(`https://rest.mainnet.cash/v1/address/history/${sellerClean}`);
                 const history = await res.json();
@@ -121,7 +123,8 @@ function UnlockContent() {
         }
 
         if (checking && !isPaid && !isValidating && data?.w && bchPrice) {
-            const sellerClean = data.w.includes(':') ? data.w.split(':')[1] : data.w;
+            const rawAddr = data.w;
+            const sellerClean = rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr;
             
             const expectedSats = Math.floor(parseFloat(bchPrice) * 100000000) - 1000; 
 
@@ -147,7 +150,8 @@ function UnlockContent() {
 
     useEffect(() => {
         const affiliateAddr = searchParams.get('ref');
-        const sellerClean = data?.w?.includes(':') ? data.w.split(':')[1] : data?.w;
+        const rawAddr = data?.w || '';
+        const sellerClean = rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr;
         if (data?.a && affiliateAddr && affiliateAddr !== sellerClean) {
             setQrMode('smart');
         } else {
@@ -159,7 +163,10 @@ function UnlockContent() {
     
     if (!data) return <div className="min-h-screen bg-[#09090b] text-white flex justify-center items-center animate-pulse font-black italic tracking-[10px]">LOADING...</div>;
 
-    const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
+    // Strict cleaning for Mobile Wallets (Lowercase + Trim)
+    const rawAddr = data.w || '';
+    const cleanAddr = (rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr).trim().toLowerCase();
+    
     const affiliateAddr = searchParams.get('ref');
     const isViral = data.a && affiliateAddr && (affiliateAddr !== cleanAddr);
 
@@ -167,11 +174,9 @@ function UnlockContent() {
     const sellerAmt = isViral ? (parseFloat(fullPriceBch) * 0.9).toFixed(8) : fullPriceBch;
     const affAmt = isViral ? (parseFloat(fullPriceBch) * 0.1).toFixed(8) : "0";
 
-    // Standard BIP-21 link (Best for button click)
-    const standardLink = `bitcoincash:${cleanAddr}?amount=${fullPriceBch}&label=PayOnce`;
-    
-    // Smart Viral Link (Best for QR scan)
-    const smartViralLink = `bitcoincash:${cleanAddr}?amount=${sellerAmt}&address=${affiliateAddr}&amount=${affAmt}&label=PayOnce`;
+    // Simplified Standard Link (Maximum Compatibility)
+    const standardLink = `bitcoincash:${cleanAddr}?amount=${fullPriceBch}`;
+    const smartViralLink = `bitcoincash:${cleanAddr}?amount=${sellerAmt}&address=${affiliateAddr}&amount=${affAmt}`;
 
     const copyToClipboard = (text, type) => {
         navigator.clipboard.writeText(text);
@@ -385,7 +390,6 @@ function UnlockContent() {
                                 <div className="h-[1px] bg-zinc-800 flex-1"></div>
                             </div>
 
-                            {/* Main Open Wallet Button (Fixes Deep Linking) */}
                             {!loadingPrice && (
                                 <a 
                                     href={standardLink}
