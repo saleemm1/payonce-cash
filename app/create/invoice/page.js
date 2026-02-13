@@ -1,5 +1,123 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
+
+const translations = {
+  en: {
+    retail: "Retail / POS",
+    personal: "Freelance",
+    digital: "Digital Shop",
+    quick: "Quick Bill",
+    pInv: "Personal Invoice",
+    dInv: "Sell Digital Asset",
+    forRetail: "For Restaurants, Cafes & Stores",
+    forPersonal: "For Services & Contractors",
+    forDigital: "For Files, Codes & Content",
+    itemName: "Item Name (e.g. Lunch Combo)",
+    invTitle: "Invoice Title",
+    customer: "Customer Name (Bill To)",
+    ref: "Table # / Order ID / Student ID (Optional)",
+    descRetail: "Order details, items list...",
+    descInv: "Description, Terms & Conditions...",
+    upload: "Upload File",
+    secret: "Secret Link/Text",
+    paste: "Paste Secure Link or Content",
+    coverRetail: "Cover Image (Menu/Shop Logo) - Optional",
+    coverDigital: "Cover Preview - Required",
+    orUrl: "Or Image URL",
+    merchName: "Merchant Name",
+    email: "Email",
+    total: "Total Amount",
+    approx: "APPROX BCH",
+    wallet: "Your BCH Wallet Address (bitcoincash:qp...)",
+    promo: "Promo Code",
+    discount: "Offer a secret discount",
+    viral: "Viral Mode 🚀",
+    comm: "10% Commission",
+    generating: "Creating Bill...",
+    genQuick: "Generate Quick Bill ⚡",
+    create: "Create Invoice",
+    ready: "Payment Link Ready",
+    done: "✅",
+    copy: "📋"
+  },
+  ar: {
+    retail: "تجزئة / POS",
+    personal: "عمل حر",
+    digital: "متجر رقمي",
+    quick: "فاتورة سريعة",
+    pInv: "فاتورة شخصية",
+    dInv: "بيع أصل رقمي",
+    forRetail: "للمطاعم والمقاهي والمتاجر",
+    forPersonal: "للخدمات والمقاولين",
+    forDigital: "للملفات والأكواد والمحتوى",
+    itemName: "اسم العنصر (مثل: وجبة غداء)",
+    invTitle: "عنوان الفاتورة",
+    customer: "اسم العميل (المرسل إليه)",
+    ref: "رقم الطاولة / الطلب (اختياري)",
+    descRetail: "تفاصيل الطلب، القائمة...",
+    descInv: "الوصف، الشروط والأحكام...",
+    upload: "رفع ملف",
+    secret: "رابط/نص سري",
+    paste: "الصق الرابط الآمن أو المحتوى",
+    coverRetail: "صورة الغلاف (شعار المتجر) - اختياري",
+    coverDigital: "معاينة الغلاف - مطلوب",
+    orUrl: "أو رابط الصورة",
+    merchName: "اسم التاجر",
+    email: "البريد الإلكتروني",
+    total: "المبلغ الإجمالي",
+    approx: "تقريباً BCH",
+    wallet: "عنوان محفظة BCH الخاص بك",
+    promo: "كود خصم",
+    discount: "قدم خصماً سرياً",
+    viral: "الوضع الفيروسي 🚀",
+    comm: "10% عمولة",
+    generating: "جاري إنشاء الفاتورة...",
+    genQuick: "إنشاء فاتورة سريعة ⚡",
+    create: "إنشاء الفاتورة",
+    ready: "رابط الدفع جاهز",
+    done: "✅",
+    copy: "📋"
+  },
+  zh: {
+    retail: "零售 / POS",
+    personal: "自由职业",
+    digital: "数字商店",
+    quick: "快速账单",
+    pInv: "个人发票",
+    dInv: "出售数字资产",
+    forRetail: "适用于餐馆、咖啡馆和商店",
+    forPersonal: "适用于服务和承包商",
+    forDigital: "适用于文件、代码和内容",
+    itemName: "项目名称 (如午餐套餐)",
+    invTitle: "发票标题",
+    customer: "客户名称 (收票人)",
+    ref: "桌号 / 订单 ID (可选)",
+    descRetail: "订单详情，物品清单...",
+    descInv: "描述，条款和条件...",
+    upload: "上传文件",
+    secret: "秘密链接/文本",
+    paste: "粘贴安全链接或内容",
+    coverRetail: "封面图片 (菜单/店铺 Logo) - 可选",
+    coverDigital: "封面预览 - 必填",
+    orUrl: "或图片链接",
+    merchName: "商户名称",
+    email: "电子邮件",
+    total: "总金额",
+    approx: "约合 BCH",
+    wallet: "您的 BCH 钱包地址",
+    promo: "优惠码",
+    discount: "提供秘密折扣",
+    viral: "病毒模式 🚀",
+    comm: "10% 佣金",
+    generating: "创建账单中...",
+    genQuick: "生成快速账单 ⚡",
+    create: "创建发票",
+    ready: "支付链接就绪",
+    done: "✅",
+    copy: "📋"
+  }
+};
 
 export default function InvoiceUploadPage() {
   const [invoiceType, setInvoiceType] = useState('personal'); 
@@ -24,8 +142,12 @@ export default function InvoiceUploadPage() {
   const [enablePromo, setEnablePromo] = useState(false);
   const [promoCode, setPromoCode] = useState('');
   const [promoDiscount, setPromoDiscount] = useState('');
+  const [lang, setLang] = useState('en');
 
   useEffect(() => {
+    const savedLang = localStorage.getItem('payonce_lang');
+    if (savedLang) setLang(savedLang);
+
     const getBCH = async () => {
       try {
         const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd');
@@ -38,6 +160,14 @@ export default function InvoiceUploadPage() {
     };
     getBCH();
   }, [usdPrice]);
+
+  const changeLang = (l) => {
+    setLang(l);
+    localStorage.setItem('payonce_lang', l);
+  };
+
+  const t = translations[lang];
+  const dir = lang === 'ar' ? 'rtl' : 'ltr';
 
   useEffect(() => {
     if (invoiceType === 'personal') {
@@ -95,10 +225,11 @@ export default function InvoiceUploadPage() {
       };
 
       const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-      setGeneratedLink(`${window.location.origin}/unlock?id=${encodedId}`);
+      const link = `${window.location.origin}/unlock?id=${encodedId}`;
+      setGeneratedLink(link);
       
       const history = JSON.parse(localStorage.getItem('payonce_history') || '[]');
-      history.push({ title: productName, price: usdPrice + ' USD', url: `${window.location.origin}/unlock?id=${encodedId}` });
+      history.push({ title: productName, price: usdPrice + ' USD', url: link });
       localStorage.setItem('payonce_history', JSON.stringify(history));
 
     } catch (err) {
@@ -111,107 +242,117 @@ export default function InvoiceUploadPage() {
   const inputBaseStyles = "w-full p-3 bg-zinc-900/50 backdrop-blur-sm border border-zinc-700/50 rounded-xl text-white outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500/50 transition-all duration-300 placeholder:text-zinc-600 hover:bg-zinc-900/80 hover:border-zinc-600";
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center px-4 py-12 font-sans relative overflow-hidden">
+    <div dir={dir} className={`min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center px-4 py-12 font-sans relative overflow-hidden ${lang === 'ar' ? 'font-arabic' : ''}`}>
       <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-green-600/10 rounded-full blur-[128px] pointer-events-none"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-green-500/5 rounded-full blur-[128px] pointer-events-none"></div>
 
+      <div className="absolute top-6 right-6 flex gap-2 text-[10px] font-black uppercase z-50">
+        <button onClick={() => changeLang('en')} className={`${lang === 'en' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>EN</button>
+        <button onClick={() => changeLang('ar')} className={`${lang === 'ar' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>AR</button>
+        <button onClick={() => changeLang('zh')} className={`${lang === 'zh' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>CN</button>
+      </div>
+
       <form onSubmit={handleGenerate} className="relative z-10 w-full max-w-lg bg-[#18181b]/80 backdrop-blur-2xl p-8 rounded-[2rem] border border-white/5 shadow-2xl shadow-black/50 space-y-5 transform transition-all hover:border-white/10">
         
+        <Link href="/create" className="absolute top-8 right-8 text-zinc-600 hover:text-white transition-colors">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </Link>
+
         <div className="grid grid-cols-3 gap-2 bg-zinc-900/50 p-2 rounded-2xl border border-zinc-800/50 backdrop-blur-sm">
           <button type="button" onClick={() => setInvoiceType('retail')} className={`py-3 text-[9px] font-black uppercase rounded-xl transition-all duration-300 flex flex-col items-center gap-1 ${invoiceType === 'retail' ? 'bg-gradient-to-br from-green-600 to-green-500 text-black shadow-lg shadow-green-900/20 scale-105' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'}`}>
-            <span className="text-lg">🏪</span> Retail / POS
+            <span className="text-lg">🏪</span> {t.retail}
           </button>
           <button type="button" onClick={() => setInvoiceType('personal')} className={`py-3 text-[9px] font-black uppercase rounded-xl transition-all duration-300 flex flex-col items-center gap-1 ${invoiceType === 'personal' ? 'bg-gradient-to-br from-green-600 to-green-500 text-black shadow-lg shadow-green-900/20 scale-105' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'}`}>
-            <span className="text-lg">👤</span> Freelance
+            <span className="text-lg">👤</span> {t.personal}
           </button>
           <button type="button" onClick={() => setInvoiceType('digital')} className={`py-3 text-[9px] font-black uppercase rounded-xl transition-all duration-300 flex flex-col items-center gap-1 ${invoiceType === 'digital' ? 'bg-gradient-to-br from-green-600 to-green-500 text-black shadow-lg shadow-green-900/20 scale-105' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'}`}>
-            <span className="text-lg">📦</span> Digital Shop
+            <span className="text-lg">📦</span> {t.digital}
           </button>
         </div>
 
         <div className="text-center mb-2">
           <h1 className="text-2xl font-black text-white uppercase italic tracking-tighter drop-shadow-sm">
-            {invoiceType === 'retail' && <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600">Quick Bill</span>}
-            {invoiceType === 'personal' && <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600">Personal Invoice</span>}
-            {invoiceType === 'digital' && <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600">Sell Digital Asset</span>}
+            {invoiceType === 'retail' && <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600">{t.quick}</span>}
+            {invoiceType === 'personal' && <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600">{t.pInv}</span>}
+            {invoiceType === 'digital' && <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600">{t.dInv}</span>}
           </h1>
           <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">
-            {invoiceType === 'retail' && "For Restaurants, Cafes & Stores"}
-            {invoiceType === 'personal' && "For Services & Contractors"}
-            {invoiceType === 'digital' && "For Files, Codes & Content"}
+            {invoiceType === 'retail' && t.forRetail}
+            {invoiceType === 'personal' && t.forPersonal}
+            {invoiceType === 'digital' && t.forDigital}
           </p>
         </div>
         
         <div className="space-y-3">
-          <input required type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className={inputBaseStyles} placeholder={invoiceType === 'retail' ? "Item Name (e.g. Lunch Combo)" : "Invoice Title"} />
+          <input required type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className={inputBaseStyles} placeholder={invoiceType === 'retail' ? t.itemName : t.invTitle} />
           
           {invoiceType === 'personal' && (
-            <input required type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className={`${inputBaseStyles} animate-in fade-in slide-in-from-top-1`} placeholder="Customer Name (Bill To)" />
+            <input required type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className={`${inputBaseStyles} animate-in fade-in slide-in-from-top-1`} placeholder={t.customer} />
           )}
 
           {invoiceType === 'retail' && (
-            <input type="text" value={orderRef} onChange={(e) => setOrderRef(e.target.value)} className={`${inputBaseStyles} animate-in fade-in slide-in-from-top-1`} placeholder="Table # / Order ID / Student ID (Optional)" />
+            <input type="text" value={orderRef} onChange={(e) => setOrderRef(e.target.value)} className={`${inputBaseStyles} animate-in fade-in slide-in-from-top-1`} placeholder={t.ref} />
           )}
         </div>
 
-        <textarea required value={productDesc} onChange={(e) => setProductDesc(e.target.value)} className={`${inputBaseStyles} h-24 resize-none`} placeholder={invoiceType === 'retail' ? "Order details, items list..." : "Description, Terms & Conditions..."}></textarea>
+        <textarea required value={productDesc} onChange={(e) => setProductDesc(e.target.value)} className={`${inputBaseStyles} h-24 resize-none`} placeholder={invoiceType === 'retail' ? t.descRetail : t.descInv}></textarea>
 
         {invoiceType !== 'retail' && (
           <div className="animate-in fade-in slide-in-from-top-2">
-             <div className="flex bg-zinc-900/50 p-1.5 rounded-xl border border-zinc-700/50 gap-2 mb-3 backdrop-blur-sm">
-               <button type="button" onClick={() => setDeliveryType('file')} className={`flex-1 py-2 text-[9px] font-black uppercase rounded-lg transition-all duration-300 ${deliveryType === 'file' ? 'bg-zinc-700 text-white shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}>Upload File</button>
-               <button type="button" onClick={() => setDeliveryType('link')} className={`flex-1 py-2 text-[9px] font-black uppercase rounded-lg transition-all duration-300 ${deliveryType === 'link' ? 'bg-zinc-700 text-white shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}>Secret Link/Text</button>
-             </div>
+              <div className="flex bg-zinc-900/50 p-1.5 rounded-xl border border-zinc-700/50 gap-2 mb-3 backdrop-blur-sm">
+                <button type="button" onClick={() => setDeliveryType('file')} className={`flex-1 py-2 text-[9px] font-black uppercase rounded-lg transition-all duration-300 ${deliveryType === 'file' ? 'bg-zinc-700 text-white shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}>{t.upload}</button>
+                <button type="button" onClick={() => setDeliveryType('link')} className={`flex-1 py-2 text-[9px] font-black uppercase rounded-lg transition-all duration-300 ${deliveryType === 'link' ? 'bg-zinc-700 text-white shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}>{t.secret}</button>
+              </div>
 
-             {deliveryType === 'file' ? (
+              {deliveryType === 'file' ? (
                 <div className="bg-zinc-900/30 p-3 rounded-xl border border-dashed border-zinc-700 group hover:border-green-500/50 transition-colors">
-                    <input type="file" onChange={(e)=>setFile(e.target.files[0])} className="w-full text-xs text-zinc-400 file:bg-green-600 file:text-white file:border-0 file:rounded-lg file:px-3 file:py-1 file:font-black file:mr-3 cursor-pointer hover:file:bg-green-500 file:transition-colors" />
+                    <input type="file" onChange={(e)=>setFile(e.target.files[0])} className={`w-full text-xs text-zinc-400 file:bg-green-600 file:text-white file:border-0 file:rounded-lg file:px-3 file:py-1 file:font-black ${lang === 'ar' ? 'file:ml-3' : 'file:mr-3'} cursor-pointer hover:file:bg-green-500 file:transition-colors`} />
                 </div>
-             ) : (
-               <input required type="text" value={linkOrText} onChange={(e)=>setLinkOrText(e.target.value)} className={inputBaseStyles} placeholder="Paste Secure Link or Content" />
-             )}
+              ) : (
+                <input required type="text" value={linkOrText} onChange={(e)=>setLinkOrText(e.target.value)} className={inputBaseStyles} placeholder={t.paste} />
+              )}
           </div>
         )}
 
         {(invoiceType === 'digital' || invoiceType === 'retail') && (
           <div className="p-4 bg-zinc-800/20 rounded-xl border border-white/5 animate-in fade-in space-y-2">
             <label className="text-[9px] text-zinc-400 block uppercase font-black tracking-wider text-center">
-              {invoiceType === 'retail' ? 'Cover Image (Menu/Shop Logo) - Optional' : 'Cover Preview - Required'}
+              {invoiceType === 'retail' ? t.coverRetail : t.coverDigital}
             </label>
             <div className="flex gap-2 items-center">
               <input type="file" accept="image/*" onChange={(e)=>setPreviewFile(e.target.files[0])} className="w-1/2 text-[10px] text-zinc-500 file:bg-zinc-700 file:text-white file:border-0 file:rounded-lg file:px-2 file:hover:bg-zinc-600 cursor-pointer transition-colors" />
-              <input type="url" value={previewLink} onChange={(e)=>setPreviewLink(e.target.value)} placeholder="Or Image URL" className={`${inputBaseStyles} py-2 text-xs`} />
+              <input type="url" value={previewLink} onChange={(e)=>setPreviewLink(e.target.value)} placeholder={t.orUrl} className={`${inputBaseStyles} py-2 text-xs`} />
             </div>
           </div>
         )}
 
         <div className="grid grid-cols-2 gap-3">
-          <input required type="text" placeholder="Merchant Name" onChange={(e)=>setSellerName(e.target.value)} className={inputBaseStyles} />
-          <input required type="email" placeholder="Email " onChange={(e)=>setSellerEmail(e.target.value)} className={inputBaseStyles} />
+          <input required type="text" placeholder={t.merchName} onChange={(e)=>setSellerName(e.target.value)} className={inputBaseStyles} />
+          <input required type="email" placeholder={t.email} onChange={(e)=>setSellerEmail(e.target.value)} className={inputBaseStyles} />
         </div>
 
         <div className="relative bg-zinc-900/40 p-4 rounded-xl border border-zinc-800 group">
-          <div className="absolute -top-3 left-4 bg-[#18181b] px-2 text-[9px] text-green-500 font-black uppercase tracking-widest z-10 border border-zinc-800 rounded-full">Total Amount</div>
+          <div className={`absolute -top-3 ${lang === 'ar' ? 'right-4' : 'left-4'} bg-[#18181b] px-2 text-[9px] text-green-500 font-black uppercase tracking-widest z-10 border border-zinc-800 rounded-full`}>{t.total}</div>
           <div className="relative flex items-center">
-            <span className="absolute left-5 text-white font-black text-lg pointer-events-none">$</span>
-            <input required type="number" step="any" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className="w-full p-4 pl-10 bg-zinc-900 border border-zinc-700 rounded-xl text-white outline-none focus:border-green-500 text-2xl font-black transition-all group-hover:border-green-500/50 shadow-inner" />
-            <div className="absolute right-5 text-right pointer-events-none">
-               <span className="block text-[10px] text-zinc-500 font-black">APPROX BCH</span>
+            <span className={`absolute ${lang === 'ar' ? 'right-5' : 'left-5'} text-white font-black text-lg pointer-events-none`}>$</span>
+            <input required type="number" step="any" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className={`w-full p-4 ${lang === 'ar' ? 'pr-10' : 'pl-10'} bg-zinc-900 border border-zinc-700 rounded-xl text-white outline-none focus:border-green-500 text-2xl font-black transition-all group-hover:border-green-500/50 shadow-inner`} />
+            <div className={`absolute ${lang === 'ar' ? 'left-5 text-left' : 'right-5 text-right'} pointer-events-none`}>
+               <span className="block text-[10px] text-zinc-500 font-black">{t.approx}</span>
                <span className="block text-sm text-green-500 font-mono font-bold bg-zinc-800 px-2 rounded">{bchPreview}</span>
             </div>
           </div>
         </div>
 
-        <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className={`${inputBaseStyles} text-xs font-mono text-center tracking-tight`} placeholder="Your BCH Wallet Address (bitcoincash:qp...)" />
+        <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className={`${inputBaseStyles} text-xs font-mono text-center tracking-tight`} placeholder={t.wallet} />
 
         <div className="bg-gradient-to-br from-zinc-900/80 to-zinc-900/40 p-4 rounded-xl border border-dashed border-zinc-700 hover:border-zinc-500 transition-colors flex flex-col gap-3 group">
             <div className="flex items-center justify-between">
                 <div>
-                   <h3 className="text-sm font-bold uppercase italic text-white flex items-center gap-2">Promo Code {enablePromo && <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>}</h3>
-                   <p className="text-[9px] text-zinc-500 group-hover:text-zinc-400 transition-colors">Offer a secret discount</p>
+                   <h3 className="text-sm font-bold uppercase italic text-white flex items-center gap-2">{t.promo} {enablePromo && <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>}</h3>
+                   <p className="text-[9px] text-zinc-500 group-hover:text-zinc-400 transition-colors">{t.discount}</p>
                 </div>
-                <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                    <input type="checkbox" checked={enablePromo} onChange={(e) => setEnablePromo(e.target.checked)} className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-green-500 right-5 border-zinc-600 transition-all duration-300"/>
+                <div className={`relative inline-block w-10 ${lang === 'ar' ? 'ml-2' : 'mr-2'} align-middle select-none transition duration-200 ease-in`}>
+                    <input type="checkbox" checked={enablePromo} onChange={(e) => setEnablePromo(e.target.checked)} className={`toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer ${lang === 'ar' ? 'checked:left-0 left-5' : 'checked:right-0 right-5'} checked:border-green-500 border-zinc-600 transition-all duration-300`}/>
                     <label className="toggle-label block overflow-hidden h-5 rounded-full bg-zinc-700 cursor-pointer"></label>
                 </div>
             </div>
@@ -226,8 +367,8 @@ export default function InvoiceUploadPage() {
         {invoiceType === 'digital' && (
            <div className="bg-gradient-to-r from-zinc-900 to-zinc-800/50 p-4 rounded-xl border border-zinc-700/50 flex items-center justify-between hover:shadow-lg hover:shadow-green-900/10 transition-all duration-300 animate-in fade-in">
              <div>
-               <h3 className="text-xs font-black uppercase text-white flex items-center gap-1">Viral Mode 🚀</h3>
-               <p className="text-[9px] text-zinc-400 mt-0.5">10% Commission</p>
+               <h3 className="text-xs font-black uppercase text-white flex items-center gap-1">{t.viral}</h3>
+               <p className="text-[9px] text-zinc-400 mt-0.5">{t.comm}</p>
              </div>
              <input type="checkbox" checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500 cursor-pointer rounded bg-zinc-700 border-zinc-600 focus:ring-green-500 focus:ring-offset-zinc-900" />
            </div>
@@ -238,20 +379,20 @@ export default function InvoiceUploadPage() {
              {uploading ? (
                 <>
                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                 Creating Bill...
+                 {t.generating}
                 </>
-             ) : invoiceType === 'retail' ? "Generate Quick Bill ⚡" : "Create Invoice"}
+             ) : invoiceType === 'retail' ? t.genQuick : t.create}
           </span>
           <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine" />
         </button>
 
         {generatedLink && (
           <div className="mt-4 p-4 bg-black/80 rounded-2xl border border-green-500/30 flex flex-col gap-2 animate-in slide-in-from-bottom-5 shadow-lg shadow-green-900/10">
-            <span className="text-[9px] text-green-500 uppercase font-black tracking-widest text-center">Payment Link Ready</span>
+            <span className="text-[9px] text-green-500 uppercase font-black tracking-widest text-center">{t.ready}</span>
             <div className="flex gap-2">
                <input readOnly value={generatedLink} className="flex-1 bg-zinc-900/50 p-3 text-[10px] rounded-xl border border-zinc-800 outline-none text-zinc-300 font-mono text-center tracking-tight" />
                <button type="button" onClick={()=>{navigator.clipboard.writeText(generatedLink); setCopied(true); setTimeout(()=>setCopied(false),2000)}} className={`px-4 rounded-xl text-lg font-bold transition-all duration-200 ${copied ? 'bg-green-500 text-white' : 'bg-zinc-800 text-green-500 hover:bg-zinc-700'}`}>
-                   {copied ? '✅' : '📋'}
+                   {copied ? t.done : t.copy}
                </button>
             </div>
           </div>
