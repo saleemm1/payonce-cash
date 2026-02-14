@@ -21,7 +21,10 @@ const translations = {
     generate: "Generate Video Link",
     processing: "Uploading Video...",
     copy: "Copy",
-    done: "✅"
+    done: "✅",
+    supply: "Supply Limit",
+    unlimited: "Leave empty for unlimited",
+    qty: "Qty:"
   },
   ar: {
     title: "رفع فيديو متميز",
@@ -41,7 +44,10 @@ const translations = {
     generate: "إنشاء رابط الفيديو",
     processing: "جاري رفع الفيديو...",
     copy: "نسخ",
-    done: "✅"
+    done: "✅",
+    supply: "حد المخزون",
+    unlimited: "اتركه فارغاً لعدد لا نهائي",
+    qty: "العدد:"
   },
   zh: {
     title: "上传优质视频",
@@ -61,7 +67,10 @@ const translations = {
     generate: "生成视频链接",
     processing: "正在上传视频...",
     copy: "复制",
-    done: "✅"
+    done: "✅",
+    supply: "供应限制",
+    unlimited: "留空表示无限",
+    qty: "数量:"
   }
 };
 
@@ -82,6 +91,7 @@ export default function VideoUploadPage() {
   const [enablePromo, setEnablePromo] = useState(false);
   const [promoCode, setPromoCode] = useState('');
   const [promoDiscount, setPromoDiscount] = useState('');
+  const [maxSupply, setMaxSupply] = useState('');
   const [lang, setLang] = useState('en');
 
   useEffect(() => {
@@ -134,6 +144,7 @@ export default function VideoUploadPage() {
       const payload = {
         w: wallet, p: usdPrice, n: productName, sn: sellerName,
         se: sellerEmail, pr: finalPreview, i: json.ipfsHash, fn: originalFileName, a: enableAffiliate,
+        l: maxSupply ? parseInt(maxSupply) : null,
         pc: enablePromo && promoCode && promoDiscount ? { code: promoCode.toUpperCase(), discount: promoDiscount } : null
       };
 
@@ -160,8 +171,8 @@ export default function VideoUploadPage() {
       </div>
 
       <form onSubmit={handleGenerate} className="relative z-10 w-full max-w-lg bg-[#18181b]/80 backdrop-blur-2xl p-8 rounded-3xl border border-white/5 shadow-2xl shadow-black/50 space-y-6 transform transition-all hover:border-white/10">
-        <Link href="/create" className="absolute top-8 right-8 text-zinc-600 hover:text-white transition-colors">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        <Link href="/create" className={`absolute top-8 ${lang === 'ar' ? 'left-8' : 'right-8'} text-zinc-600 hover:text-white transition-colors cursor-pointer z-20`}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </Link>
         <div className="text-center space-y-1">
             <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600 uppercase italic tracking-tighter drop-shadow-sm">{t.title}</h1>
@@ -197,6 +208,24 @@ export default function VideoUploadPage() {
             <span className={`absolute ${lang === 'ar' ? 'right-4' : 'left-4'} text-green-500 font-black text-lg pointer-events-none group-hover:scale-110 transition-transform`}>USD</span>
             <input required type="number" step="any" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className={`w-full p-4 ${lang === 'ar' ? 'pr-16' : 'pl-16'} bg-zinc-900 border border-zinc-700 rounded-xl text-white text-2xl outline-none focus:border-green-500 text-center font-black transition-all shadow-inner`} />
           </div>
+        </div>
+
+        <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 flex items-center justify-between">
+            <div>
+                <h3 className="text-sm font-bold uppercase italic text-white">{t.supply}</h3>
+                <p className="text-[10px] text-zinc-500">{t.unlimited}</p>
+            </div>
+            <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-zinc-500">{t.qty}</span>
+                <input 
+                    type="number" 
+                    min="1" 
+                    placeholder="∞" 
+                    value={maxSupply} 
+                    onChange={(e) => setMaxSupply(e.target.value)} 
+                    className="w-16 p-2 bg-black border border-zinc-700 rounded-lg text-center text-white outline-none focus:border-green-500 font-bold"
+                />
+            </div>
         </div>
 
         <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className={inputBaseStyles} placeholder={t.wallet} />
