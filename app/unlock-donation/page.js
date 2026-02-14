@@ -11,7 +11,7 @@ const translations = {
     goal: "GOAL",
     donors: "Recent Contributors",
     donate: "Donate Now",
-    custom: "Custom Amount",
+    custom: "Enter amount",
     pay: "Pay with Wallet",
     scan: "Scan to Pay",
     copy: "Copy Address",
@@ -25,7 +25,8 @@ const translations = {
     trusted: "Trusted",
     avoid: "Avoid",
     recorded: "Feedback Recorded",
-    currency: "USD"
+    currency: "USD",
+    totalUsd: "Total Value"
   },
   ar: {
     loading: "جاري التحميل...",
@@ -35,7 +36,7 @@ const translations = {
     goal: "الهدف",
     donors: "أحدث المساهمين",
     donate: "تبرع الآن",
-    custom: "مبلغ مخصص",
+    custom: "أدخل المبلغ",
     pay: "ادفع بالمحفظة",
     scan: "امسح للدفع",
     copy: "نسخ العنوان",
@@ -49,7 +50,8 @@ const translations = {
     trusted: "موثوق",
     avoid: "تجنب",
     recorded: "تم تسجيل التقييم",
-    currency: "USD"
+    currency: "USD",
+    totalUsd: "القيمة الإجمالية"
   },
   zh: {
     loading: "正在初始化...",
@@ -59,7 +61,7 @@ const translations = {
     goal: "目标",
     donors: "最近贡献者",
     donate: "立即捐赠",
-    custom: "自定义金额",
+    custom: "输入金额",
     pay: "钱包支付",
     scan: "扫描支付",
     copy: "复制地址",
@@ -73,7 +75,8 @@ const translations = {
     trusted: "信任",
     avoid: "避免",
     recorded: "反馈已记录",
-    currency: "USD"
+    currency: "USD",
+    totalUsd: "总价值"
   }
 };
 
@@ -82,8 +85,8 @@ function DonationContent() {
   const [data, setData] = useState(null);
   const [stats, setStats] = useState({ raised: 0, txs: [] });
   const [bchPrice, setBchPrice] = useState(0);
-  const [amount, setAmount] = useState(''); // Amount in BCH
-  const [inputUsd, setInputUsd] = useState(''); // Amount in USD for input display
+  const [amount, setAmount] = useState(''); 
+  const [inputUsd, setInputUsd] = useState(''); 
   const [lang, setLang] = useState('en');
   const [loading, setLoading] = useState(true);
   const [isCopied, setIsCopied] = useState(false);
@@ -138,7 +141,7 @@ function DonationContent() {
 
               setStats({
                   raised: total / 100000000,
-                  txs: txs.slice(0, 5) // Last 5
+                  txs: txs.slice(0, 7)
               });
               setLoading(false);
 
@@ -193,7 +196,7 @@ function DonationContent() {
   const payLink = `bitcoincash:${cleanAddr}?amount=${amount}`;
 
   return (
-    <div dir={dir} className={`min-h-screen bg-[#050505] text-white font-sans ${lang === 'ar' ? 'font-arabic' : ''} overflow-x-hidden`}>
+    <div dir={dir} className={`min-h-screen bg-[#050505] text-white font-sans ${lang === 'ar' ? 'font-arabic' : ''} overflow-x-hidden selection:bg-green-500/30`}>
         
         {celebrate && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none backdrop-blur-md bg-black/50 animate-in fade-in duration-300">
@@ -212,12 +215,13 @@ function DonationContent() {
         </div>
 
         <nav className="relative z-50 flex justify-between items-center p-6 max-w-7xl mx-auto">
+            <h1 className="text-sm font-black tracking-widest text-zinc-500 uppercase">PAYONCE</h1>
             <div className="flex gap-2 text-[10px] font-black uppercase bg-white/5 px-4 py-2 rounded-full border border-white/5 backdrop-blur-md">
-                <button onClick={() => changeLang('en')} className={`${lang === 'en' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`}>EN</button>
+                <button onClick={() => changeLang('en')} className={`${lang === 'en' ? 'text-green-400' : 'text-zinc-500 hover:text-white'}`}>EN</button>
                 <span className="text-zinc-700">|</span>
-                <button onClick={() => changeLang('ar')} className={`${lang === 'ar' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`}>AR</button>
+                <button onClick={() => changeLang('ar')} className={`${lang === 'ar' ? 'text-green-400' : 'text-zinc-500 hover:text-white'}`}>AR</button>
                 <span className="text-zinc-700">|</span>
-                <button onClick={() => changeLang('zh')} className={`${lang === 'zh' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`}>CN</button>
+                <button onClick={() => changeLang('zh')} className={`${lang === 'zh' ? 'text-green-400' : 'text-zinc-500 hover:text-white'}`}>CN</button>
             </div>
         </nav>
 
@@ -229,8 +233,8 @@ function DonationContent() {
                          <img src={data.pr} className="w-full h-auto object-cover max-h-[450px]" alt="Cover" />
                          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent"></div>
                          <div className="absolute bottom-0 left-0 w-full p-8">
-                            <div className="inline-flex items-center gap-2 bg-red-600/90 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase mb-4 animate-pulse shadow-lg">
-                                <div className="w-1.5 h-1.5 bg-white rounded-full"></div> {t.live}
+                            <div className="inline-flex items-center gap-2 bg-green-600/90 text-black text-[9px] font-black px-3 py-1 rounded-full uppercase mb-4 animate-pulse shadow-[0_0_15px_rgba(34,197,94,0.6)]">
+                                <div className="w-1.5 h-1.5 bg-black rounded-full"></div> {t.live}
                             </div>
                             <h1 className="text-4xl md:text-5xl font-black italic uppercase leading-none mb-3 text-white drop-shadow-xl">{data.n}</h1>
                             <div className="flex items-center gap-2">
@@ -255,7 +259,7 @@ function DonationContent() {
                         {stats.txs.map((tx, i) => (
                             <div key={i} className="flex items-center justify-between p-4 bg-[#121214] rounded-2xl border border-white/5 hover:border-green-500/20 transition-all">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center text-sm shadow-inner">💚</div>
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center text-sm shadow-inner text-green-500">❤️</div>
                                     <div className="flex flex-col">
                                         <span className="text-xs font-bold text-white mb-0.5">{t.anonymous}</span>
                                         <span className="text-[9px] text-zinc-600 font-mono">{tx.hash.substring(0,6)}...{tx.hash.substring(tx.hash.length-6)}</span>
@@ -275,15 +279,19 @@ function DonationContent() {
             <div className="lg:col-span-5 relative">
                 <div className="sticky top-8 space-y-6">
                     
-                    <div className="bg-[#0a0a0a] p-6 rounded-[32px] border border-white/10 shadow-2xl relative overflow-hidden">
-                        
-                        <div className="flex items-end gap-2 mb-2">
-                             <span className="text-5xl font-black text-white tracking-tighter tabular-nums">{stats.raised.toFixed(3)}</span>
-                             <span className="text-xl font-bold text-zinc-600 mb-2">BCH</span>
+                    <div className="bg-[#121214] p-8 rounded-[40px] border border-green-500/20 shadow-[0_0_60px_rgba(0,0,0,0.5)] overflow-hidden relative">
+                        <div className="absolute top-0 left-0 w-full h-1.5 bg-zinc-800">
+                             <div className="h-full bg-gradient-to-r from-green-500 to-emerald-400 shadow-[0_0_15px_#22c55e]" style={{width: `${percentage}%`}}></div>
                         </div>
-                        <div className="flex justify-between text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-4">
-                            <span>{t.raised}</span>
-                            <span>{t.goal}: {data.g || "∞"} BCH</span>
+
+                        <div className="text-center mb-8 mt-2">
+                             <span className="text-6xl font-black text-white tracking-tighter block tabular-nums">{stats.raised.toFixed(3)}</span>
+                             <span className="text-sm font-bold text-green-500 uppercase tracking-widest block mt-2">
+                                BCH {t.raised} {t.of} {data.g}
+                             </span>
+                             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mt-1">
+                                {t.totalUsd}: ${(stats.raised * bchPrice).toFixed(2)}
+                             </span>
                         </div>
 
                         <div className="w-full bg-zinc-900 rounded-full h-3 mb-8 overflow-hidden">
@@ -295,7 +303,7 @@ function DonationContent() {
                                 <button 
                                     key={val}
                                     onClick={() => handlePreset(val)}
-                                    className={`py-3 rounded-xl text-sm font-black transition-all border ${activePreset === val ? 'bg-white text-black border-white shadow-lg' : 'bg-transparent text-zinc-400 border-zinc-800 hover:border-zinc-600 hover:text-white'}`}
+                                    className={`py-3 rounded-xl text-sm font-black transition-all border ${activePreset === val ? 'bg-white text-black border-white shadow-lg scale-105' : 'bg-transparent text-zinc-400 border-zinc-800 hover:border-zinc-600 hover:text-white'}`}
                                 >
                                     ${val}
                                 </button>
@@ -309,12 +317,12 @@ function DonationContent() {
                                 placeholder={t.custom}
                                 value={inputUsd}
                                 onChange={handleInputChange}
-                                className="w-full bg-[#121214] border border-zinc-800 rounded-xl p-4 pl-8 text-white font-bold outline-none focus:border-green-500 transition-colors"
+                                className="w-full bg-[#0a0a0a] border border-zinc-800 rounded-xl p-4 pl-8 text-white font-bold outline-none focus:border-green-500 transition-colors"
                             />
                             {amount && <span className="absolute right-4 top-1/2 -translate-y-1/2 text-green-500 text-[10px] font-mono">≈ {amount} BCH</span>}
                         </div>
 
-                        <div className="bg-[#121214] p-4 rounded-xl border border-zinc-800 mb-6 text-center group hover:border-green-500/30 transition-colors cursor-pointer" onClick={()=>window.location.assign(payLink)}>
+                        <div className="bg-[#0a0a0a] p-4 rounded-xl border border-zinc-800 mb-6 text-center group hover:border-green-500/30 transition-colors cursor-pointer" onClick={()=>window.location.assign(payLink)}>
                             <div className="bg-white p-2 rounded-lg inline-block mb-3 shadow-inner">
                                 <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(payLink)}`} alt="QR" className="w-32 h-32 mix-blend-multiply" />
                             </div>
@@ -323,7 +331,7 @@ function DonationContent() {
 
                         <a 
                             href={payLink}
-                            className={`block w-full py-4 rounded-xl font-black uppercase italic tracking-wider text-center text-lg transition-all shadow-lg ${amount ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-black hover:scale-[1.02] shadow-green-900/20' : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'}`}
+                            className={`block w-full py-5 rounded-2xl font-black uppercase italic tracking-wider text-center text-lg transition-all shadow-xl ${amount ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-black hover:scale-[1.02] shadow-green-900/20' : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'}`}
                         >
                             {t.donate}
                         </a>
