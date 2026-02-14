@@ -4,72 +4,77 @@ import Link from 'next/link';
 
 const translations = {
   en: {
-    title: "Launch Crowdfunding",
-    subtitle: "Turn your vision into reality with BCH",
-    campTitle: "Campaign Title",
-    descLabel: "Your Story (Why should people support?)",
-    organizer: "Organizer Name",
-    email: "Support Email",
-    coverLabel: "Campaign Banner (File or URL)",
-    orUrl: "Or Image URL",
-    wallet: "BCH Wallet (To receive funds)",
-    goal: "Funding Goal (BCH)",
-    goalDesc: "Total amount needed to succeed",
-    generate: "Launch Campaign",
-    processing: "Deploying to Blockchain...",
-    copy: "Copy Link",
-    done: "Copied!",
+    header: "Start a Movement",
+    subHeader: "Crowdfund your dream with Bitcoin Cash.",
+    titleLabel: "Campaign Title",
+    descLabel: "The Story",
+    organizerLabel: "Organizer",
+    emailLabel: "Email",
+    walletLabel: "BCH Wallet",
+    goalLabel: "Goal (BCH)",
+    coverLabel: "Cover Image URL",
+    fileLabel: "Or Upload Image",
+    launch: "Launch Campaign",
+    processing: "Deploying...",
     preview: "Live Preview",
-    security: "Non-custodial. Funds go directly to you."
+    copy: "Copy Link",
+    done: "Copied",
+    goalDesc: "Amount needed",
+    optional: "Optional",
+    cardTitle: "Your Campaign",
+    raised: "0.00 BCH raised",
+    support: "Support this campaign"
   },
   ar: {
-    title: "إطلاق حملة تمويل",
-    subtitle: "حول رؤيتك لواقع باستخدام BCH",
-    campTitle: "عنوان الحملة",
-    descLabel: "قصتك (لماذا يجب أن يدعموك؟)",
-    organizer: "اسم المنظم",
-    email: "بريد الدعم",
-    coverLabel: "بنر الحملة (ملف أو رابط)",
-    orUrl: "أو رابط الصورة",
-    wallet: "محفظة BCH (لاستلام التبرعات)",
-    goal: "هدف التمويل (BCH)",
-    goalDesc: "المبلغ الإجمالي المطلوب للنجاح",
-    generate: "إطلاق الحملة",
-    processing: "جاري النشر على البلوكشين...",
-    copy: "نسخ الرابط",
-    done: "تم النسخ!",
+    header: "ابدأ حراكاً",
+    subHeader: "موّل حلمك باستخدام Bitcoin Cash.",
+    titleLabel: "عنوان الحملة",
+    descLabel: "القصة",
+    organizerLabel: "المنظم",
+    emailLabel: "البريد",
+    walletLabel: "محفظة BCH",
+    goalLabel: "الهدف (BCH)",
+    coverLabel: "رابط صورة الغلاف",
+    fileLabel: "أو رفع صورة",
+    launch: "إطلاق الحملة",
+    processing: "جاري النشر...",
     preview: "معاينة حية",
-    security: "غير وصائي. الأموال تصلك مباشرة."
+    copy: "نسخ الرابط",
+    done: "تم النسخ",
+    goalDesc: "المبلغ المطلوب",
+    optional: "اختياري",
+    cardTitle: "حملتك",
+    raised: "تم جمع 0.00 BCH",
+    support: "ادعم هذه الحملة"
   },
   zh: {
-    title: "发起众筹",
-    subtitle: "用 BCH 实现您的愿景",
-    campTitle: "活动标题",
-    descLabel: "您的故事（为什么要支持？）",
-    organizer: "组织者姓名",
-    email: "支持邮箱",
-    coverLabel: "活动横幅 (文件或链接)",
-    orUrl: "或图片链接",
-    wallet: "BCH 钱包 (接收资金)",
-    goal: "筹款目标 (BCH)",
-    goalDesc: "成功所需的总金额",
-    generate: "发起活动",
-    processing: "正在部署到区块链...",
-    copy: "复制链接",
-    done: "已复制!",
+    header: "发起运动",
+    subHeader: "用 Bitcoin Cash 为您的梦想众筹。",
+    titleLabel: "活动标题",
+    descLabel: "故事",
+    organizerLabel: "组织者",
+    emailLabel: "电子邮件",
+    walletLabel: "BCH 钱包",
+    goalLabel: "目标 (BCH)",
+    coverLabel: "封面图片链接",
+    fileLabel: "或上传图片",
+    launch: "发起活动",
+    processing: "正在部署...",
     preview: "实时预览",
-    security: "非托管。资金直接归您所有。"
+    copy: "复制链接",
+    done: "已复制",
+    goalDesc: "所需金额",
+    optional: "可选",
+    cardTitle: "您的活动",
+    raised: "已筹集 0.00 BCH",
+    support: "支持此活动"
   }
 };
 
 export default function DonationCreatePage() {
-  const [title, setTitle] = useState('');
-  const [desc, setDesc] = useState('');
-  const [organizer, setOrganizer] = useState('');
-  const [email, setEmail] = useState('');
-  const [wallet, setWallet] = useState('');
-  const [goal, setGoal] = useState('');
-  const [previewLink, setPreviewLink] = useState('');
+  const [formData, setFormData] = useState({
+    title: '', desc: '', organizer: '', email: '', wallet: '', goal: '', coverUrl: ''
+  });
   const [previewFile, setPreviewFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [generatedLink, setGeneratedLink] = useState('');
@@ -77,8 +82,8 @@ export default function DonationCreatePage() {
   const [lang, setLang] = useState('en');
 
   useEffect(() => {
-    const savedLang = localStorage.getItem('payonce_lang');
-    if (savedLang) setLang(savedLang);
+    const saved = localStorage.getItem('payonce_lang');
+    if (saved) setLang(saved);
   }, []);
 
   const changeLang = (l) => {
@@ -89,30 +94,35 @@ export default function DonationCreatePage() {
   const t = translations[lang];
   const dir = lang === 'ar' ? 'rtl' : 'ltr';
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
   const handleGenerate = async (e) => {
     e.preventDefault();
-    if (!wallet || !goal) return alert("Wallet and Goal are required");
+    if (!formData.wallet || !formData.title) return;
 
     setUploading(true);
     try {
-      let finalPreview = previewLink;
+      let finalCover = formData.coverUrl;
 
       if (previewFile) {
         const imgData = new FormData();
         imgData.append("file", previewFile);
         const imgRes = await fetch("/api/upload", { method: "POST", body: imgData });
         const imgJson = await imgRes.json();
-        if (imgJson.ipfsHash) finalPreview = `https://gateway.pinata.cloud/ipfs/${imgJson.ipfsHash}`;
+        if (imgJson.ipfsHash) finalCover = `https://gateway.pinata.cloud/ipfs/${imgJson.ipfsHash}`;
       }
 
       const payload = {
-        n: title,
-        d: desc,
-        sn: organizer,
-        se: email,
-        w: wallet,
-        g: parseFloat(goal),
-        pr: finalPreview,
+        n: formData.title,
+        d: formData.desc,
+        sn: formData.organizer,
+        se: formData.email,
+        w: formData.wallet,
+        g: formData.goal ? parseFloat(formData.goal) : null,
+        pr: finalCover,
         dt: 'donation'
       };
 
@@ -121,102 +131,145 @@ export default function DonationCreatePage() {
       setGeneratedLink(link);
       
       const history = JSON.parse(localStorage.getItem('payonce_history') || '[]');
-      history.push({ title: title, price: `${goal} BCH Goal`, url: link });
+      history.push({ title: formData.title, price: 'DONATION', url: link });
       localStorage.setItem('payonce_history', JSON.stringify(history));
 
     } catch (err) {
-      alert("Error processing campaign");
+      alert("Error");
     } finally {
       setUploading(false);
     }
   };
 
-  const inputBaseStyles = "w-full p-4 bg-zinc-900/50 backdrop-blur-sm border border-zinc-700/50 rounded-2xl text-white outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500/50 transition-all duration-300 placeholder:text-zinc-600 hover:bg-zinc-900/80 hover:border-zinc-600 font-medium";
+  const inputStyle = "w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-3 text-sm text-white placeholder:text-zinc-600 outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500/50 transition-all";
 
   return (
-    <div dir={dir} className={`min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center px-4 py-12 font-sans relative overflow-hidden ${lang === 'ar' ? 'font-arabic' : ''}`}>
-      <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-green-600/5 rounded-full blur-[128px] pointer-events-none"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[128px] pointer-events-none"></div>
-
-      <div className="absolute top-6 right-6 flex gap-2 text-[10px] font-black uppercase z-50">
-        <button onClick={() => changeLang('en')} className={`${lang === 'en' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>EN</button>
-        <button onClick={() => changeLang('ar')} className={`${lang === 'ar' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>AR</button>
-        <button onClick={() => changeLang('zh')} className={`${lang === 'zh' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>CN</button>
+    <div dir={dir} className={`min-h-screen bg-[#050505] text-white font-sans selection:bg-green-500/30 ${lang === 'ar' ? 'font-arabic' : ''}`}>
+      
+      <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-green-500/5 rounded-full blur-[120px]"></div>
+          <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-emerald-600/5 rounded-full blur-[120px]"></div>
       </div>
 
-      <form onSubmit={handleGenerate} className="relative z-10 w-full max-w-xl bg-[#121214]/80 backdrop-blur-3xl p-8 rounded-[32px] border border-white/5 shadow-2xl shadow-black/80 space-y-6 transform transition-all">
-        
-        <Link href="/create" className={`absolute top-8 ${lang === 'ar' ? 'left-8' : 'right-8'} text-zinc-600 hover:text-white transition-colors cursor-pointer`}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-        </Link>
+      <nav className="relative z-50 flex justify-between items-center p-6 max-w-7xl mx-auto">
+         <Link href="/create" className="text-zinc-400 hover:text-white transition-colors">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+         </Link>
+         <div className="flex gap-2 text-[10px] font-black uppercase">
+            <button onClick={() => changeLang('en')} className={`${lang === 'en' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>EN</button>
+            <button onClick={() => changeLang('ar')} className={`${lang === 'ar' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>AR</button>
+            <button onClick={() => changeLang('zh')} className={`${lang === 'zh' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>CN</button>
+         </div>
+      </nav>
 
-        <div className="text-center space-y-2 mb-4">
-            <div className="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/20">
-                <span className="text-2xl">📢</span>
-            </div>
-            <h1 className="text-3xl font-black text-white uppercase italic tracking-tighter">{t.title}</h1>
-            <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">{t.subtitle}</p>
-        </div>
+      <div className="max-w-7xl mx-auto px-6 pb-20 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
+              
+              <div className="space-y-8">
+                  <div>
+                      <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-500 mb-2 italic uppercase tracking-tighter">
+                          {t.header}
+                      </h1>
+                      <p className="text-zinc-500 text-sm font-medium">{t.subHeader}</p>
+                  </div>
 
-        <div className="space-y-4">
-             <input required type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputBaseStyles} placeholder={t.campTitle} />
-             <textarea required value={desc} onChange={(e) => setDesc(e.target.value)} className={`${inputBaseStyles} h-32 resize-none`} placeholder={t.descLabel}></textarea>
-        </div>
+                  <form onSubmit={handleGenerate} className="space-y-5">
+                      <div className="space-y-4">
+                          <input required name="title" value={formData.title} onChange={handleChange} placeholder={t.titleLabel} className={inputStyle} />
+                          <textarea name="desc" value={formData.desc} onChange={handleChange} placeholder={t.descLabel} className={`${inputStyle} h-32 resize-none`} />
+                      </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <input required type="text" placeholder={t.organizer} onChange={(e)=>setOrganizer(e.target.value)} className={inputBaseStyles} />
-          <input required type="email" placeholder={t.email} onChange={(e)=>setEmail(e.target.value)} className={inputBaseStyles} />
-        </div>
+                      <div className="grid grid-cols-2 gap-4">
+                          <input name="organizer" value={formData.organizer} onChange={handleChange} placeholder={t.organizerLabel} className={inputStyle} />
+                          <input name="email" value={formData.email} onChange={handleChange} placeholder={t.emailLabel} className={inputStyle} />
+                      </div>
 
-        <div className="p-5 bg-zinc-900/30 rounded-2xl border border-white/5 space-y-3 group hover:border-green-500/20 transition-colors">
-          <label className="text-[10px] text-zinc-400 block uppercase text-center font-black tracking-widest opacity-70 group-hover:text-green-500 transition-colors">{t.coverLabel}</label>
-          <input type="file" accept="image/*" onChange={(e)=>setPreviewFile(e.target.files[0])} className="w-full text-xs text-zinc-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-zinc-800 file:text-white file:font-bold file:hover:bg-zinc-700 cursor-pointer transition-all" />
-          <div className="relative">
-              <input type="url" placeholder={t.orUrl} value={previewLink} onChange={(e)=>setPreviewLink(e.target.value)} className={`${inputBaseStyles} py-3 text-xs`} />
+                      <div className="bg-zinc-900/30 p-4 rounded-xl border border-zinc-800 space-y-3">
+                          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{t.goalLabel}</p>
+                          <div className="flex items-center gap-3">
+                              <input 
+                                  type="number" 
+                                  step="any" 
+                                  name="goal"
+                                  value={formData.goal} 
+                                  onChange={handleChange} 
+                                  placeholder="0.00" 
+                                  className="flex-1 bg-transparent text-3xl font-black text-white outline-none placeholder:text-zinc-700 tabular-nums"
+                              />
+                              <span className="text-xl font-black text-green-500">BCH</span>
+                          </div>
+                      </div>
+
+                      <div className="space-y-3">
+                           <div className="flex gap-2">
+                               <input type="file" accept="image/*" onChange={(e)=>setPreviewFile(e.target.files[0])} className="flex-1 text-[10px] text-zinc-400 file:mr-2 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-zinc-800 file:text-white file:font-bold hover:file:bg-zinc-700 cursor-pointer" />
+                               <input name="coverUrl" value={formData.coverUrl} onChange={handleChange} placeholder={t.coverLabel} className={`${inputStyle} flex-1`} />
+                           </div>
+                           <input required name="wallet" value={formData.wallet} onChange={handleChange} placeholder={t.walletLabel} className={`${inputStyle} text-center font-mono`} />
+                      </div>
+
+                      <button type="submit" disabled={uploading} className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-black font-black py-4 rounded-xl text-lg uppercase italic tracking-wider transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_40px_rgba(34,197,94,0.5)] disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.99]">
+                          {uploading ? t.processing : t.launch}
+                      </button>
+                  </form>
+
+                  {generatedLink && (
+                      <div className="bg-black border border-green-500/30 p-4 rounded-2xl flex items-center gap-3 animate-in slide-in-from-bottom-4">
+                          <input readOnly value={generatedLink} className="flex-1 bg-transparent text-xs text-green-500 font-mono outline-none" />
+                          <button onClick={()=>{navigator.clipboard.writeText(generatedLink); setCopied(true); setTimeout(()=>setCopied(false),2000)}} className="text-[10px] font-black bg-green-500/10 hover:bg-green-500/20 text-green-500 px-3 py-1.5 rounded-lg uppercase transition-colors">
+                              {copied ? t.done : t.copy}
+                          </button>
+                      </div>
+                  )}
+              </div>
+
+              <div className="hidden lg:block sticky top-8">
+                  <div className="flex items-center gap-2 mb-4">
+                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                      <span className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">{t.preview}</span>
+                  </div>
+                  
+                  <div className="bg-[#121214] rounded-[32px] overflow-hidden border border-zinc-800 shadow-2xl relative">
+                       <div className="relative h-64 bg-zinc-900">
+                           {(previewFile || formData.coverUrl) ? (
+                               <img 
+                                 src={previewFile ? URL.createObjectURL(previewFile) : formData.coverUrl} 
+                                 className="w-full h-full object-cover" 
+                               />
+                           ) : (
+                               <div className="w-full h-full flex items-center justify-center text-zinc-700 font-black italic text-4xl uppercase">
+                                   IMG
+                               </div>
+                           )}
+                           <div className="absolute inset-0 bg-gradient-to-t from-[#121214] via-transparent to-transparent"></div>
+                       </div>
+                       
+                       <div className="p-8 relative -mt-12">
+                           <div className="inline-block bg-green-500 text-black text-[10px] font-black px-3 py-1 rounded-full uppercase mb-4 shadow-lg shadow-green-500/20">
+                               {t.cardTitle}
+                           </div>
+                           <h2 className="text-3xl font-black italic uppercase text-white leading-none mb-2 break-words">
+                               {formData.title || "Your Campaign Title"}
+                           </h2>
+                           <p className="text-zinc-500 text-xs font-bold mb-6">{t.organizer}: <span className="text-white">{formData.organizer || "Name"}</span></p>
+                           
+                           <div className="w-full bg-zinc-800 h-2 rounded-full mb-2 overflow-hidden">
+                               <div className="w-1/3 h-full bg-gradient-to-r from-green-600 to-green-400"></div>
+                           </div>
+                           <div className="flex justify-between text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-6">
+                               <span>{t.raised}</span>
+                               <span>{formData.goal || "0"} BCH</span>
+                           </div>
+
+                           <div className="w-full py-4 bg-white/5 rounded-xl border border-white/5 flex items-center justify-center gap-2 text-zinc-500 font-black text-xs uppercase">
+                               {t.support}
+                           </div>
+                       </div>
+                  </div>
+              </div>
+
           </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-green-900/10 to-transparent p-6 rounded-2xl border border-green-500/20 flex flex-col gap-4">
-            <label className="text-[10px] text-green-500 font-black uppercase tracking-widest">{t.goal}</label>
-            <div className="flex items-center gap-3">
-                <input 
-                    required
-                    type="number" 
-                    step="any" 
-                    placeholder="100" 
-                    value={goal} 
-                    onChange={(e) => setGoal(e.target.value)} 
-                    className="flex-1 p-4 bg-black border border-zinc-700 rounded-xl text-3xl text-white outline-none focus:border-green-500 font-black text-center tabular-nums"
-                />
-                <span className="text-2xl font-black text-zinc-600">BCH</span>
-            </div>
-            <p className="text-[10px] text-zinc-500 text-center">{t.goalDesc}</p>
-        </div>
-
-        <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className={`${inputBaseStyles} text-center font-mono text-sm`} placeholder={t.wallet} />
-        
-        <button type="submit" disabled={uploading} className="w-full relative overflow-hidden group bg-green-600 hover:bg-green-500 py-5 rounded-2xl font-black transition-all uppercase italic text-xl shadow-[0_0_40px_rgba(34,197,94,0.2)] disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-95 text-black">
-          <span className="relative z-10 flex items-center justify-center gap-2">
-            {uploading ? t.processing : t.generate}
-          </span>
-        </button>
-
-        <p className="text-[9px] text-zinc-600 text-center uppercase font-bold tracking-widest flex items-center justify-center gap-2">
-            <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-            {t.security}
-        </p>
-
-        {generatedLink && (
-          <div className="mt-6 p-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl shadow-lg shadow-green-900/20 animate-in slide-in-from-bottom-5">
-            <div className="bg-[#121214] p-4 rounded-[14px] flex items-center gap-3">
-                <input readOnly value={generatedLink} className="flex-1 bg-transparent text-[11px] outline-none text-zinc-300 font-mono tracking-tight" />
-                <button type="button" onClick={()=>{navigator.clipboard.writeText(generatedLink); setCopied(true); setTimeout(()=>setCopied(false),2000)}} className="px-4 py-2 bg-green-600 hover:bg-green-500 rounded-xl text-xs font-black text-black uppercase transition-all">
-                    {copied ? t.done : t.copy}
-                </button>
-            </div>
-          </div>
-        )}
-      </form>
+      </div>
     </div>
   );
 }
