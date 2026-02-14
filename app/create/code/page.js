@@ -174,7 +174,7 @@ export default function CodeUploadPage() {
 
       <form onSubmit={handleGenerate} className="relative z-10 w-full max-w-lg bg-[#18181b]/80 backdrop-blur-2xl p-8 rounded-3xl border border-white/5 shadow-2xl shadow-black/50 space-y-6 transform transition-all hover:border-white/10">
         
-        <Link href="/create" className={`absolute top-8 ${lang === 'ar' ? 'left-8' : 'right-8'} text-zinc-600 hover:text-white transition-colors cursor-pointer`}>
+        <Link href="/create" className={`absolute top-8 ${lang === 'ar' ? 'left-8' : 'right-8'} text-zinc-600 hover:text-white transition-colors cursor-pointer z-20`}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </Link>
 
