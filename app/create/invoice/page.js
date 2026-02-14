@@ -39,7 +39,10 @@ const translations = {
     create: "Create Invoice",
     ready: "Payment Link Ready",
     done: "✅",
-    copy: "📋"
+    copy: "📋",
+    supply: "Supply Limit",
+    unlimited: "Leave empty for unlimited",
+    qty: "Qty:"
   },
   ar: {
     retail: "تجزئة / POS",
@@ -77,7 +80,10 @@ const translations = {
     create: "إنشاء الفاتورة",
     ready: "رابط الدفع جاهز",
     done: "✅",
-    copy: "📋"
+    copy: "📋",
+    supply: "حد المخزون",
+    unlimited: "اتركه فارغاً لعدد لا نهائي",
+    qty: "العدد:"
   },
   zh: {
     retail: "零售 / POS",
@@ -115,7 +121,10 @@ const translations = {
     create: "创建发票",
     ready: "支付链接就绪",
     done: "✅",
-    copy: "📋"
+    copy: "📋",
+    supply: "供应限制",
+    unlimited: "留空表示无限",
+    qty: "数量:"
   }
 };
 
@@ -142,6 +151,7 @@ export default function InvoiceUploadPage() {
   const [enablePromo, setEnablePromo] = useState(false);
   const [promoCode, setPromoCode] = useState('');
   const [promoDiscount, setPromoDiscount] = useState('');
+  const [maxSupply, setMaxSupply] = useState('');
   const [lang, setLang] = useState('en');
 
   useEffect(() => {
@@ -221,6 +231,7 @@ export default function InvoiceUploadPage() {
         se: sellerEmail, i: assetId, fn: originalFileName, a: enableAffiliate,
         cn: invoiceType === 'personal' ? customerName : (orderRef ? `Ref: ${orderRef}` : ''), 
         d: productDesc, pr: finalPreview, dt: invoiceType === 'retail' ? 'text' : deliveryType, ty: invoiceType,
+        l: maxSupply ? parseInt(maxSupply) : null,
         pc: enablePromo && promoCode && promoDiscount ? { code: promoCode.toUpperCase(), discount: promoDiscount } : null
       };
 
@@ -254,8 +265,8 @@ export default function InvoiceUploadPage() {
 
       <form onSubmit={handleGenerate} className="relative z-10 w-full max-w-lg bg-[#18181b]/80 backdrop-blur-2xl p-8 rounded-[2rem] border border-white/5 shadow-2xl shadow-black/50 space-y-5 transform transition-all hover:border-white/10">
         
-        <Link href="/create" className="absolute top-8 right-8 text-zinc-600 hover:text-white transition-colors">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        <Link href="/create" className={`absolute top-8 ${lang === 'ar' ? 'left-8' : 'right-8'} text-zinc-600 hover:text-white transition-colors cursor-pointer`}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </Link>
 
         <div className="grid grid-cols-3 gap-2 bg-zinc-900/50 p-2 rounded-2xl border border-zinc-800/50 backdrop-blur-sm">
@@ -341,6 +352,24 @@ export default function InvoiceUploadPage() {
                <span className="block text-sm text-green-500 font-mono font-bold bg-zinc-800 px-2 rounded">{bchPreview}</span>
             </div>
           </div>
+        </div>
+
+        <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 flex items-center justify-between">
+            <div>
+                <h3 className="text-sm font-bold uppercase italic text-white">{t.supply}</h3>
+                <p className="text-[10px] text-zinc-500">{t.unlimited}</p>
+            </div>
+            <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-zinc-500">{t.qty}</span>
+                <input 
+                    type="number" 
+                    min="1" 
+                    placeholder="∞" 
+                    value={maxSupply} 
+                    onChange={(e) => setMaxSupply(e.target.value)} 
+                    className="w-16 p-2 bg-black border border-zinc-700 rounded-lg text-center text-white outline-none focus:border-green-500 font-bold"
+                />
+            </div>
         </div>
 
         <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className={`${inputBaseStyles} text-xs font-mono text-center tracking-tight`} placeholder={t.wallet} />
