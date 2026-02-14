@@ -253,3 +253,27 @@ export default function BookUploadPage() {
     </div>
   );
 }
+
+const [maxSupply, setMaxSupply] = useState('');
+
+const payload = {
+    l: maxSupply ? parseInt(maxSupply) : null,
+};
+
+<div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 flex items-center justify-between">
+    <div>
+        <h3 className="text-sm font-bold uppercase italic text-white">Supply Limit</h3>
+        <p className="text-[10px] text-zinc-500">Leave empty for unlimited</p>
+    </div>
+    <div className="flex items-center gap-2">
+        <span className="text-xs font-bold text-zinc-500">Qty:</span>
+        <input 
+            type="number" 
+            min="1" 
+            placeholder="∞" 
+            value={maxSupply} 
+            onChange={(e) => setMaxSupply(e.target.value)} 
+            className="w-16 p-2 bg-black border border-zinc-700 rounded-lg text-center text-white outline-none focus:border-green-500 font-bold"
+        />
+    </div>
+</div>
