@@ -4,13 +4,13 @@ import Link from 'next/link';
 
 const translations = {
   en: {
-    title: "Sell PDF Document",
-    docTitle: "Document Title",
-    uploadLabel: "Main File (.pdf only)",
-    seller: "Seller Name",
+    title: "Publish Digital Book",
+    bookTitle: "Book Title",
+    uploadLabel: "Main Book File (PDF/EPUB)",
+    author: "Author Name",
     email: "Support Email",
     coverLabel: "Cover Preview (File or URL) (Optional)",
-    orUrl: "Or Image URL",
+    orUrl: "Or Cover Image URL",
     rate: "BCH Rate:",
     wallet: "BCH Wallet Address",
     promo: "Promo Code",
@@ -18,19 +18,22 @@ const translations = {
     viral: "Viral Mode",
     rec: "Recommended",
     comm: "10% promoter commission",
-    generate: "Generate PDF Link",
-    processing: "Processing Assets...",
+    generate: "Generate Book Link",
+    processing: "Publishing Book...",
     copy: "Copy",
-    done: "✅"
+    done: "✅",
+    supply: "Supply Limit",
+    unlimited: "Leave empty for unlimited",
+    qty: "Qty:"
   },
   ar: {
-    title: "بيع مستند PDF",
-    docTitle: "عنوان المستند",
-    uploadLabel: "الملف الرئيسي (.pdf فقط)",
-    seller: "اسم البائع",
+    title: "نشر كتاب رقمي",
+    bookTitle: "عنوان الكتاب",
+    uploadLabel: "ملف الكتاب الرئيسي (PDF/EPUB)",
+    author: "اسم المؤلف",
     email: "بريد الدعم",
     coverLabel: "معاينة الغلاف (ملف أو رابط) (اختياري)",
-    orUrl: "أو رابط الصورة",
+    orUrl: "أو رابط صورة الغلاف",
     rate: "سعر BCH:",
     wallet: "عنوان محفظة BCH",
     promo: "كود خصم",
@@ -38,19 +41,22 @@ const translations = {
     viral: "الوضع الفيروسي",
     rec: "موصى به",
     comm: "10% عمولة للمسوق",
-    generate: "إنشاء رابط PDF",
-    processing: "جاري معالجة الأصول...",
+    generate: "إنشاء رابط الكتاب",
+    processing: "جاري نشر الكتاب...",
     copy: "نسخ",
-    done: "✅"
+    done: "✅",
+    supply: "حد المخزون",
+    unlimited: "اتركه فارغاً لعدد لا نهائي",
+    qty: "العدد:"
   },
   zh: {
-    title: "出售 PDF 文档",
-    docTitle: "文档标题",
-    uploadLabel: "主文件 (仅限 .pdf)",
-    seller: "卖家名称",
+    title: "发布电子书",
+    bookTitle: "书名",
+    uploadLabel: "主要书籍文件 (PDF/EPUB)",
+    author: "作者姓名",
     email: "支持邮箱",
     coverLabel: "封面预览 (文件或链接) (可选)",
-    orUrl: "或图片链接",
+    orUrl: "或封面图片链接",
     rate: "BCH 汇率:",
     wallet: "BCH 钱包地址",
     promo: "优惠码",
@@ -58,20 +64,23 @@ const translations = {
     viral: "病毒模式",
     rec: "推荐",
     comm: "10% 推广佣金",
-    generate: "生成 PDF 链接",
-    processing: "处理资产中...",
+    generate: "生成书籍链接",
+    processing: "发布书籍中...",
     copy: "复制",
-    done: "✅"
+    done: "✅",
+    supply: "供应限制",
+    unlimited: "留空表示无限",
+    qty: "数量:"
   }
 };
 
-export default function PDFUploadPage() {
+export default function BookUploadPage() {
   const [productName, setProductName] = useState('');
   const [sellerName, setSellerName] = useState('');
   const [sellerEmail, setSellerEmail] = useState('');
   const [previewLink, setPreviewLink] = useState('');
   const [previewFile, setPreviewFile] = useState(null);
-  const [usdPrice, setUsdPrice] = useState(10.5);
+  const [usdPrice, setUsdPrice] = useState(15.5);
   const [wallet, setWallet] = useState('');
   const [bchPreview, setBchPreview] = useState('0.00');
   const [file, setFile] = useState(null);
@@ -82,6 +91,7 @@ export default function PDFUploadPage() {
   const [enablePromo, setEnablePromo] = useState(false);
   const [promoCode, setPromoCode] = useState('');
   const [promoDiscount, setPromoDiscount] = useState('');
+  const [maxSupply, setMaxSupply] = useState(''); // 🔥 State للمخزون
   const [lang, setLang] = useState('en');
 
   useEffect(() => {
@@ -101,17 +111,12 @@ export default function PDFUploadPage() {
     getBCH();
   }, [usdPrice]);
 
-  const changeLang = (l) => {
-    setLang(l);
-    localStorage.setItem('payonce_lang', l);
-  };
-
   const t = translations[lang];
   const dir = lang === 'ar' ? 'rtl' : 'ltr';
 
   const handleGenerate = async (e) => {
     e.preventDefault();
-    if (!file) return alert("Please select a PDF file");
+    if (!file) return alert("Please select a book file (PDF/EPUB)");
 
     setUploading(true);
     try {
@@ -143,6 +148,8 @@ export default function PDFUploadPage() {
         i: json.ipfsHash,
         fn: originalFileName,
         a: enableAffiliate,
+        dt: 'file',
+        l: maxSupply ? parseInt(maxSupply) : null, // 🔥 إضافة الليميت للرابط
         pc: enablePromo && promoCode && promoDiscount ? { code: promoCode.toUpperCase(), discount: promoDiscount } : null
       };
 
@@ -162,12 +169,6 @@ export default function PDFUploadPage() {
       <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-green-600/10 rounded-full blur-[128px] pointer-events-none"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-green-500/5 rounded-full blur-[128px] pointer-events-none"></div>
 
-      <div className="absolute top-6 right-6 flex gap-2 text-[10px] font-black uppercase z-50">
-        <button onClick={() => changeLang('en')} className={`${lang === 'en' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>EN</button>
-        <button onClick={() => changeLang('ar')} className={`${lang === 'ar' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>AR</button>
-        <button onClick={() => changeLang('zh')} className={`${lang === 'zh' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>CN</button>
-      </div>
-
       <form onSubmit={handleGenerate} className="relative z-10 w-full max-w-lg bg-[#18181b]/80 backdrop-blur-2xl p-8 rounded-3xl border border-white/5 shadow-2xl shadow-black/50 space-y-6 transform transition-all hover:border-white/10">
         
         <Link href="/create" className="absolute top-8 right-8 text-zinc-600 hover:text-white transition-colors">
@@ -175,36 +176,19 @@ export default function PDFUploadPage() {
         </Link>
 
         <div className="text-center space-y-1">
-            <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600 uppercase italic tracking-tighter drop-shadow-sm">
-            {t.title}
-            </h1>
+            <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600 uppercase italic tracking-tighter drop-shadow-sm">{t.title}</h1>
             <div className="h-1 w-20 bg-green-500/50 rounded-full mx-auto"></div>
         </div>
-
-        <div className="group">
-            <input 
-                required 
-                type="text" 
-                value={productName} 
-                onChange={(e) => setProductName(e.target.value)} 
-                className={inputBaseStyles} 
-                placeholder={t.docTitle} 
-            />
-        </div>
-
+        
+        <input required type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className={inputBaseStyles} placeholder={t.bookTitle} />
+        
         <div className="bg-zinc-900/30 p-4 rounded-xl border border-dashed border-zinc-700 group hover:border-green-500/50 transition-colors duration-300">
           <label className="text-[11px] text-zinc-400 mb-2 block uppercase font-bold tracking-wider group-hover:text-green-400 transition-colors">{t.uploadLabel}</label>
-          <input 
-            required 
-            type="file" 
-            accept=".pdf" 
-            onChange={(e)=>setFile(e.target.files[0])} 
-            className="w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-green-600 file:text-white hover:file:bg-green-500 file:transition-colors cursor-pointer" 
-          />
+          <input required type="file" accept=".pdf,.epub" onChange={(e)=>setFile(e.target.files[0])} className="w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-green-600 file:text-white hover:file:bg-green-500 file:transition-colors cursor-pointer" />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <input required type="text" placeholder={t.seller} onChange={(e)=>setSellerName(e.target.value)} className={inputBaseStyles} />
+          <input required type="text" placeholder={t.author} onChange={(e)=>setSellerName(e.target.value)} className={inputBaseStyles} />
           <input required type="email" placeholder={t.email} onChange={(e)=>setSellerEmail(e.target.value)} className={inputBaseStyles} />
         </div>
 
@@ -212,9 +196,7 @@ export default function PDFUploadPage() {
           <label className="text-[10px] text-zinc-400 block uppercase text-center font-black tracking-widest opacity-70">{t.coverLabel}</label>
           <input type="file" accept="image/*" onChange={(e)=>setPreviewFile(e.target.files[0])} className="w-full text-xs text-zinc-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-zinc-700 file:text-white file:hover:bg-zinc-600 cursor-pointer transition-all" />
           <div className="relative">
-              <div className={`absolute inset-y-0 ${lang === 'ar' ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none`}>
-                <span className="text-zinc-500 text-xs">🔗</span>
-              </div>
+              <div className={`absolute inset-y-0 ${lang === 'ar' ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none`}><span className="text-zinc-500 text-xs">🔗</span></div>
               <input type="url" placeholder={t.orUrl} value={previewLink} onChange={(e)=>setPreviewLink(e.target.value)} className={`${inputBaseStyles} ${lang === 'ar' ? 'pr-8' : 'pl-8'} py-2 text-xs`} />
           </div>
         </div>
@@ -225,26 +207,35 @@ export default function PDFUploadPage() {
           </label>
           <div className="relative flex items-center group">
             <span className={`absolute ${lang === 'ar' ? 'right-4' : 'left-4'} text-green-500 font-black text-lg pointer-events-none group-hover:scale-110 transition-transform`}>USD</span>
-            <input 
-                required 
-                type="number" 
-                step="any" 
-                value={usdPrice} 
-                onChange={(e) => setUsdPrice(e.target.value)} 
-                className={`w-full p-4 ${lang === 'ar' ? 'pr-16' : 'pl-16'} bg-zinc-900 border border-zinc-700 rounded-xl text-white text-2xl outline-none focus:border-green-500 text-center font-black transition-all shadow-inner`} 
-            />
+            <input required type="number" step="any" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className={`w-full p-4 ${lang === 'ar' ? 'pr-16' : 'pl-16'} bg-zinc-900 border border-zinc-700 rounded-xl text-white text-2xl outline-none focus:border-green-500 text-center font-black transition-all shadow-inner`} />
           </div>
         </div>
 
+        {/* 🔥🔥🔥 هنا الإضافة الجديدة: Supply Limit 🔥🔥🔥 */}
+        <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 flex items-center justify-between">
+            <div>
+                <h3 className="text-sm font-bold uppercase italic text-white">{t.supply}</h3>
+                <p className="text-[10px] text-zinc-500">{t.unlimited}</p>
+            </div>
+            <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-zinc-500">{t.qty}</span>
+                <input 
+                    type="number" 
+                    min="1" 
+                    placeholder="∞" 
+                    value={maxSupply} 
+                    onChange={(e) => setMaxSupply(e.target.value)} 
+                    className="w-16 p-2 bg-black border border-zinc-700 rounded-lg text-center text-white outline-none focus:border-green-500 font-bold"
+                />
+            </div>
+        </div>
+
         <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className={inputBaseStyles} placeholder={t.wallet} />
-        
+
         <div className="bg-gradient-to-br from-zinc-900/80 to-zinc-900/40 p-4 rounded-xl border border-dashed border-zinc-700 hover:border-zinc-500 transition-colors flex flex-col gap-3 group">
             <div className="flex items-center justify-between">
                 <div>
-                   <h3 className="text-sm font-bold uppercase italic text-white flex items-center gap-2">
-                      {t.promo} 
-                      {enablePromo && <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>}
-                   </h3>
+                   <h3 className="text-sm font-bold uppercase italic text-white flex items-center gap-2">{t.promo} {enablePromo && <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>}</h3>
                    <p className="text-[9px] text-zinc-500 group-hover:text-zinc-400 transition-colors">{t.discount}</p>
                 </div>
                 <div className={`relative inline-block w-10 ${lang === 'ar' ? 'ml-2' : 'mr-2'} align-middle select-none transition duration-200 ease-in`}>
@@ -262,20 +253,13 @@ export default function PDFUploadPage() {
 
         <div className="bg-gradient-to-r from-zinc-900 to-zinc-800/50 p-4 rounded-xl border border-zinc-700/50 flex items-center justify-between hover:shadow-lg hover:shadow-green-900/10 transition-all duration-300">
           <div>
-            <h3 className="text-sm font-bold uppercase italic text-white group flex items-center gap-1">
-                {t.viral}
-                <span className="text-[10px] bg-green-600/20 text-green-400 px-1.5 rounded ml-2 not-italic">{t.rec}</span>
-            </h3>
+            <h3 className="text-sm font-bold uppercase italic text-white group flex items-center gap-1">{t.viral} <span className="text-[10px] bg-green-600/20 text-green-400 px-1.5 rounded ml-2 not-italic">{t.rec}</span></h3>
             <p className="text-[10px] text-zinc-400 leading-tight mt-1">{t.comm}</p>
           </div>
           <input type="checkbox" checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500 cursor-pointer rounded bg-zinc-700 border-zinc-600 focus:ring-green-500 focus:ring-offset-zinc-900" />
         </div>
 
-        <button 
-            type="submit" 
-            disabled={uploading} 
-            className="w-full relative overflow-hidden group bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 py-4 rounded-xl font-black transition-all uppercase italic text-lg shadow-xl shadow-green-900/20 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.99]"
-        >
+        <button type="submit" disabled={uploading} className="w-full relative overflow-hidden group bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 py-4 rounded-xl font-black transition-all uppercase italic text-lg shadow-xl shadow-green-900/20 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.99]">
           <span className="relative z-10 flex items-center justify-center gap-2">
             {uploading ? (
                 <>
