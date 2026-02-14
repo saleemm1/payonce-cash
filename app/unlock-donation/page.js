@@ -4,287 +4,315 @@ import { useState, useEffect, Suspense, useRef } from 'react';
 
 const translations = {
   en: {
-    loading: "LOADING CAMPAIGN...",
-    invalid: "Campaign Not Found",
+    loading: "INITIALIZING...",
+    notFound: "Campaign Not Found",
     organizer: "Organizer",
-    raised: "Raised So Far",
-    goal: "Goal",
-    contributors: "Recent Contributors",
-    donate: "Donate Now",
-    custom: "Custom Amount",
+    raised: "Raised",
+    goal: "Target",
+    donors: "Contributors",
+    recent: "Recent Donations",
+    donate: "Make a Donation",
+    custom: "Enter amount",
+    pay: "Pay with Wallet",
+    scan: "Scan to Pay",
     copy: "Copy Address",
     copied: "Copied!",
-    verify: "Checking Blockchain...",
-    thankYou: "Thank you for your support!",
-    openWallet: "Open in Wallet",
-    scan: "Scan to Donate",
-    progress: "Progress",
-    anonymous: "Anonymous"
+    thankYou: "Transaction Detected! Thank You!",
+    anonymous: "Anonymous",
+    back: "Create Your Own",
+    live: "LIVE",
+    of: "of"
   },
   ar: {
-    loading: "جاري تحميل الحملة...",
-    invalid: "الحملة غير موجودة",
+    loading: "جاري التحميل...",
+    notFound: "الحملة غير موجودة",
     organizer: "المنظم",
     raised: "تم جمع",
     goal: "الهدف",
-    contributors: "آخر المساهمين",
+    donors: "المساهمين",
+    recent: "أحدث التبرعات",
     donate: "تبرع الآن",
-    custom: "مبلغ مخصص",
+    custom: "أدخل المبلغ",
+    pay: "ادفع بالمحفظة",
+    scan: "امسح للدفع",
     copy: "نسخ العنوان",
     copied: "تم النسخ!",
-    verify: "فحص البلوكشين...",
-    thankYou: "شكراً لدعمك!",
-    openWallet: "فتح المحفظة",
-    scan: "امسح للتبرع",
-    progress: "التقدم",
-    anonymous: "مجهول"
+    thankYou: "تم كشف المعاملة! شكراً لك!",
+    anonymous: "فاعل خير",
+    back: "أنشئ حملتك",
+    live: "مباشر",
+    of: "من"
   },
   zh: {
-    loading: "加载活动中...",
-    invalid: "未找到活动",
+    loading: "正在初始化...",
+    notFound: "未找到活动",
     organizer: "组织者",
     raised: "已筹集",
     goal: "目标",
-    contributors: "最近贡献者",
+    donors: "贡献者",
+    recent: "最近捐款",
     donate: "立即捐赠",
-    custom: "自定义金额",
+    custom: "输入金额",
+    pay: "钱包支付",
+    scan: "扫描支付",
     copy: "复制地址",
     copied: "已复制!",
-    verify: "正在检查区块链...",
-    thankYou: "感谢您的支持！",
-    openWallet: "在钱包中打开",
-    scan: "扫描捐赠",
-    progress: "进度",
-    anonymous: "匿名"
+    thankYou: "检测到交易！谢谢！",
+    anonymous: "匿名",
+    back: "创建您的活动",
+    live: "实时",
+    of: "的"
   }
 };
 
 function DonationContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [data, setData] = useState(null);
-  const [stats, setStats] = useState({ raised: 0, count: 0, txs: [] });
+  const [stats, setStats] = useState({ raised: 0, txs: [] });
   const [bchPrice, setBchPrice] = useState(0);
-  const [donateAmount, setDonateAmount] = useState('');
-  const [isCopied, setIsCopied] = useState(false);
+  const [amount, setAmount] = useState('');
   const [lang, setLang] = useState('en');
   const [loading, setLoading] = useState(true);
+  const [isCopied, setIsCopied] = useState(false);
+  const [activePreset, setActivePreset] = useState(null);
+  const [celebrate, setCelebrate] = useState(false);
 
+  // Load Initial Data
   useEffect(() => {
-    const savedLang = localStorage.getItem('payonce_lang');
-    if (savedLang) setLang(savedLang);
-
+    const saved = localStorage.getItem('payonce_lang');
+    if (saved) setLang(saved);
     const id = searchParams.get('id');
     if (id) {
-      try {
-        const decoded = JSON.parse(decodeURIComponent(escape(atob(id))));
-        setData(decoded);
-      } catch (e) {
-        setLoading(false);
-      }
+        try {
+            const decoded = JSON.parse(decodeURIComponent(escape(atob(id))));
+            setData(decoded);
+        } catch(e) { setLoading(false); }
     }
   }, [searchParams]);
 
+  // Fetch Price & Blockchain Data
   useEffect(() => {
-    if (!data?.w) return;
+      if (!data?.w) return;
+      
+      const refreshData = async () => {
+          try {
+              const pRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd');
+              const pJson = await pRes.json();
+              const price = pJson['bitcoin-cash'].usd;
+              setBchPrice(price);
 
-    const fetchData = async () => {
-      try {
-        const priceRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd');
-        const priceJson = await priceRes.json();
-        setBchPrice(priceJson['bitcoin-cash'].usd);
+              const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
+              const hRes = await fetch(`https://rest.mainnet.cash/v1/address/history/${cleanAddr}`);
+              const hJson = await hRes.json();
+              
+              let total = 0;
+              const txs = [];
+              
+              hJson.forEach(tx => {
+                  if (tx.value > 0) {
+                      total += tx.value;
+                      txs.push({
+                          hash: tx.tx_hash,
+                          val: tx.value / 100000000,
+                          usd: (tx.value / 100000000) * price
+                      });
+                  }
+              });
 
-        const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
-        const historyRes = await fetch(`https://rest.mainnet.cash/v1/address/history/${cleanAddr}`);
-        const history = await historyRes.json();
+              // Detect new donation for celebration
+              if (total > (stats.raised * 100000000) && stats.raised !== 0) {
+                  setCelebrate(true);
+                  setTimeout(() => setCelebrate(false), 5000);
+              }
 
-        let totalSats = 0;
-        const incomingTxs = [];
+              setStats({
+                  raised: total / 100000000,
+                  txs: txs.slice(0, 7) // Show last 7
+              });
+              setLoading(false);
 
-        for (const tx of history) {
-            if (tx.value > 0) {
-                totalSats += tx.value;
-                incomingTxs.push({
-                    hash: tx.tx_hash,
-                    amount: tx.value / 100000000,
-                    time: tx.height 
-                });
-            }
-        }
+          } catch(e) { setLoading(false); }
+      };
 
-        setStats({
-            raised: totalSats / 100000000,
-            count: incomingTxs.length,
-            txs: incomingTxs.slice(0, 5) 
-        });
-        setLoading(false);
+      refreshData();
+      const timer = setInterval(refreshData, 5000); // 5s poll
+      return () => clearInterval(timer);
+  }, [data, stats.raised]);
 
-      } catch (e) {
-        console.error(e);
-        setLoading(false);
+  // Handle Preset Click - This fixes the bug
+  const handlePreset = (usdVal) => {
+      setActivePreset(usdVal);
+      if (bchPrice > 0) {
+          const bchVal = (usdVal / bchPrice).toFixed(8);
+          setAmount(bchVal);
       }
-    };
-
-    fetchData();
-    const interval = setInterval(fetchData, 10000); 
-    return () => clearInterval(interval);
-  }, [data]);
-
-  const changeLang = (l) => {
-    setLang(l);
-    localStorage.setItem('payonce_lang', l);
   };
 
-  const copyAddr = () => {
-    const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
-    navigator.clipboard.writeText(cleanAddr);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
+  const changeLang = (l) => {
+      setLang(l);
+      localStorage.setItem('payonce_lang', l);
   };
 
   const t = translations[lang];
   const dir = lang === 'ar' ? 'rtl' : 'ltr';
 
-  if (!data && !loading) return <div className="min-h-screen bg-black text-red-500 flex justify-center items-center font-black uppercase">{t.invalid}</div>;
-  if (loading) return <div className="min-h-screen bg-[#09090b] text-white flex justify-center items-center font-black italic tracking-[5px] animate-pulse">{t.loading}</div>;
+  if (!data && !loading) return <div className="min-h-screen bg-black flex items-center justify-center text-red-500 font-black">{t.notFound}</div>;
+  if (loading) return <div className="min-h-screen bg-[#050505] flex items-center justify-center text-white font-black italic tracking-widest animate-pulse">{t.loading}</div>;
 
-  const percentage = Math.min(100, (stats.raised / data.g) * 100).toFixed(1);
+  const percentage = Math.min(100, (stats.raised / (data.g || 1)) * 100);
   const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
+  const payLink = `bitcoincash:${cleanAddr}?amount=${amount}`;
 
   return (
-    <div dir={dir} className={`min-h-screen bg-[#09090b] text-white font-sans overflow-x-hidden ${lang === 'ar' ? 'font-arabic' : ''}`}>
-      
-      <div className="fixed top-0 left-0 w-full h-[50vh] bg-gradient-to-b from-green-900/20 to-[#09090b] pointer-events-none"></div>
-
-      <div className="absolute top-6 right-6 flex gap-2 text-[10px] font-black uppercase z-50">
-        <button onClick={() => changeLang('en')} className={`${lang === 'en' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>EN</button>
-        <button onClick={() => changeLang('ar')} className={`${lang === 'ar' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>AR</button>
-        <button onClick={() => changeLang('zh')} className={`${lang === 'zh' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>CN</button>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 py-12 relative z-10">
+    <div dir={dir} className={`min-h-screen bg-[#050505] text-white font-sans ${lang === 'ar' ? 'font-arabic' : ''} selection:bg-green-500/30`}>
         
-        <div className="grid md:grid-cols-2 gap-8 items-start">
+        {celebrate && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none">
+                <div className="absolute inset-0 bg-green-500/10 backdrop-blur-sm animate-in fade-in duration-300"></div>
+                <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-white italic uppercase animate-bounce drop-shadow-[0_0_30px_rgba(34,197,94,0.8)]">
+                    {t.thankYou}
+                </h1>
+            </div>
+        )}
+
+        <div className="fixed inset-0 pointer-events-none opacity-30">
+            <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-green-500/10 rounded-full blur-[120px]"></div>
+        </div>
+
+        <nav className="relative z-50 flex justify-between items-center p-6 max-w-7xl mx-auto">
+            <Link href="/" className="text-sm font-black tracking-widest text-zinc-500 hover:text-white transition-colors uppercase">
+               PAYONCE
+            </Link>
+            <div className="flex gap-3 text-[10px] font-black uppercase">
+                <button onClick={() => changeLang('en')} className={`${lang === 'en' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>EN</button>
+                <button onClick={() => changeLang('ar')} className={`${lang === 'ar' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>AR</button>
+                <button onClick={() => changeLang('zh')} className={`${lang === 'zh' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>CN</button>
+            </div>
+        </nav>
+
+        <main className="max-w-7xl mx-auto px-4 py-8 grid lg:grid-cols-12 gap-8 lg:gap-16 relative z-10">
             
-            <div className="space-y-6">
+            <div className="lg:col-span-7 space-y-8">
                 {data.pr ? (
-                    <div className="rounded-[32px] overflow-hidden border border-white/10 shadow-2xl relative group">
-                        <img src={data.pr} alt="Campaign" className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-                        <div className="absolute bottom-6 left-6 right-6">
-                            <h1 className="text-3xl font-black italic uppercase leading-none text-white mb-2">{data.n}</h1>
-                            <div className="flex items-center gap-2 text-zinc-400 text-xs font-bold uppercase tracking-wider">
-                                <span>{t.organizer}:</span>
-                                <span className="text-green-500">{data.sn}</span>
+                    <div className="relative rounded-[32px] overflow-hidden border border-white/10 shadow-2xl group">
+                         <img src={data.pr} className="w-full h-auto object-cover max-h-[500px]" alt="Cover" />
+                         <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent"></div>
+                         <div className="absolute bottom-0 left-0 w-full p-8">
+                            <div className="inline-flex items-center gap-2 bg-red-600/90 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase mb-4 animate-pulse">
+                                <div className="w-1.5 h-1.5 bg-white rounded-full"></div> {t.live}
                             </div>
-                        </div>
+                            <h1 className="text-4xl md:text-6xl font-black italic uppercase leading-none mb-2 text-white drop-shadow-lg">{data.n}</h1>
+                            <p className="text-zinc-400 font-bold uppercase tracking-wider text-xs">{t.organizer}: <span className="text-green-500">{data.sn}</span></p>
+                         </div>
                     </div>
                 ) : (
                     <div className="h-64 bg-zinc-900 rounded-[32px] flex items-center justify-center border border-white/5">
-                        <h1 className="text-3xl font-black italic uppercase text-zinc-700">{data.n}</h1>
+                        <h1 className="text-4xl font-black italic uppercase text-zinc-800">{data.n}</h1>
                     </div>
                 )}
 
-                <div className="bg-zinc-900/50 p-6 rounded-[24px] border border-white/5 backdrop-blur-md">
-                    <p className="text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap">{data.d}</p>
-                    <div className="mt-4 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] text-zinc-500 font-mono">
-                        <span>{data.se}</span>
-                        <span>{new Date().toLocaleDateString()}</span>
-                    </div>
+                <div className="bg-zinc-900/30 p-8 rounded-[32px] border border-white/5 backdrop-blur-md">
+                    <p className="text-base md:text-lg text-zinc-300 leading-relaxed font-medium whitespace-pre-wrap">{data.d}</p>
                 </div>
 
-                <div className="bg-zinc-900/50 p-6 rounded-[24px] border border-white/5">
-                    <h3 className="text-xs font-black uppercase text-zinc-400 mb-4 tracking-widest">{t.contributors}</h3>
-                    <div className="space-y-3">
-                        {stats.txs.length > 0 ? stats.txs.map((tx, i) => (
-                            <div key={i} className="flex items-center justify-between p-3 bg-black/40 rounded-xl border border-white/5">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-[10px]">👤</div>
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-bold text-white">{t.anonymous}</span>
-                                        <span className="text-[8px] text-zinc-500 font-mono">{tx.hash.substring(0, 12)}...</span>
+                <div className="bg-zinc-900/30 p-8 rounded-[32px] border border-white/5">
+                    <h3 className="text-sm font-black uppercase text-zinc-500 mb-6 tracking-widest">{t.recent}</h3>
+                    <div className="space-y-4">
+                        {stats.txs.map((tx, i) => (
+                            <div key={i} className="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-2xl border border-white/5 hover:border-green-500/30 transition-colors">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-lg">❤️</div>
+                                    <div>
+                                        <p className="text-xs font-bold text-white">{t.anonymous}</p>
+                                        <p className="text-[10px] text-zinc-600 font-mono">{tx.hash.substring(0,8)}...{tx.hash.substring(tx.hash.length-8)}</p>
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <span className="text-[11px] font-black text-green-500 block">+{tx.amount.toFixed(4)} BCH</span>
-                                    <span className="text-[8px] text-zinc-600 block">≈ ${(tx.amount * bchPrice).toFixed(2)}</span>
+                                    <p className="text-sm font-black text-green-500">+{tx.val.toFixed(4)} BCH</p>
+                                    <p className="text-[10px] text-zinc-500 font-bold">≈ ${tx.usd.toFixed(2)}</p>
                                 </div>
                             </div>
-                        )) : (
-                            <p className="text-center text-[10px] text-zinc-600 italic py-4">No contributions yet. Be the first!</p>
-                        )}
+                        ))}
+                        {stats.txs.length === 0 && <p className="text-zinc-600 italic text-center text-sm">Be the first to donate!</p>}
                     </div>
                 </div>
             </div>
 
-            <div className="sticky top-8 space-y-6">
-                <div className="bg-[#121214] p-8 rounded-[32px] border border-green-500/20 shadow-[0_0_50px_rgba(34,197,94,0.1)] text-center relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-zinc-800">
-                        <div className="h-full bg-green-500 shadow-[0_0_10px_#22c55e]" style={{width: `${percentage}%`}}></div>
-                    </div>
-
-                    <div className="mb-8">
-                        <span className="text-5xl font-black text-white tracking-tighter block">{stats.raised.toFixed(3)}</span>
-                        <span className="text-sm font-bold text-zinc-500 uppercase tracking-widest block mt-1">BCH {t.raised}</span>
-                    </div>
-
-                    <div className="w-full bg-zinc-900 rounded-full h-4 mb-2 overflow-hidden border border-white/5 relative">
-                        <div className="h-full bg-gradient-to-r from-green-600 to-green-400 relative" style={{width: `${percentage}%`}}>
-                            <div className="absolute inset-0 bg-white/20 animate-[pulse_2s_infinite]"></div>
-                        </div>
-                    </div>
+            <div className="lg:col-span-5 relative">
+                <div className="sticky top-8 space-y-6">
                     
-                    <div className="flex justify-between text-[10px] font-bold text-zinc-400 mb-8 uppercase tracking-wider">
-                        <span>{percentage}% {t.progress}</span>
-                        <span>{t.goal}: {data.g} BCH</span>
-                    </div>
-
-                    <div className="space-y-3">
-                        <div className="grid grid-cols-3 gap-2">
-                             {[5, 10, 25].map(amt => (
-                                 <button key={amt} onClick={() => setDonateAmount((amt / bchPrice).toFixed(5))} className="py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-xs font-bold text-white transition-colors border border-white/5 hover:border-green-500/50">
-                                     ${amt}
-                                 </button>
-                             ))}
+                    <div className="bg-[#121214] p-8 rounded-[40px] border border-green-500/20 shadow-[0_0_60px_rgba(0,0,0,0.5)] overflow-hidden relative">
+                        <div className="absolute top-0 left-0 w-full h-1.5 bg-zinc-800">
+                             <div className="h-full bg-gradient-to-r from-green-500 to-emerald-400 shadow-[0_0_15px_#22c55e]" style={{width: `${percentage}%`}}></div>
                         </div>
-                        
-                        <div className="relative">
-                             <input 
+
+                        <div className="text-center mb-8 mt-2">
+                             <span className="text-6xl font-black text-white tracking-tighter block tabular-nums">{stats.raised.toFixed(2)}</span>
+                             <span className="text-sm font-bold text-zinc-500 uppercase tracking-widest block mt-2">BCH {t.raised} {t.of} {data.g}</span>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-3 mb-6">
+                            {[5, 25, 50].map(val => (
+                                <button 
+                                    key={val}
+                                    onClick={() => handlePreset(val)}
+                                    className={`py-4 rounded-2xl text-sm font-black transition-all ${activePreset === val ? 'bg-green-500 text-black shadow-[0_0_20px_rgba(34,197,94,0.4)] scale-105' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white'}`}
+                                >
+                                    ${val}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="relative mb-6">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 text-lg font-black">$</span>
+                            <input 
                                 type="number" 
-                                placeholder={t.custom} 
-                                value={donateAmount}
-                                onChange={(e) => setDonateAmount(e.target.value)}
-                                className="w-full p-4 bg-black/50 border border-zinc-700 rounded-xl text-white text-center font-bold outline-none focus:border-green-500 transition-colors"
-                             />
-                             <span className="absolute right-4 top-4 text-zinc-500 text-xs font-black pointer-events-none">BCH</span>
+                                placeholder={t.custom}
+                                value={activePreset && amount ? (amount * bchPrice).toFixed(2) : ''}
+                                onChange={(e) => {
+                                    setActivePreset(null);
+                                    const val = parseFloat(e.target.value);
+                                    if(val && bchPrice) setAmount((val / bchPrice).toFixed(8));
+                                    else setAmount('');
+                                }}
+                                className="w-full bg-black/50 border border-zinc-700 rounded-2xl p-4 pl-8 text-white font-bold outline-none focus:border-green-500 transition-colors"
+                            />
+                        </div>
+
+                        <div className="bg-zinc-900/50 p-4 rounded-2xl border border-white/5 mb-6 text-center">
+                            <p className="text-[10px] text-zinc-500 uppercase font-bold mb-2">{t.scan}</p>
+                            <div className="bg-white p-2 rounded-xl inline-block mb-3">
+                                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(payLink)}`} alt="QR" className="w-32 h-32 mix-blend-multiply" />
+                            </div>
+                             <p className="text-xs font-black text-white">{amount ? amount : '0.00'} BCH</p>
                         </div>
 
                         <a 
-                            href={`bitcoincash:${cleanAddr}?amount=${donateAmount}`} 
-                            className={`block w-full py-4 rounded-xl font-black uppercase tracking-widest text-sm transition-all shadow-lg hover:shadow-green-500/20 active:scale-95 flex items-center justify-center gap-2 ${donateAmount ? 'bg-green-500 hover:bg-green-400 text-black' : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'}`}
+                            href={payLink}
+                            className={`block w-full py-5 rounded-2xl font-black uppercase italic tracking-wider text-center text-lg transition-all shadow-xl ${amount ? 'bg-green-600 hover:bg-green-500 text-black hover:scale-[1.02]' : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'}`}
                         >
-                            <span>{t.donate}</span>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                            {t.pay}
                         </a>
                     </div>
-                </div>
 
-                <div className="bg-[#121214] p-6 rounded-[32px] border border-white/5 flex flex-col items-center">
-                    <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-4">{t.scan}</p>
-                    <div className="bg-white p-2 rounded-xl mb-4">
-                        <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=bitcoincash:${cleanAddr}`} alt="QR" className="w-32 h-32 mix-blend-multiply" />
-                    </div>
-                    <div className="flex items-center gap-2 bg-zinc-900/50 p-2 rounded-lg border border-white/5 w-full">
-                        <input readOnly value={cleanAddr} className="bg-transparent text-[10px] text-zinc-400 font-mono flex-1 outline-none truncate pl-2" />
-                        <button onClick={copyAddr} className="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-md text-[10px] text-white font-bold transition-colors">
+                    <div className="flex items-center gap-3 bg-zinc-900/50 p-3 rounded-2xl border border-white/5">
+                        <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-400">
+                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                        </div>
+                        <div className="flex-1 overflow-hidden">
+                            <p className="text-[10px] text-zinc-500 font-bold uppercase">{t.organizer}</p>
+                            <p className="text-xs text-white truncate font-mono">{cleanAddr}</p>
+                        </div>
+                        <button onClick={() => {navigator.clipboard.writeText(cleanAddr); setIsCopied(true); setTimeout(()=>setIsCopied(false),2000)}} className="bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-lg text-[10px] font-bold transition-colors">
                             {isCopied ? t.copied : t.copy}
                         </button>
                     </div>
+
                 </div>
-
             </div>
-        </div>
 
-      </div>
+        </main>
     </div>
   );
 }
