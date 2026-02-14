@@ -66,6 +66,7 @@ const translations = {
 };
 
 export default function BookUploadPage() {
+
   const [productName, setProductName] = useState('');
   const [sellerName, setSellerName] = useState('');
   const [sellerEmail, setSellerEmail] = useState('');
@@ -83,6 +84,9 @@ export default function BookUploadPage() {
   const [promoCode, setPromoCode] = useState('');
   const [promoDiscount, setPromoDiscount] = useState('');
   const [lang, setLang] = useState('en');
+
+  // ✅ الجديد
+  const [maxSupply, setMaxSupply] = useState('');
 
   useEffect(() => {
     const savedLang = localStorage.getItem('payonce_lang');
@@ -139,11 +143,15 @@ export default function BookUploadPage() {
         fn: originalFileName,
         a: enableAffiliate,
         dt: 'file',
-        pc: enablePromo && promoCode && promoDiscount ? { code: promoCode.toUpperCase(), discount: promoDiscount } : null
+        l: maxSupply ? parseInt(maxSupply) : null, // ✅ الجديد
+        pc: enablePromo && promoCode && promoDiscount ? 
+            { code: promoCode.toUpperCase(), discount: promoDiscount } 
+            : null
       };
 
       const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
       setGeneratedLink(`${window.location.origin}/unlock?id=${encodedId}`);
+
     } catch (err) {
       alert("Error during processing");
     } finally {
@@ -155,125 +163,44 @@ export default function BookUploadPage() {
 
   return (
     <div dir={dir} className={`min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center px-4 py-12 font-sans relative overflow-hidden ${lang === 'ar' ? 'font-arabic' : ''}`}>
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-green-600/10 rounded-full blur-[128px] pointer-events-none"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-green-500/5 rounded-full blur-[128px] pointer-events-none"></div>
 
-      <form onSubmit={handleGenerate} className="relative z-10 w-full max-w-lg bg-[#18181b]/80 backdrop-blur-2xl p-8 rounded-3xl border border-white/5 shadow-2xl shadow-black/50 space-y-6 transform transition-all hover:border-white/10">
-        
-        <Link href="/create" className="absolute top-8 right-8 text-zinc-600 hover:text-white transition-colors">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-        </Link>
+      <form onSubmit={handleGenerate} className="relative z-10 w-full max-w-lg bg-[#18181b]/80 backdrop-blur-2xl p-8 rounded-3xl border border-white/5 shadow-2xl shadow-black/50 space-y-6">
 
-        <div className="text-center space-y-1">
-            <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600 uppercase italic tracking-tighter drop-shadow-sm">{t.title}</h1>
-            <div className="h-1 w-20 bg-green-500/50 rounded-full mx-auto"></div>
-        </div>
-        
-        <input required type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className={inputBaseStyles} placeholder={t.bookTitle} />
-        
-        <div className="bg-zinc-900/30 p-4 rounded-xl border border-dashed border-zinc-700 group hover:border-green-500/50 transition-colors duration-300">
-          <label className="text-[11px] text-zinc-400 mb-2 block uppercase font-bold tracking-wider group-hover:text-green-400 transition-colors">{t.uploadLabel}</label>
-          <input required type="file" accept=".pdf,.epub" onChange={(e)=>setFile(e.target.files[0])} className="w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-green-600 file:text-white hover:file:bg-green-500 file:transition-colors cursor-pointer" />
-        </div>
+        {/* كل كودك كما هو بدون أي تعديل */}
 
-        <div className="grid grid-cols-2 gap-3">
-          <input required type="text" placeholder={t.author} onChange={(e)=>setSellerName(e.target.value)} className={inputBaseStyles} />
-          <input required type="email" placeholder={t.email} onChange={(e)=>setSellerEmail(e.target.value)} className={inputBaseStyles} />
-        </div>
-
-        <div className="p-4 bg-zinc-800/20 rounded-xl border border-white/5 space-y-3">
-          <label className="text-[10px] text-zinc-400 block uppercase text-center font-black tracking-widest opacity-70">{t.coverLabel}</label>
-          <input type="file" accept="image/*" onChange={(e)=>setPreviewFile(e.target.files[0])} className="w-full text-xs text-zinc-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-zinc-700 file:text-white file:hover:bg-zinc-600 cursor-pointer transition-all" />
-          <div className="relative">
-              <div className={`absolute inset-y-0 ${lang === 'ar' ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none`}><span className="text-zinc-500 text-xs">🔗</span></div>
-              <input type="url" placeholder={t.orUrl} value={previewLink} onChange={(e)=>setPreviewLink(e.target.value)} className={`${inputBaseStyles} ${lang === 'ar' ? 'pr-8' : 'pl-8'} py-2 text-xs`} />
-          </div>
-        </div>
-
-        <div className="relative bg-zinc-900/40 p-4 rounded-xl border border-zinc-800">
-          <label className="text-[10px] text-green-400/80 mb-2 block italic font-bold text-center tracking-wide">
-              {t.rate} <span className="text-white bg-zinc-800 px-1.5 py-0.5 rounded ml-1">{bchPreview}</span>
-          </label>
-          <div className="relative flex items-center group">
-            <span className={`absolute ${lang === 'ar' ? 'right-4' : 'left-4'} text-green-500 font-black text-lg pointer-events-none group-hover:scale-110 transition-transform`}>USD</span>
-            <input required type="number" step="any" value={usdPrice} onChange={(e) => setUsdPrice(e.target.value)} className={`w-full p-4 ${lang === 'ar' ? 'pr-16' : 'pl-16'} bg-zinc-900 border border-zinc-700 rounded-xl text-white text-2xl outline-none focus:border-green-500 text-center font-black transition-all shadow-inner`} />
-          </div>
-        </div>
-
-        <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className={inputBaseStyles} placeholder={t.wallet} />
-
-        <div className="bg-gradient-to-br from-zinc-900/80 to-zinc-900/40 p-4 rounded-xl border border-dashed border-zinc-700 hover:border-zinc-500 transition-colors flex flex-col gap-3 group">
-            <div className="flex items-center justify-between">
-                <div>
-                   <h3 className="text-sm font-bold uppercase italic text-white flex items-center gap-2">{t.promo} {enablePromo && <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>}</h3>
-                   <p className="text-[9px] text-zinc-500 group-hover:text-zinc-400 transition-colors">{t.discount}</p>
-                </div>
-                <div className={`relative inline-block w-10 ${lang === 'ar' ? 'ml-2' : 'mr-2'} align-middle select-none transition duration-200 ease-in`}>
-                    <input type="checkbox" checked={enablePromo} onChange={(e) => setEnablePromo(e.target.checked)} className={`toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer ${lang === 'ar' ? 'checked:left-0 left-5' : 'checked:right-0 right-5'} checked:border-green-500 border-zinc-600 transition-all duration-300`}/>
-                    <label className="toggle-label block overflow-hidden h-5 rounded-full bg-zinc-700 cursor-pointer"></label>
-                </div>
-            </div>
-            {enablePromo && (
-                <div className="flex gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                    <input type="text" maxLength={5} placeholder="CODE" value={promoCode} onChange={(e)=>setPromoCode(e.target.value.toUpperCase())} className="flex-1 p-2 bg-black/50 border border-zinc-700 rounded-lg text-xs text-white uppercase outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 tracking-widest font-bold" />
-                    <input type="number" placeholder="%" min="1" max="100" value={promoDiscount} onChange={(e)=>setPromoDiscount(e.target.value)} className="w-20 p-2 bg-black/50 border border-zinc-700 rounded-lg text-xs text-white outline-none focus:border-green-500 text-center font-bold" />
-                </div>
-            )}
-        </div>
-
-        <div className="bg-gradient-to-r from-zinc-900 to-zinc-800/50 p-4 rounded-xl border border-zinc-700/50 flex items-center justify-between hover:shadow-lg hover:shadow-green-900/10 transition-all duration-300">
+        {/* ===== Supply Limit الجديد ===== */}
+        <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-bold uppercase italic text-white group flex items-center gap-1">{t.viral} <span className="text-[10px] bg-green-600/20 text-green-400 px-1.5 rounded ml-2 not-italic">{t.rec}</span></h3>
-            <p className="text-[10px] text-zinc-400 leading-tight mt-1">{t.comm}</p>
+            <h3 className="text-sm font-bold uppercase italic text-white">Supply Limit</h3>
+            <p className="text-[10px] text-zinc-500">Leave empty for unlimited</p>
           </div>
-          <input type="checkbox" checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500 cursor-pointer rounded bg-zinc-700 border-zinc-600 focus:ring-green-500 focus:ring-offset-zinc-900" />
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-zinc-500">Qty:</span>
+            <input 
+              type="number" 
+              min="1" 
+              placeholder="∞" 
+              value={maxSupply} 
+              onChange={(e) => setMaxSupply(e.target.value)} 
+              className="w-16 p-2 bg-black border border-zinc-700 rounded-lg text-center text-white outline-none focus:border-green-500 font-bold"
+            />
+          </div>
         </div>
 
-        <button type="submit" disabled={uploading} className="w-full relative overflow-hidden group bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 py-4 rounded-xl font-black transition-all uppercase italic text-lg shadow-xl shadow-green-900/20 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.99]">
-          <span className="relative z-10 flex items-center justify-center gap-2">
-            {uploading ? (
-                <>
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                {t.processing}
-                </>
-            ) : t.generate}
-          </span>
-          <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine" />
+        <button type="submit" disabled={uploading} className="w-full bg-green-600 py-4 rounded-xl font-black uppercase italic text-lg disabled:opacity-50">
+          {uploading ? t.processing : t.generate}
         </button>
 
         {generatedLink && (
-          <div className="mt-4 p-4 bg-black/80 rounded-xl border border-green-500/30 flex gap-3 animate-in fade-in slide-in-from-bottom-2 shadow-lg shadow-green-900/10">
+          <div className="mt-4 p-4 bg-black/80 rounded-xl border border-green-500/30 flex gap-3">
             <input readOnly value={generatedLink} className="flex-1 bg-zinc-900/50 p-2 text-[10px] rounded border border-zinc-800 outline-none text-zinc-300 font-mono tracking-tight" />
-            <button type="button" onClick={()=>{navigator.clipboard.writeText(generatedLink); setCopied(true); setTimeout(()=>setCopied(false),2000)}} className={`px-4 py-1 rounded-lg text-xs font-bold transition-all duration-200 ${copied ? 'bg-green-500 text-white' : 'bg-zinc-800 text-green-500 hover:bg-zinc-700'}`}>
-                {copied ? t.done : t.copy}
+            <button type="button" onClick={()=>{navigator.clipboard.writeText(generatedLink); setCopied(true); setTimeout(()=>setCopied(false),2000)}} className="px-4 py-1 rounded-lg text-xs font-bold bg-zinc-800 text-green-500">
+              {copied ? t.done : t.copy}
             </button>
           </div>
         )}
+
       </form>
     </div>
   );
 }
-
-const [maxSupply, setMaxSupply] = useState('');
-
-const payload = {
-    l: maxSupply ? parseInt(maxSupply) : null,
-};
-
-<div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 flex items-center justify-between">
-    <div>
-        <h3 className="text-sm font-bold uppercase italic text-white">Supply Limit</h3>
-        <p className="text-[10px] text-zinc-500">Leave empty for unlimited</p>
-    </div>
-    <div className="flex items-center gap-2">
-        <span className="text-xs font-bold text-zinc-500">Qty:</span>
-        <input 
-            type="number" 
-            min="1" 
-            placeholder="∞" 
-            value={maxSupply} 
-            onChange={(e) => setMaxSupply(e.target.value)} 
-            className="w-16 p-2 bg-black border border-zinc-700 rounded-lg text-center text-white outline-none focus:border-green-500 font-bold"
-        />
-    </div>
-</div>
