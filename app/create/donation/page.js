@@ -4,70 +4,73 @@ import Link from 'next/link';
 
 const translations = {
   en: {
-    header: "Start a Movement",
-    subHeader: "Crowdfund your dream with Bitcoin Cash.",
+    header: "Create Donation Campaign",
+    subHeader: "Raise funds with the power of Bitcoin Cash.",
     titleLabel: "Campaign Title",
-    descLabel: "The Story",
-    organizerLabel: "Organizer",
-    emailLabel: "Email",
-    walletLabel: "Receiving Wallet Address (BCH)",
-    goalLabel: "Funding Goal",
-    coverLabel: "Cover Image URL",
+    descLabel: "Why are you raising funds?",
+    organizerLabel: "Organizer Name",
+    emailLabel: "Support Email",
+    walletLabel: "Your BCH Wallet Address",
+    goalLabel: "Goal Amount (BCH)",
+    coverLabel: "Campaign Image URL",
     fileLabel: "Or Upload Image",
     launch: "Launch Campaign",
-    processing: "Deploying...",
+    processing: "Creating...",
     preview: "Live Preview",
     copy: "Copy Link",
-    done: "Copied",
-    goalDesc: "Amount needed in BCH",
+    done: "Copied!",
+    goalDesc: "Total BCH needed",
     optional: "Optional",
-    cardTitle: "Your Campaign",
-    raised: "0.00 BCH raised",
-    support: "Support this campaign"
+    cardTitle: "Campaign Preview",
+    raised: "0.00 BCH Raised",
+    support: "Support Campaign",
+    security: "Funds go directly to your wallet. Non-custodial."
   },
   ar: {
-    header: "ابدأ حراكاً",
-    subHeader: "موّل حلمك باستخدام Bitcoin Cash.",
+    header: "إنشاء حملة تبرع",
+    subHeader: "اجمع التبرعات بقوة البيتكوين كاش.",
     titleLabel: "عنوان الحملة",
-    descLabel: "القصة",
-    organizerLabel: "المنظم",
-    emailLabel: "البريد",
-    walletLabel: "عنوان المحفظة المستلمة (BCH)",
-    goalLabel: "هدف التمويل",
-    coverLabel: "رابط صورة الغلاف",
+    descLabel: "لماذا تجمع التبرعات؟ (القصة)",
+    organizerLabel: "اسم المنظم",
+    emailLabel: "بريد الدعم",
+    walletLabel: "عنوان محفظة BCH الخاصة بك",
+    goalLabel: "مبلغ الهدف (BCH)",
+    coverLabel: "رابط صورة الحملة",
     fileLabel: "أو رفع صورة",
     launch: "إطلاق الحملة",
-    processing: "جاري النشر...",
+    processing: "جاري الإنشاء...",
     preview: "معاينة حية",
     copy: "نسخ الرابط",
-    done: "تم النسخ",
-    goalDesc: "المبلغ المطلوب بـ BCH",
+    done: "تم النسخ!",
+    goalDesc: "إجمالي BCH المطلوب",
     optional: "اختياري",
-    cardTitle: "حملتك",
+    cardTitle: "معاينة الحملة",
     raised: "تم جمع 0.00 BCH",
-    support: "ادعم هذه الحملة"
+    support: "ادعم الحملة",
+    security: "الأموال تصل لمحفظتك مباشرة. غير وصائي."
   },
   zh: {
-    header: "发起运动",
-    subHeader: "用 Bitcoin Cash 为您的梦想众筹。",
+    header: "创建捐赠活动",
+    subHeader: "利用 Bitcoin Cash 的力量筹集资金。",
     titleLabel: "活动标题",
-    descLabel: "故事",
-    organizerLabel: "组织者",
-    emailLabel: "电子邮件",
-    walletLabel: "接收钱包地址 (BCH)",
-    goalLabel: "筹款目标",
-    coverLabel: "封面图片链接",
+    descLabel: "您为什么要筹集资金？",
+    organizerLabel: "组织者姓名",
+    emailLabel: "支持邮箱",
+    walletLabel: "您的 BCH 钱包地址",
+    goalLabel: "目标金额 (BCH)",
+    coverLabel: "活动图片链接",
     fileLabel: "或上传图片",
     launch: "发起活动",
-    processing: "正在部署...",
+    processing: "正在创建...",
     preview: "实时预览",
     copy: "复制链接",
-    done: "已复制",
-    goalDesc: "所需 BCH 金额",
+    done: "已复制！",
+    goalDesc: "所需 BCH 总额",
     optional: "可选",
-    cardTitle: "您的活动",
+    cardTitle: "活动预览",
     raised: "已筹集 0.00 BCH",
-    support: "支持此活动"
+    support: "支持活动",
+    security: "资金直接进入您的钱包。非托管。"
   }
 };
 
@@ -141,19 +144,19 @@ export default function DonationCreatePage() {
     }
   };
 
-  const inputStyle = "w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-3 text-sm text-white placeholder:text-zinc-600 outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500/50 transition-all";
+  const inputStyle = "w-full bg-black/40 border border-zinc-800 rounded-xl p-4 text-sm text-white placeholder:text-zinc-600 outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500/50 transition-all backdrop-blur-sm";
 
   return (
     <div dir={dir} className={`min-h-screen bg-[#050505] text-white font-sans selection:bg-green-500/30 ${lang === 'ar' ? 'font-arabic' : ''}`}>
       
       <div className="fixed inset-0 pointer-events-none">
-          <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-green-500/5 rounded-full blur-[120px]"></div>
-          <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-emerald-600/5 rounded-full blur-[120px]"></div>
+          <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-green-900/10 rounded-full blur-[120px]"></div>
+          <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-emerald-900/10 rounded-full blur-[120px]"></div>
       </div>
 
       <nav className="relative z-50 flex justify-between items-center p-6 max-w-7xl mx-auto">
-         <Link href="/create" className="text-zinc-400 hover:text-white transition-colors">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+         <Link href="/create" className="text-zinc-400 hover:text-white transition-colors p-2 bg-white/5 rounded-full">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
          </Link>
          <div className="flex gap-2 text-[10px] font-black uppercase">
             <button onClick={() => changeLang('en')} className={`${lang === 'en' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>EN</button>
@@ -163,108 +166,135 @@ export default function DonationCreatePage() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-6 pb-20 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-start">
+          <div className="grid lg:grid-cols-2 gap-16 items-start">
               
               <div className="space-y-8">
                   <div>
-                      <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-500 mb-2 italic uppercase tracking-tighter">
+                      <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-zinc-500 mb-2 italic uppercase tracking-tighter drop-shadow-sm">
                           {t.header}
                       </h1>
-                      <p className="text-zinc-500 text-sm font-medium">{t.subHeader}</p>
+                      <p className="text-zinc-500 text-sm font-medium tracking-wide">{t.subHeader}</p>
                   </div>
 
-                  <form onSubmit={handleGenerate} className="space-y-5">
+                  <form onSubmit={handleGenerate} className="space-y-6">
                       <div className="space-y-4">
-                          <input required name="title" value={formData.title} onChange={handleChange} placeholder={t.titleLabel} className={inputStyle} />
-                          <textarea name="desc" value={formData.desc} onChange={handleChange} placeholder={t.descLabel} className={`${inputStyle} h-32 resize-none`} />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                          <input name="organizer" value={formData.organizer} onChange={handleChange} placeholder={t.organizerLabel} className={inputStyle} />
-                          <input name="email" value={formData.email} onChange={handleChange} placeholder={t.emailLabel} className={inputStyle} />
-                      </div>
-
-                      <div className="bg-zinc-900/30 p-4 rounded-xl border border-zinc-800 space-y-3">
-                          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider flex justify-between">
-                             <span>{t.goalLabel}</span>
-                             <span className="text-zinc-700">{t.optional}</span>
-                          </p>
-                          <div className="flex items-center gap-3">
-                              <input 
-                                  type="number" 
-                                  step="any" 
-                                  name="goal"
-                                  value={formData.goal} 
-                                  onChange={handleChange} 
-                                  placeholder="100" 
-                                  className="flex-1 bg-transparent text-3xl font-black text-white outline-none placeholder:text-zinc-800 tabular-nums"
-                              />
-                              <span className="text-xl font-black text-green-500">BCH</span>
+                          <div>
+                              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1.5 block">{t.titleLabel}</label>
+                              <input required name="title" value={formData.title} onChange={handleChange} className={inputStyle} />
+                          </div>
+                          <div>
+                              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1.5 block">{t.descLabel}</label>
+                              <textarea name="desc" value={formData.desc} onChange={handleChange} className={`${inputStyle} h-32 resize-none`} />
                           </div>
                       </div>
 
-                      <div className="space-y-3">
-                           <div className="flex gap-2">
-                               <input type="file" accept="image/*" onChange={(e)=>setPreviewFile(e.target.files[0])} className="flex-1 text-[10px] text-zinc-400 file:mr-2 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-zinc-800 file:text-white file:font-bold hover:file:bg-zinc-700 cursor-pointer" />
-                               <input name="coverUrl" value={formData.coverUrl} onChange={handleChange} placeholder={t.coverLabel} className={`${inputStyle} flex-1`} />
-                           </div>
-                           <input required name="wallet" value={formData.wallet} onChange={handleChange} placeholder={t.walletLabel} className={`${inputStyle} text-center font-mono`} />
+                      <div className="grid grid-cols-2 gap-4">
+                          <div>
+                              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1.5 block">{t.organizerLabel}</label>
+                              <input name="organizer" value={formData.organizer} onChange={handleChange} className={inputStyle} />
+                          </div>
+                          <div>
+                              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1.5 block">{t.emailLabel}</label>
+                              <input name="email" value={formData.email} onChange={handleChange} className={inputStyle} />
+                          </div>
                       </div>
 
-                      <button type="submit" disabled={uploading} className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-black font-black py-4 rounded-xl text-lg uppercase italic tracking-wider transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_40px_rgba(34,197,94,0.5)] disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.99]">
+                      <div className="bg-gradient-to-r from-green-900/10 to-transparent p-1 rounded-2xl border border-green-500/20">
+                          <div className="bg-black/80 p-5 rounded-[14px]">
+                              <div className="flex justify-between items-center mb-2">
+                                  <span className="text-[10px] font-black text-green-500 uppercase tracking-widest">{t.goalLabel}</span>
+                                  <span className="text-[9px] text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded">{t.optional}</span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                  <input 
+                                      type="number" 
+                                      step="any" 
+                                      name="goal"
+                                      value={formData.goal} 
+                                      onChange={handleChange} 
+                                      placeholder="10" 
+                                      className="flex-1 bg-transparent text-4xl font-black text-white outline-none placeholder:text-zinc-800 tabular-nums"
+                                  />
+                                  <span className="text-xl font-black text-zinc-600">BCH</span>
+                              </div>
+                          </div>
+                      </div>
+
+                      <div className="space-y-4">
+                           <div className="flex gap-2">
+                               <input type="file" accept="image/*" onChange={(e)=>setPreviewFile(e.target.files[0])} className="flex-1 text-[10px] text-zinc-400 file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-zinc-800 file:text-white file:font-bold hover:file:bg-zinc-700 cursor-pointer" />
+                               <input name="coverUrl" value={formData.coverUrl} onChange={handleChange} placeholder={t.coverLabel} className={`${inputStyle} flex-1 py-2`} />
+                           </div>
+                           <div>
+                                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1.5 block">{t.walletLabel}</label>
+                                <input required name="wallet" value={formData.wallet} onChange={handleChange} className={`${inputStyle} text-center font-mono text-green-400`} />
+                           </div>
+                      </div>
+
+                      <button type="submit" disabled={uploading} className="w-full bg-white hover:bg-zinc-200 text-black font-black py-4 rounded-xl text-lg uppercase italic tracking-wider transition-all shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:shadow-[0_0_50px_rgba(255,255,255,0.2)] disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.99]">
                           {uploading ? t.processing : t.launch}
                       </button>
+                      
+                      <p className="text-center text-[10px] text-zinc-600 font-medium">{t.security}</p>
                   </form>
 
                   {generatedLink && (
-                      <div className="bg-black border border-green-500/30 p-4 rounded-2xl flex items-center gap-3 animate-in slide-in-from-bottom-4">
-                          <input readOnly value={generatedLink} className="flex-1 bg-transparent text-xs text-green-500 font-mono outline-none" />
-                          <button onClick={()=>{navigator.clipboard.writeText(generatedLink); setCopied(true); setTimeout(()=>setCopied(false),2000)}} className="text-[10px] font-black bg-green-500/10 hover:bg-green-500/20 text-green-500 px-3 py-1.5 rounded-lg uppercase transition-colors">
-                              {copied ? t.done : t.copy}
-                          </button>
+                      <div className="bg-[#121214] border border-green-500/30 p-4 rounded-2xl flex flex-col gap-3 animate-in slide-in-from-bottom-4 shadow-xl">
+                          <span className="text-[10px] font-black text-green-500 uppercase tracking-widest text-center">Campaign Ready 🚀</span>
+                          <div className="flex items-center gap-2 bg-black/50 p-2 rounded-xl">
+                             <input readOnly value={generatedLink} className="flex-1 bg-transparent text-xs text-zinc-300 font-mono outline-none px-2" />
+                             <button onClick={()=>{navigator.clipboard.writeText(generatedLink); setCopied(true); setTimeout(()=>setCopied(false),2000)}} className="text-[10px] font-black bg-green-600 hover:bg-green-500 text-black px-4 py-2 rounded-lg uppercase transition-colors">
+                                 {copied ? t.done : t.copy}
+                             </button>
+                          </div>
                       </div>
                   )}
               </div>
 
               <div className="hidden lg:block sticky top-8">
-                  <div className="flex items-center gap-2 mb-4">
-                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                      <span className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">{t.preview}</span>
+                  <div className="flex items-center gap-2 mb-4 justify-end">
+                      <span className="text-[10px] font-black uppercase text-zinc-600 tracking-widest">{t.preview}</span>
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   </div>
                   
-                  <div className="bg-[#121214] rounded-[32px] overflow-hidden border border-zinc-800 shadow-2xl relative">
-                       <div className="relative h-64 bg-zinc-900">
+                  <div className="bg-[#0a0a0a] rounded-[32px] overflow-hidden border border-zinc-800/50 shadow-2xl relative">
+                       <div className="relative h-72 bg-zinc-900">
                            {(previewFile || formData.coverUrl) ? (
                                <img 
                                  src={previewFile ? URL.createObjectURL(previewFile) : formData.coverUrl} 
                                  className="w-full h-full object-cover" 
                                />
                            ) : (
-                               <div className="w-full h-full flex items-center justify-center text-zinc-700 font-black italic text-4xl uppercase">
-                                   IMG
+                               <div className="w-full h-full flex items-center justify-center bg-zinc-900 text-zinc-800 font-black italic text-6xl uppercase tracking-tighter">
+                                   COVER
                                </div>
                            )}
-                           <div className="absolute inset-0 bg-gradient-to-t from-[#121214] via-transparent to-transparent"></div>
+                           <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent"></div>
                        </div>
                        
-                       <div className="p-8 relative -mt-12">
-                           <div className="inline-block bg-green-500 text-black text-[10px] font-black px-3 py-1 rounded-full uppercase mb-4 shadow-lg shadow-green-500/20">
+                       <div className="p-8 relative -mt-20">
+                           <div className="inline-block bg-white text-black text-[10px] font-black px-3 py-1 rounded-full uppercase mb-4 shadow-lg">
                                {t.cardTitle}
                            </div>
-                           <h2 className="text-3xl font-black italic uppercase text-white leading-none mb-2 break-words">
-                               {formData.title || "Your Campaign Title"}
+                           <h2 className="text-4xl font-black italic uppercase text-white leading-none mb-3 break-words drop-shadow-md">
+                               {formData.title || "Campaign Title"}
                            </h2>
-                           <p className="text-zinc-500 text-xs font-bold mb-6">{t.organizer}: <span className="text-white">{formData.organizer || "Name"}</span></p>
+                           <p className="text-zinc-400 text-xs font-bold mb-8 flex items-center gap-2">
+                               <span className="w-6 h-6 bg-zinc-800 rounded-full flex items-center justify-center text-[10px]">👤</span>
+                               {formData.organizer || "Organizer Name"}
+                           </p>
                            
-                           <div className="w-full bg-zinc-800 h-2 rounded-full mb-2 overflow-hidden">
-                               <div className="w-1/3 h-full bg-gradient-to-r from-green-600 to-green-400"></div>
-                           </div>
-                           <div className="flex justify-between text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-6">
-                               <span>{t.raised}</span>
-                               <span>{formData.goal || "0"} BCH</span>
+                           <div className="bg-zinc-900/80 backdrop-blur-md p-4 rounded-2xl border border-white/5">
+                               <div className="flex justify-between text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">
+                                   <span className="text-white">{t.raised}</span>
+                                   <span>{formData.goal || "0"} BCH</span>
+                               </div>
+                               <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
+                                   <div className="w-1/3 h-full bg-green-500 shadow-[0_0_10px_#22c55e]"></div>
+                               </div>
                            </div>
 
-                           <div className="w-full py-4 bg-white/5 rounded-xl border border-white/5 flex items-center justify-center gap-2 text-zinc-500 font-black text-xs uppercase">
+                           <div className="w-full py-4 mt-6 bg-white rounded-xl flex items-center justify-center gap-2 text-black font-black text-sm uppercase italic tracking-wider opacity-50">
                                {t.support}
                            </div>
                        </div>
