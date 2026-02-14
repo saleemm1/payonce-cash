@@ -1,6 +1,6 @@
 'use client';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, useEffect, Suspense, useRef } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 
 const translations = {
   en: {
@@ -21,10 +21,14 @@ const translations = {
     anonymous: "Anonymous",
     back: "Create Your Own",
     live: "LIVE",
-    of: "of"
+    of: "of",
+    feedback: "Quality Feedback",
+    trusted: "Trusted",
+    avoid: "Avoid",
+    recorded: "Verification Recorded"
   },
   ar: {
-    loading: "جاري التحميل...",
+    loading: "جاري تحميل الحملة...",
     notFound: "الحملة غير موجودة",
     organizer: "المنظم",
     raised: "تم جمع",
@@ -41,7 +45,11 @@ const translations = {
     anonymous: "فاعل خير",
     back: "أنشئ حملتك",
     live: "مباشر",
-    of: "من"
+    of: "من",
+    feedback: "تقييم الجودة",
+    trusted: "موثوق",
+    avoid: "تجنب",
+    recorded: "تم تسجيل التوثيق"
   },
   zh: {
     loading: "正在初始化...",
@@ -61,13 +69,16 @@ const translations = {
     anonymous: "匿名",
     back: "创建您的活动",
     live: "实时",
-    of: "的"
+    of: "的",
+    feedback: "质量反馈",
+    trusted: "信任",
+    avoid: "避免",
+    recorded: "验证已记录"
   }
 };
 
 function DonationContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const [data, setData] = useState(null);
   const [stats, setStats] = useState({ raised: 0, txs: [] });
   const [bchPrice, setBchPrice] = useState(0);
@@ -77,8 +88,8 @@ function DonationContent() {
   const [isCopied, setIsCopied] = useState(false);
   const [activePreset, setActivePreset] = useState(null);
   const [celebrate, setCelebrate] = useState(false);
+  const [rating, setRating] = useState(null);
 
-  // Load Initial Data
   useEffect(() => {
     const saved = localStorage.getItem('payonce_lang');
     if (saved) setLang(saved);
@@ -91,7 +102,6 @@ function DonationContent() {
     }
   }, [searchParams]);
 
-  // Fetch Price & Blockchain Data
   useEffect(() => {
       if (!data?.w) return;
       
@@ -120,7 +130,6 @@ function DonationContent() {
                   }
               });
 
-              // Detect new donation for celebration
               if (total > (stats.raised * 100000000) && stats.raised !== 0) {
                   setCelebrate(true);
                   setTimeout(() => setCelebrate(false), 5000);
@@ -128,7 +137,7 @@ function DonationContent() {
 
               setStats({
                   raised: total / 100000000,
-                  txs: txs.slice(0, 7) // Show last 7
+                  txs: txs.slice(0, 7)
               });
               setLoading(false);
 
@@ -136,11 +145,10 @@ function DonationContent() {
       };
 
       refreshData();
-      const timer = setInterval(refreshData, 5000); // 5s poll
+      const timer = setInterval(refreshData, 5000);
       return () => clearInterval(timer);
   }, [data, stats.raised]);
 
-  // Handle Preset Click - This fixes the bug
   const handlePreset = (usdVal) => {
       setActivePreset(usdVal);
       if (bchPrice > 0) {
@@ -154,10 +162,17 @@ function DonationContent() {
       localStorage.setItem('payonce_lang', l);
   };
 
+  const copyAddr = () => {
+    const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
+    navigator.clipboard.writeText(cleanAddr);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
   const t = translations[lang];
   const dir = lang === 'ar' ? 'rtl' : 'ltr';
 
-  if (!data && !loading) return <div className="min-h-screen bg-black flex items-center justify-center text-red-500 font-black">{t.notFound}</div>;
+  if (!data && !loading) return <div className="min-h-screen bg-black text-red-500 flex justify-center items-center font-black uppercase">{t.notFound}</div>;
   if (loading) return <div className="min-h-screen bg-[#050505] flex items-center justify-center text-white font-black italic tracking-widest animate-pulse">{t.loading}</div>;
 
   const percentage = Math.min(100, (stats.raised / (data.g || 1)) * 100);
@@ -212,7 +227,7 @@ function DonationContent() {
                     </div>
                 )}
 
-                <div className="bg-zinc-900/30 p-8 rounded-[32px] border border-white/5 backdrop-blur-md">
+                <div className="bg-zinc-900/50 p-8 rounded-[32px] border border-white/5 backdrop-blur-md">
                     <p className="text-base md:text-lg text-zinc-300 leading-relaxed font-medium whitespace-pre-wrap">{data.d}</p>
                 </div>
 
@@ -248,7 +263,7 @@ function DonationContent() {
                         </div>
 
                         <div className="text-center mb-8 mt-2">
-                             <span className="text-6xl font-black text-white tracking-tighter block tabular-nums">{stats.raised.toFixed(2)}</span>
+                             <span className="text-6xl font-black text-white tracking-tighter block tabular-nums">{stats.raised.toFixed(3)}</span>
                              <span className="text-sm font-bold text-zinc-500 uppercase tracking-widest block mt-2">BCH {t.raised} {t.of} {data.g}</span>
                         </div>
 
@@ -269,7 +284,7 @@ function DonationContent() {
                             <input 
                                 type="number" 
                                 placeholder={t.custom}
-                                value={activePreset && amount ? (amount * bchPrice).toFixed(2) : ''}
+                                value={activePreset && amount ? (amount * bchPrice).toFixed(2) : (amount ? (amount * bchPrice).toFixed(2) : '')}
                                 onChange={(e) => {
                                     setActivePreset(null);
                                     const val = parseFloat(e.target.value);
@@ -308,6 +323,24 @@ function DonationContent() {
                             {isCopied ? t.copied : t.copy}
                         </button>
                     </div>
+
+                    {!rating ? (
+                        <div className="bg-black/40 p-5 rounded-[24px] border border-white/5">
+                            <p className="text-[9px] text-zinc-500 uppercase font-black mb-4 tracking-widest">{t.feedback}</p>
+                            <div className="flex gap-3">
+                                <button onClick={() => setRating('pos')} className="flex-1 bg-zinc-900/50 hover:bg-green-500/10 rounded-2xl transition-all text-[10px] font-black uppercase border border-white/5 group border-b-2 border-b-transparent hover:border-b-green-500 p-5">
+                                    <span className="block text-2xl mb-2 group-hover:scale-110 transition-transform">👍</span> {t.trusted}
+                                </button>
+                                <button onClick={() => setRating('neg')} className="flex-1 bg-zinc-900/50 hover:bg-red-500/10 rounded-2xl transition-all text-[10px] font-black uppercase border border-white/5 group border-b-2 border-b-transparent hover:border-b-red-500 p-5">
+                                    <span className="block text-2xl mb-2 group-hover:scale-110 transition-transform">👎</span> {t.avoid}
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="py-5 bg-green-600/10 text-green-500 border border-green-500/20 rounded-2xl font-black text-[10px] uppercase italic tracking-[2px] animate-pulse text-center">
+                            {t.recorded}
+                        </div>
+                    )}
 
                 </div>
             </div>
