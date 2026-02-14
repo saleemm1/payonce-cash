@@ -91,7 +91,7 @@ export default function BookUploadPage() {
   const [enablePromo, setEnablePromo] = useState(false);
   const [promoCode, setPromoCode] = useState('');
   const [promoDiscount, setPromoDiscount] = useState('');
-  const [maxSupply, setMaxSupply] = useState(''); // 🔥 State للمخزون
+  const [maxSupply, setMaxSupply] = useState('');
   const [lang, setLang] = useState('en');
 
   useEffect(() => {
@@ -149,7 +149,7 @@ export default function BookUploadPage() {
         fn: originalFileName,
         a: enableAffiliate,
         dt: 'file',
-        l: maxSupply ? parseInt(maxSupply) : null, // 🔥 إضافة الليميت للرابط
+        l: maxSupply ? parseInt(maxSupply) : null,
         pc: enablePromo && promoCode && promoDiscount ? { code: promoCode.toUpperCase(), discount: promoDiscount } : null
       };
 
@@ -171,8 +171,8 @@ export default function BookUploadPage() {
 
       <form onSubmit={handleGenerate} className="relative z-10 w-full max-w-lg bg-[#18181b]/80 backdrop-blur-2xl p-8 rounded-3xl border border-white/5 shadow-2xl shadow-black/50 space-y-6 transform transition-all hover:border-white/10">
         
-        <Link href="/create" className="absolute top-8 right-8 text-zinc-600 hover:text-white transition-colors">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        <Link href="/create" className={`absolute top-8 ${lang === 'ar' ? 'left-8' : 'right-8'} text-zinc-600 hover:text-white transition-colors z-20 cursor-pointer`}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </Link>
 
         <div className="text-center space-y-1">
@@ -211,7 +211,6 @@ export default function BookUploadPage() {
           </div>
         </div>
 
-        {/* 🔥🔥🔥 هنا الإضافة الجديدة: Supply Limit 🔥🔥🔥 */}
         <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 flex items-center justify-between">
             <div>
                 <h3 className="text-sm font-bold uppercase italic text-white">{t.supply}</h3>
