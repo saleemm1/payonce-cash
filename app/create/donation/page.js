@@ -10,8 +10,8 @@ const translations = {
     descLabel: "The Story",
     organizerLabel: "Organizer",
     emailLabel: "Email",
-    walletLabel: "BCH Wallet",
-    goalLabel: "Goal (BCH)",
+    walletLabel: "Receiving Wallet Address (BCH)",
+    goalLabel: "Funding Goal",
     coverLabel: "Cover Image URL",
     fileLabel: "Or Upload Image",
     launch: "Launch Campaign",
@@ -19,7 +19,7 @@ const translations = {
     preview: "Live Preview",
     copy: "Copy Link",
     done: "Copied",
-    goalDesc: "Amount needed",
+    goalDesc: "Amount needed in BCH",
     optional: "Optional",
     cardTitle: "Your Campaign",
     raised: "0.00 BCH raised",
@@ -32,8 +32,8 @@ const translations = {
     descLabel: "القصة",
     organizerLabel: "المنظم",
     emailLabel: "البريد",
-    walletLabel: "محفظة BCH",
-    goalLabel: "الهدف (BCH)",
+    walletLabel: "عنوان المحفظة المستلمة (BCH)",
+    goalLabel: "هدف التمويل",
     coverLabel: "رابط صورة الغلاف",
     fileLabel: "أو رفع صورة",
     launch: "إطلاق الحملة",
@@ -41,7 +41,7 @@ const translations = {
     preview: "معاينة حية",
     copy: "نسخ الرابط",
     done: "تم النسخ",
-    goalDesc: "المبلغ المطلوب",
+    goalDesc: "المبلغ المطلوب بـ BCH",
     optional: "اختياري",
     cardTitle: "حملتك",
     raised: "تم جمع 0.00 BCH",
@@ -54,8 +54,8 @@ const translations = {
     descLabel: "故事",
     organizerLabel: "组织者",
     emailLabel: "电子邮件",
-    walletLabel: "BCH 钱包",
-    goalLabel: "目标 (BCH)",
+    walletLabel: "接收钱包地址 (BCH)",
+    goalLabel: "筹款目标",
     coverLabel: "封面图片链接",
     fileLabel: "或上传图片",
     launch: "发起活动",
@@ -63,7 +63,7 @@ const translations = {
     preview: "实时预览",
     copy: "复制链接",
     done: "已复制",
-    goalDesc: "所需金额",
+    goalDesc: "所需 BCH 金额",
     optional: "可选",
     cardTitle: "您的活动",
     raised: "已筹集 0.00 BCH",
@@ -101,7 +101,7 @@ export default function DonationCreatePage() {
 
   const handleGenerate = async (e) => {
     e.preventDefault();
-    if (!formData.wallet || !formData.title) return;
+    if (!formData.wallet || !formData.title) return alert("Title and Wallet are required");
 
     setUploading(true);
     try {
@@ -135,7 +135,7 @@ export default function DonationCreatePage() {
       localStorage.setItem('payonce_history', JSON.stringify(history));
 
     } catch (err) {
-      alert("Error");
+      alert("Error creating link");
     } finally {
       setUploading(false);
     }
@@ -185,7 +185,10 @@ export default function DonationCreatePage() {
                       </div>
 
                       <div className="bg-zinc-900/30 p-4 rounded-xl border border-zinc-800 space-y-3">
-                          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{t.goalLabel}</p>
+                          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider flex justify-between">
+                             <span>{t.goalLabel}</span>
+                             <span className="text-zinc-700">{t.optional}</span>
+                          </p>
                           <div className="flex items-center gap-3">
                               <input 
                                   type="number" 
@@ -193,8 +196,8 @@ export default function DonationCreatePage() {
                                   name="goal"
                                   value={formData.goal} 
                                   onChange={handleChange} 
-                                  placeholder="0.00" 
-                                  className="flex-1 bg-transparent text-3xl font-black text-white outline-none placeholder:text-zinc-700 tabular-nums"
+                                  placeholder="100" 
+                                  className="flex-1 bg-transparent text-3xl font-black text-white outline-none placeholder:text-zinc-800 tabular-nums"
                               />
                               <span className="text-xl font-black text-green-500">BCH</span>
                           </div>
