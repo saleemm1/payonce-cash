@@ -4,70 +4,76 @@ import Link from 'next/link';
 
 const translations = {
   en: {
-    header: "Start a Movement",
-    subHeader: "Crowdfund your dream with Bitcoin Cash.",
+    header: "Create Donation Campaign",
+    subHeader: "Raise funds with the power of Bitcoin Cash.",
     titleLabel: "Campaign Title",
-    descLabel: "The Story",
-    organizerLabel: "Organizer",
-    emailLabel: "Email",
-    walletLabel: "BCH Wallet",
-    goalLabel: "Funding Goal (BCH)",
-    coverLabel: "Cover Image URL",
+    descLabel: "Why are you raising funds?",
+    organizerLabel: "Organizer Name",
+    emailLabel: "Support Email",
+    walletLabel: "Your BCH Wallet Address",
+    goalLabel: "Funding Goal",
+    coverLabel: "Campaign Image URL",
     fileLabel: "Or Upload Image",
     launch: "Launch Campaign",
-    processing: "Deploying...",
+    processing: "Creating...",
     preview: "Live Preview",
     copy: "Copy Link",
-    done: "Copied",
+    done: "Copied!",
     goalDesc: "Total needed",
-    cardTitle: "Your Campaign",
-    raised: "0.00 BCH raised",
-    support: "Support this campaign",
-    approx: "≈"
+    cardTitle: "Campaign Preview",
+    raised: "0.00 BCH Raised",
+    support: "Support Campaign",
+    security: "Funds go directly to your wallet. Non-custodial.",
+    approx: "≈",
+    currency: "Currency"
   },
   ar: {
-    header: "ابدأ حراكاً",
-    subHeader: "موّل حلمك باستخدام Bitcoin Cash.",
+    header: "إنشاء حملة تبرع",
+    subHeader: "اجمع التبرعات بقوة البيتكوين كاش.",
     titleLabel: "عنوان الحملة",
-    descLabel: "القصة",
-    organizerLabel: "المنظم",
-    emailLabel: "البريد",
-    walletLabel: "محفظة BCH",
-    goalLabel: "هدف التمويل (BCH)",
-    coverLabel: "رابط صورة الغلاف",
+    descLabel: "لماذا تجمع التبرعات؟ (القصة)",
+    organizerLabel: "اسم المنظم",
+    emailLabel: "بريد الدعم",
+    walletLabel: "عنوان محفظة BCH الخاصة بك",
+    goalLabel: "هدف التمويل",
+    coverLabel: "رابط صورة الحملة",
     fileLabel: "أو رفع صورة",
     launch: "إطلاق الحملة",
-    processing: "جاري النشر...",
+    processing: "جاري الإنشاء...",
     preview: "معاينة حية",
     copy: "نسخ الرابط",
-    done: "تم النسخ",
-    goalDesc: "المبلغ الإجمالي المطلوب",
-    cardTitle: "حملتك",
+    done: "تم النسخ!",
+    goalDesc: "المبلغ المطلوب",
+    cardTitle: "معاينة الحملة",
     raised: "تم جمع 0.00 BCH",
-    support: "ادعم هذه الحملة",
-    approx: "تقريباً"
+    support: "ادعم الحملة",
+    security: "الأموال تصل لمحفظتك مباشرة. غير وصائي.",
+    approx: "تقريباً",
+    currency: "العملة"
   },
   zh: {
-    header: "发起运动",
-    subHeader: "用 Bitcoin Cash 为您的梦想众筹。",
+    header: "创建捐赠活动",
+    subHeader: "利用 Bitcoin Cash 的力量筹集资金。",
     titleLabel: "活动标题",
-    descLabel: "故事",
-    organizerLabel: "组织者",
-    emailLabel: "电子邮件",
-    walletLabel: "BCH 钱包",
-    goalLabel: "目标 (BCH)",
-    coverLabel: "封面图片链接",
+    descLabel: "您为什么要筹集资金？",
+    organizerLabel: "组织者姓名",
+    emailLabel: "支持邮箱",
+    walletLabel: "您的 BCH 钱包地址",
+    goalLabel: "筹款目标",
+    coverLabel: "活动图片链接",
     fileLabel: "或上传图片",
     launch: "发起活动",
-    processing: "正在部署...",
+    processing: "正在创建...",
     preview: "实时预览",
     copy: "复制链接",
-    done: "已复制",
+    done: "已复制！",
     goalDesc: "所需总额",
-    cardTitle: "您的活动",
+    cardTitle: "活动预览",
     raised: "已筹集 0.00 BCH",
-    support: "支持此活动",
-    approx: "约"
+    support: "支持活动",
+    security: "资金直接进入您的钱包。非托管。",
+    approx: "约",
+    currency: "货币"
   }
 };
 
@@ -75,6 +81,8 @@ export default function DonationCreatePage() {
   const [formData, setFormData] = useState({
     title: '', desc: '', organizer: '', email: '', wallet: '', goal: '', coverUrl: ''
   });
+  const [inputGoal, setInputGoal] = useState('');
+  const [isUsdMode, setIsUsdMode] = useState(true);
   const [previewFile, setPreviewFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [generatedLink, setGeneratedLink] = useState('');
@@ -109,9 +117,31 @@ export default function DonationCreatePage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleGoalChange = (e) => {
+      const val = e.target.value;
+      setInputGoal(val);
+      if (!val) {
+          setFormData(prev => ({ ...prev, goal: '' }));
+          return;
+      }
+      
+      if (isUsdMode && bchPrice > 0) {
+          const bchVal = parseFloat(val) / bchPrice;
+          setFormData(prev => ({ ...prev, goal: bchVal.toFixed(8) }));
+      } else {
+          setFormData(prev => ({ ...prev, goal: val }));
+      }
+  };
+
+  const toggleCurrency = () => {
+      setIsUsdMode(!isUsdMode);
+      setInputGoal('');
+      setFormData(prev => ({ ...prev, goal: '' }));
+  };
+
   const handleGenerate = async (e) => {
     e.preventDefault();
-    if (!formData.wallet || !formData.title || !formData.goal) return alert("All fields are required");
+    if (!formData.wallet || !formData.title || !formData.goal) return alert("Title, Wallet and Goal are required");
 
     setUploading(true);
     try {
@@ -145,7 +175,7 @@ export default function DonationCreatePage() {
       localStorage.setItem('payonce_history', JSON.stringify(history));
 
     } catch (err) {
-      alert("Error");
+      alert("Error creating link");
     } finally {
       setUploading(false);
     }
@@ -195,22 +225,33 @@ export default function DonationCreatePage() {
                       </div>
 
                       <div className="bg-zinc-900/30 p-4 rounded-xl border border-zinc-800 space-y-3">
-                          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{t.goalLabel}</p>
+                          <div className="flex justify-between items-center">
+                              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{t.goalLabel}</p>
+                              <button type="button" onClick={toggleCurrency} className="text-[10px] font-black uppercase bg-zinc-800 px-2 py-1 rounded text-green-500 hover:bg-zinc-700 transition-colors">
+                                  {isUsdMode ? 'Input: USD ($)' : 'Input: BCH'}
+                              </button>
+                          </div>
+                          
                           <div className="flex items-center gap-3">
                               <input 
                                   required
                                   type="number" 
                                   step="any" 
-                                  name="goal"
-                                  value={formData.goal} 
-                                  onChange={handleChange} 
+                                  value={inputGoal} 
+                                  onChange={handleGoalChange} 
                                   placeholder="0.00" 
                                   className="flex-1 bg-transparent text-3xl font-black text-white outline-none placeholder:text-zinc-700 tabular-nums"
                               />
-                              <span className="text-xl font-black text-green-500">BCH</span>
+                              <span className="text-xl font-black text-zinc-500">{isUsdMode ? 'USD' : 'BCH'}</span>
                           </div>
+                          
                           {formData.goal && bchPrice > 0 && (
-                              <p className="text-xs text-zinc-400 font-mono text-right">{t.approx} ${(formData.goal * bchPrice).toLocaleString()} USD</p>
+                              <p className="text-xs text-green-500 font-mono text-right animate-pulse">
+                                  {isUsdMode 
+                                      ? `${t.approx} ${parseFloat(formData.goal).toFixed(4)} BCH` 
+                                      : `${t.approx} $${(parseFloat(formData.goal) * bchPrice).toLocaleString()} USD`
+                                  }
+                              </p>
                           )}
                       </div>
 
@@ -225,6 +266,8 @@ export default function DonationCreatePage() {
                       <button type="submit" disabled={uploading} className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-black font-black py-4 rounded-xl text-lg uppercase italic tracking-wider transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_40px_rgba(34,197,94,0.5)] disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.99]">
                           {uploading ? t.processing : t.launch}
                       </button>
+                      
+                      <p className="text-center text-[10px] text-zinc-600 font-medium">{t.security}</p>
                   </form>
 
                   {generatedLink && (
@@ -272,7 +315,7 @@ export default function DonationCreatePage() {
                            </div>
                            <div className="flex justify-between text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-6">
                                <span>{t.raised}</span>
-                               <span>{formData.goal || "0"} BCH</span>
+                               <span>{formData.goal ? parseFloat(formData.goal).toFixed(4) : "0"} BCH</span>
                            </div>
 
                            <div className="w-full py-4 bg-white/5 rounded-xl border border-white/5 flex items-center justify-center gap-2 text-zinc-500 font-black text-xs uppercase">
