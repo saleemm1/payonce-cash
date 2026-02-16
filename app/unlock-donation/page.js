@@ -112,6 +112,8 @@ function DonationContent() {
             const decoded = JSON.parse(decodeURIComponent(escape(atob(id))));
             setData(decoded);
         } catch(e) { setLoading(false); }
+    } else {
+        setLoading(false);
     }
   }, [searchParams]);
 
@@ -188,6 +190,7 @@ function DonationContent() {
   };
 
   const copyAddr = () => {
+    if (!data?.w) return;
     const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
     navigator.clipboard.writeText(cleanAddr);
     setIsCopied(true);
@@ -200,9 +203,9 @@ function DonationContent() {
   if (!data && !loading) return <div className="min-h-screen bg-black text-red-500 flex justify-center items-center font-black uppercase text-xl">{t.notFound}</div>;
   if (loading) return <div className="min-h-screen bg-[#050505] flex items-center justify-center text-white font-black italic tracking-[10px] animate-pulse">{t.loading}</div>;
 
-  const percentage = data.g ? Math.min(100, (stats.raised / data.g) * 100) : 0;
-  const isGoalReached = data.g && stats.raised >= data.g;
-  const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
+  const percentage = data?.g ? Math.min(100, (stats.raised / data.g) * 100) : 0;
+  const isGoalReached = data?.g && stats.raised >= data.g;
+  const cleanAddr = data?.w ? (data.w.includes(':') ? data.w.split(':')[1] : data.w) : '';
   const payLink = `bitcoincash:${cleanAddr}?amount=${amount}`;
 
   return (
@@ -299,7 +302,7 @@ function DonationContent() {
                         <div className="text-center mb-8 mt-2">
                              <span className="text-6xl font-black text-white tracking-tighter block tabular-nums">{stats.raised.toFixed(3)}</span>
                              <span className="text-sm font-bold text-green-500 uppercase tracking-widest block mt-2">
-                                BCH {t.raised} {t.of} {data.g}
+                                BCH {t.raised} {t.of} {data?.g}
                              </span>
                              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mt-1">
                                 {t.totalUsd}: ${(stats.raised * bchPrice).toFixed(2)}
