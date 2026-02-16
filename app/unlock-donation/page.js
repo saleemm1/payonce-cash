@@ -26,7 +26,10 @@ const translations = {
     avoid: "Avoid",
     recorded: "Feedback Recorded",
     currency: "USD",
-    totalUsd: "Total Value"
+    totalUsd: "Total Value",
+    approx: "≈",
+    goalReached: "GOAL REACHED",
+    campaignEnded: "This campaign has been fully funded."
   },
   ar: {
     loading: "جاري التحميل...",
@@ -51,7 +54,10 @@ const translations = {
     avoid: "تجنب",
     recorded: "تم تسجيل التقييم",
     currency: "USD",
-    totalUsd: "القيمة الإجمالية"
+    totalUsd: "القيمة الإجمالية",
+    approx: "تقريباً",
+    goalReached: "تم تحقيق الهدف",
+    campaignEnded: "هذه الحملة ممولة بالكامل."
   },
   zh: {
     loading: "正在初始化...",
@@ -76,7 +82,10 @@ const translations = {
     avoid: "避免",
     recorded: "反馈已记录",
     currency: "USD",
-    totalUsd: "总价值"
+    totalUsd: "总价值",
+    approx: "约",
+    goalReached: "目标达成",
+    campaignEnded: "此活动已全额资助。"
   }
 };
 
@@ -141,7 +150,7 @@ function DonationContent() {
 
               setStats({
                   raised: total / 100000000,
-                  txs: txs.slice(0, 7)
+                  txs: txs.slice(0, 5) 
               });
               setLoading(false);
 
@@ -192,6 +201,7 @@ function DonationContent() {
   if (loading) return <div className="min-h-screen bg-[#050505] flex items-center justify-center text-white font-black italic tracking-[10px] animate-pulse">{t.loading}</div>;
 
   const percentage = data.g ? Math.min(100, (stats.raised / data.g) * 100) : 0;
+  const isGoalReached = data.g && stats.raised >= data.g;
   const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
   const payLink = `bitcoincash:${cleanAddr}?amount=${amount}`;
 
@@ -215,7 +225,9 @@ function DonationContent() {
         </div>
 
         <nav className="relative z-50 flex justify-between items-center p-6 max-w-7xl mx-auto">
-            <h1 className="text-sm font-black tracking-widest text-zinc-500 uppercase">PAYONCE</h1>
+            <Link href="/" className="text-sm font-black tracking-widest text-zinc-500 uppercase hover:text-white transition-colors">
+               PAYONCE
+            </Link>
             <div className="flex gap-2 text-[10px] font-black uppercase bg-white/5 px-4 py-2 rounded-full border border-white/5 backdrop-blur-md">
                 <button onClick={() => changeLang('en')} className={`${lang === 'en' ? 'text-green-400' : 'text-zinc-500 hover:text-white'}`}>EN</button>
                 <span className="text-zinc-700">|</span>
@@ -233,7 +245,7 @@ function DonationContent() {
                          <img src={data.pr} className="w-full h-auto object-cover max-h-[450px]" alt="Cover" />
                          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent"></div>
                          <div className="absolute bottom-0 left-0 w-full p-8">
-                            <div className="inline-flex items-center gap-2 bg-green-600/90 text-black text-[9px] font-black px-3 py-1 rounded-full uppercase mb-4 animate-pulse shadow-[0_0_15px_rgba(34,197,94,0.6)]">
+                            <div className="inline-flex items-center gap-2 bg-green-500 text-black text-[9px] font-black px-3 py-1 rounded-full uppercase mb-4 animate-pulse shadow-[0_0_15px_rgba(34,197,94,0.6)]">
                                 <div className="w-1.5 h-1.5 bg-black rounded-full"></div> {t.live}
                             </div>
                             <h1 className="text-4xl md:text-5xl font-black italic uppercase leading-none mb-3 text-white drop-shadow-xl">{data.n}</h1>
@@ -298,43 +310,61 @@ function DonationContent() {
                             <div className="h-full bg-gradient-to-r from-green-600 to-green-400 shadow-[0_0_15px_#22c55e]" style={{width: `${percentage}%`}}></div>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-2 mb-4">
-                            {[5, 20, 50].map(val => (
-                                <button 
-                                    key={val}
-                                    onClick={() => handlePreset(val)}
-                                    className={`py-3 rounded-xl text-sm font-black transition-all border ${activePreset === val ? 'bg-white text-black border-white shadow-lg scale-105' : 'bg-transparent text-zinc-400 border-zinc-800 hover:border-zinc-600 hover:text-white'}`}
-                                >
-                                    ${val}
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="relative mb-6">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 text-sm font-bold">$</span>
-                            <input 
-                                type="number" 
-                                placeholder={t.custom}
-                                value={inputUsd}
-                                onChange={handleInputChange}
-                                className="w-full bg-[#0a0a0a] border border-zinc-800 rounded-xl p-4 pl-8 text-white font-bold outline-none focus:border-green-500 transition-colors"
-                            />
-                            {amount && <span className="absolute right-4 top-1/2 -translate-y-1/2 text-green-500 text-[10px] font-mono">≈ {amount} BCH</span>}
-                        </div>
-
-                        <div className="bg-[#0a0a0a] p-4 rounded-xl border border-zinc-800 mb-6 text-center group hover:border-green-500/30 transition-colors cursor-pointer" onClick={()=>window.location.assign(payLink)}>
-                            <div className="bg-white p-2 rounded-lg inline-block mb-3 shadow-inner">
-                                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(payLink)}`} alt="QR" className="w-32 h-32 mix-blend-multiply" />
+                        {isGoalReached ? (
+                            <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-8 text-center animate-in zoom-in duration-300">
+                                <div className="text-4xl mb-4">🎉</div>
+                                <h3 className="text-2xl font-black text-green-500 uppercase italic tracking-tighter mb-2">{t.goalReached}</h3>
+                                <p className="text-zinc-400 text-xs font-bold uppercase">{t.campaignEnded}</p>
                             </div>
-                            <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">{t.scan}</p>
-                        </div>
+                        ) : (
+                            <>
+                                <div className="grid grid-cols-3 gap-2 mb-4">
+                                    {[5, 20, 50].map(val => (
+                                        <button 
+                                            key={val}
+                                            onClick={() => handlePreset(val)}
+                                            className={`py-3 rounded-xl text-sm font-black transition-all border ${activePreset === val ? 'bg-white text-black border-white shadow-lg scale-105' : 'bg-transparent text-zinc-400 border-zinc-800 hover:border-zinc-600 hover:text-white'}`}
+                                        >
+                                            ${val}
+                                        </button>
+                                    ))}
+                                </div>
 
-                        <a 
-                            href={payLink}
-                            className={`block w-full py-5 rounded-2xl font-black uppercase italic tracking-wider text-center text-lg transition-all shadow-xl ${amount ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-black hover:scale-[1.02] shadow-green-900/20' : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'}`}
-                        >
-                            {t.donate}
-                        </a>
+                                <div className="relative mb-6">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 text-sm font-bold">$</span>
+                                    <input 
+                                        type="number" 
+                                        placeholder={t.custom}
+                                        value={inputUsd}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-[#0a0a0a] border border-zinc-800 rounded-xl p-4 pl-8 text-white font-bold outline-none focus:border-green-500 transition-colors"
+                                    />
+                                    {amount && <span className="absolute right-4 top-1/2 -translate-y-1/2 text-green-500 text-[10px] font-mono">≈ {amount} BCH</span>}
+                                </div>
+
+                                <div className="bg-[#0a0a0a] p-4 rounded-xl border border-zinc-800 mb-6 text-center group hover:border-green-500/30 transition-colors cursor-pointer" onClick={()=>window.location.assign(payLink)}>
+                                    <div className="bg-white p-2 rounded-lg inline-block mb-3 shadow-inner">
+                                        <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(payLink)}`} alt="QR" className="w-32 h-32 mix-blend-multiply" />
+                                    </div>
+                                    <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">{t.scan}</p>
+                                </div>
+
+                                <a 
+                                    href={payLink}
+                                    className={`block w-full py-5 rounded-2xl font-black uppercase italic tracking-wider text-center text-lg transition-all shadow-xl ${amount ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-black hover:scale-[1.02] shadow-green-900/20' : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'}`}
+                                >
+                                    {t.donate}
+                                </a>
+                                
+                                {amount && bchPrice > 0 && (
+                                    <div className="mt-3 text-center">
+                                        <span className="text-[10px] text-zinc-500 font-mono">
+                                            {t.approx} ${inputUsd || '0.00'}
+                                        </span>
+                                    </div>
+                                )}
+                            </>
+                        )}
                     </div>
 
                     <div className="flex items-center gap-3 bg-[#0a0a0a] p-3 rounded-2xl border border-white/5">
