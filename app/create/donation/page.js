@@ -4,75 +4,69 @@ import Link from 'next/link';
 
 const translations = {
   en: {
-    header: "Create Donation Campaign",
-    subHeader: "Raise funds with the power of Bitcoin Cash.",
+    header: "Start a Movement",
+    subHeader: "Crowdfund your dream with Bitcoin Cash.",
     titleLabel: "Campaign Title",
-    descLabel: "Why are you raising funds?",
-    organizerLabel: "Organizer Name",
-    emailLabel: "Support Email",
-    walletLabel: "Your BCH Wallet Address",
-    goalLabel: "Goal Amount (BCH)",
-    coverLabel: "Campaign Image URL",
+    descLabel: "The Story",
+    organizerLabel: "Organizer",
+    emailLabel: "Email",
+    walletLabel: "BCH Wallet",
+    goalLabel: "Funding Goal (BCH)",
+    coverLabel: "Cover Image URL",
     fileLabel: "Or Upload Image",
     launch: "Launch Campaign",
-    processing: "Creating...",
+    processing: "Deploying...",
     preview: "Live Preview",
     copy: "Copy Link",
-    done: "Copied!",
-    goalDesc: "Total BCH needed",
-    optional: "Optional",
-    cardTitle: "Campaign Preview",
-    raised: "0.00 BCH Raised",
-    support: "Support Campaign",
-    security: "Funds go directly to your wallet. Non-custodial.",
+    done: "Copied",
+    goalDesc: "Total needed",
+    cardTitle: "Your Campaign",
+    raised: "0.00 BCH raised",
+    support: "Support this campaign",
     approx: "≈"
   },
   ar: {
-    header: "إنشاء حملة تبرع",
-    subHeader: "اجمع التبرعات بقوة البيتكوين كاش.",
+    header: "ابدأ حراكاً",
+    subHeader: "موّل حلمك باستخدام Bitcoin Cash.",
     titleLabel: "عنوان الحملة",
-    descLabel: "لماذا تجمع التبرعات؟ (القصة)",
-    organizerLabel: "اسم المنظم",
-    emailLabel: "بريد الدعم",
-    walletLabel: "عنوان محفظة BCH الخاصة بك",
-    goalLabel: "مبلغ الهدف (BCH)",
-    coverLabel: "رابط صورة الحملة",
+    descLabel: "القصة",
+    organizerLabel: "المنظم",
+    emailLabel: "البريد",
+    walletLabel: "محفظة BCH",
+    goalLabel: "هدف التمويل (BCH)",
+    coverLabel: "رابط صورة الغلاف",
     fileLabel: "أو رفع صورة",
     launch: "إطلاق الحملة",
-    processing: "جاري الإنشاء...",
+    processing: "جاري النشر...",
     preview: "معاينة حية",
     copy: "نسخ الرابط",
-    done: "تم النسخ!",
-    goalDesc: "إجمالي BCH المطلوب",
-    optional: "اختياري",
-    cardTitle: "معاينة الحملة",
+    done: "تم النسخ",
+    goalDesc: "المبلغ الإجمالي المطلوب",
+    cardTitle: "حملتك",
     raised: "تم جمع 0.00 BCH",
-    support: "ادعم الحملة",
-    security: "الأموال تصل لمحفظتك مباشرة. غير وصائي.",
+    support: "ادعم هذه الحملة",
     approx: "تقريباً"
   },
   zh: {
-    header: "创建捐赠活动",
-    subHeader: "利用 Bitcoin Cash 的力量筹集资金。",
+    header: "发起运动",
+    subHeader: "用 Bitcoin Cash 为您的梦想众筹。",
     titleLabel: "活动标题",
-    descLabel: "您为什么要筹集资金？",
-    organizerLabel: "组织者姓名",
-    emailLabel: "支持邮箱",
-    walletLabel: "您的 BCH 钱包地址",
-    goalLabel: "目标金额 (BCH)",
-    coverLabel: "活动图片链接",
+    descLabel: "故事",
+    organizerLabel: "组织者",
+    emailLabel: "电子邮件",
+    walletLabel: "BCH 钱包",
+    goalLabel: "目标 (BCH)",
+    coverLabel: "封面图片链接",
     fileLabel: "或上传图片",
     launch: "发起活动",
-    processing: "正在创建...",
+    processing: "正在部署...",
     preview: "实时预览",
     copy: "复制链接",
-    done: "已复制！",
-    goalDesc: "所需 BCH 总额",
-    optional: "可选",
-    cardTitle: "活动预览",
+    done: "已复制",
+    goalDesc: "所需总额",
+    cardTitle: "您的活动",
     raised: "已筹集 0.00 BCH",
-    support: "支持活动",
-    security: "资金直接进入您的钱包。非托管。",
+    support: "支持此活动",
     approx: "约"
   }
 };
@@ -117,7 +111,7 @@ export default function DonationCreatePage() {
 
   const handleGenerate = async (e) => {
     e.preventDefault();
-    if (!formData.wallet || !formData.title || !formData.goal) return alert("Title, Wallet and Goal are required");
+    if (!formData.wallet || !formData.title || !formData.goal) return alert("All fields are required");
 
     setUploading(true);
     try {
@@ -151,7 +145,7 @@ export default function DonationCreatePage() {
       localStorage.setItem('payonce_history', JSON.stringify(history));
 
     } catch (err) {
-      alert("Error creating link");
+      alert("Error");
     } finally {
       setUploading(false);
     }
@@ -231,8 +225,6 @@ export default function DonationCreatePage() {
                       <button type="submit" disabled={uploading} className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-black font-black py-4 rounded-xl text-lg uppercase italic tracking-wider transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_40px_rgba(34,197,94,0.5)] disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.99]">
                           {uploading ? t.processing : t.launch}
                       </button>
-                      
-                      <p className="text-center text-[10px] text-zinc-600 font-medium">{t.security}</p>
                   </form>
 
                   {generatedLink && (
