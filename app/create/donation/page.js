@@ -25,7 +25,9 @@ const translations = {
     support: "Support Campaign",
     security: "Funds go directly to your wallet. Non-custodial.",
     approx: "≈",
-    currency: "Currency"
+    currency: "Currency",
+    setInUsd: "Set in USD ($)",
+    setInBch: "Set in BCH"
   },
   ar: {
     header: "إنشاء حملة تبرع",
@@ -49,7 +51,9 @@ const translations = {
     support: "ادعم الحملة",
     security: "الأموال تصل لمحفظتك مباشرة. غير وصائي.",
     approx: "تقريباً",
-    currency: "العملة"
+    currency: "العملة",
+    setInUsd: "تحديد بالدولار ($)",
+    setInBch: "تحديد بالـ BCH"
   },
   zh: {
     header: "创建捐赠活动",
@@ -73,7 +77,9 @@ const translations = {
     support: "支持活动",
     security: "资金直接进入您的钱包。非托管。",
     approx: "约",
-    currency: "货币"
+    currency: "货币",
+    setInUsd: "以 USD 设定",
+    setInBch: "以 BCH 设定"
   }
 };
 
@@ -131,12 +137,6 @@ export default function DonationCreatePage() {
       } else {
           setFormData(prev => ({ ...prev, goal: val }));
       }
-  };
-
-  const toggleCurrency = () => {
-      setIsUsdMode(!isUsdMode);
-      setInputGoal('');
-      setFormData(prev => ({ ...prev, goal: '' }));
   };
 
   const handleGenerate = async (e) => {
@@ -224,15 +224,30 @@ export default function DonationCreatePage() {
                           <input name="email" value={formData.email} onChange={handleChange} placeholder={t.emailLabel} className={inputStyle} />
                       </div>
 
-                      <div className="bg-zinc-900/30 p-4 rounded-xl border border-zinc-800 space-y-3">
-                          <div className="flex justify-between items-center">
-                              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{t.goalLabel}</p>
-                              <button type="button" onClick={toggleCurrency} className="text-[10px] font-black uppercase bg-zinc-800 px-2 py-1 rounded text-green-500 hover:bg-zinc-700 transition-colors">
-                                  {isUsdMode ? 'Input: USD ($)' : 'Input: BCH'}
+                      <div className="bg-zinc-900/30 p-4 rounded-xl border border-zinc-800 space-y-4">
+                          <div className="flex items-center justify-between">
+                             <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{t.goalLabel}</label>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 bg-black/50 p-1 rounded-lg border border-zinc-800">
+                              <button 
+                                type="button" 
+                                onClick={() => { setIsUsdMode(true); setInputGoal(''); setFormData(prev=>({...prev, goal:''})); }}
+                                className={`py-2 rounded-md text-[10px] font-black uppercase transition-all ${isUsdMode ? 'bg-green-500 text-black shadow-lg' : 'text-zinc-500 hover:text-white'}`}
+                              >
+                                {t.setInUsd}
+                              </button>
+                              <button 
+                                type="button" 
+                                onClick={() => { setIsUsdMode(false); setInputGoal(''); setFormData(prev=>({...prev, goal:''})); }}
+                                className={`py-2 rounded-md text-[10px] font-black uppercase transition-all ${!isUsdMode ? 'bg-green-500 text-black shadow-lg' : 'text-zinc-500 hover:text-white'}`}
+                              >
+                                {t.setInBch}
                               </button>
                           </div>
                           
                           <div className="flex items-center gap-3">
+                              <span className="text-xl font-black text-zinc-600">{isUsdMode ? '$' : ''}</span>
                               <input 
                                   required
                                   type="number" 
@@ -240,18 +255,21 @@ export default function DonationCreatePage() {
                                   value={inputGoal} 
                                   onChange={handleGoalChange} 
                                   placeholder="0.00" 
-                                  className="flex-1 bg-transparent text-3xl font-black text-white outline-none placeholder:text-zinc-700 tabular-nums"
+                                  className="flex-1 bg-transparent text-3xl font-black text-white outline-none placeholder:text-zinc-800 tabular-nums"
                               />
-                              <span className="text-xl font-black text-zinc-500">{isUsdMode ? 'USD' : 'BCH'}</span>
+                              <span className="text-xl font-black text-zinc-600">{!isUsdMode ? 'BCH' : 'USD'}</span>
                           </div>
                           
                           {formData.goal && bchPrice > 0 && (
-                              <p className="text-xs text-green-500 font-mono text-right animate-pulse">
-                                  {isUsdMode 
-                                      ? `${t.approx} ${parseFloat(formData.goal).toFixed(4)} BCH` 
-                                      : `${t.approx} $${(parseFloat(formData.goal) * bchPrice).toLocaleString()} USD`
-                                  }
-                              </p>
+                              <div className="bg-green-900/10 border border-green-500/10 rounded-lg p-3 flex justify-between items-center">
+                                  <span className="text-[9px] text-zinc-500 font-bold uppercase">{isUsdMode ? 'Converted to Protocol' : 'Approximate Value'}</span>
+                                  <span className="text-xs text-green-400 font-mono font-bold">
+                                      {isUsdMode 
+                                          ? `${parseFloat(formData.goal).toFixed(6)} BCH` 
+                                          : `$${(parseFloat(formData.goal) * bchPrice).toLocaleString()} USD`
+                                      }
+                                  </span>
+                              </div>
                           )}
                       </div>
 
