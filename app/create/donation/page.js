@@ -4,82 +4,79 @@ import Link from 'next/link';
 
 const translations = {
   en: {
-    header: "Create Donation Campaign",
-    subHeader: "Raise funds with the power of Bitcoin Cash.",
+    header: "Start a Movement",
+    subHeader: "Crowdfund your dream with Bitcoin Cash.",
     titleLabel: "Campaign Title",
-    descLabel: "Why are you raising funds?",
-    organizerLabel: "Organizer Name",
-    emailLabel: "Support Email",
-    walletLabel: "Your BCH Wallet Address",
+    descLabel: "The Story",
+    organizerLabel: "Organizer",
+    emailLabel: "Email",
+    walletLabel: "BCH Wallet",
     goalLabel: "Funding Goal",
-    coverLabel: "Campaign Image URL",
+    coverLabel: "Cover Image URL",
     fileLabel: "Or Upload Image",
     launch: "Launch Campaign",
-    processing: "Creating...",
+    processing: "Deploying...",
     preview: "Live Preview",
     copy: "Copy Link",
-    done: "Copied!",
+    done: "Copied",
     goalDesc: "Total needed",
-    cardTitle: "Campaign Preview",
-    raised: "0.00 BCH Raised",
-    support: "Support Campaign",
-    security: "Funds go directly to your wallet. Non-custodial.",
+    cardTitle: "Your Campaign",
+    raised: "0.00 BCH raised",
+    support: "Support this campaign",
     approx: "≈",
-    currency: "Currency",
-    setInUsd: "Set in USD ($)",
-    setInBch: "Set in BCH"
+    usdMode: "USD ($)",
+    bchMode: "BCH",
+    security: "Funds go directly to your wallet. Non-custodial."
   },
   ar: {
-    header: "إنشاء حملة تبرع",
-    subHeader: "اجمع التبرعات بقوة البيتكوين كاش.",
+    header: "ابدأ حراكاً",
+    subHeader: "موّل حلمك باستخدام Bitcoin Cash.",
     titleLabel: "عنوان الحملة",
-    descLabel: "لماذا تجمع التبرعات؟ (القصة)",
-    organizerLabel: "اسم المنظم",
-    emailLabel: "بريد الدعم",
-    walletLabel: "عنوان محفظة BCH الخاصة بك",
+    descLabel: "القصة",
+    organizerLabel: "المنظم",
+    emailLabel: "البريد",
+    walletLabel: "محفظة BCH",
     goalLabel: "هدف التمويل",
-    coverLabel: "رابط صورة الحملة",
+    coverLabel: "رابط صورة الغلاف",
     fileLabel: "أو رفع صورة",
     launch: "إطلاق الحملة",
-    processing: "جاري الإنشاء...",
+    processing: "جاري النشر...",
     preview: "معاينة حية",
     copy: "نسخ الرابط",
-    done: "تم النسخ!",
-    goalDesc: "المبلغ المطلوب",
-    cardTitle: "معاينة الحملة",
+    done: "تم النسخ",
+    goalDesc: "المبلغ الإجمالي المطلوب",
+    cardTitle: "حملتك",
     raised: "تم جمع 0.00 BCH",
-    support: "ادعم الحملة",
-    security: "الأموال تصل لمحفظتك مباشرة. غير وصائي.",
+    support: "ادعم هذه الحملة",
     approx: "تقريباً",
-    currency: "العملة",
-    setInUsd: "تحديد بالدولار ($)",
-    setInBch: "تحديد بالـ BCH"
+    usdMode: "دولار ($)",
+    bchMode: "بيتكوين كاش (BCH)",
+    security: "الأموال تصل لمحفظتك مباشرة. غير وصائي."
   },
   zh: {
-    header: "创建捐赠活动",
-    subHeader: "利用 Bitcoin Cash 的力量筹集资金。",
+    header: "发起运动",
+    subHeader: "用 Bitcoin Cash 为您的梦想众筹。",
     titleLabel: "活动标题",
-    descLabel: "您为什么要筹集资金？",
-    organizerLabel: "组织者姓名",
-    emailLabel: "支持邮箱",
-    walletLabel: "您的 BCH 钱包地址",
-    goalLabel: "筹款目标",
-    coverLabel: "活动图片链接",
+    descLabel: "故事",
+    organizerLabel: "组织者",
+    emailLabel: "电子邮件",
+    walletLabel: "BCH 钱包",
+    goalLabel: "目标",
+    coverLabel: "封面图片链接",
     fileLabel: "或上传图片",
     launch: "发起活动",
-    processing: "正在创建...",
+    processing: "正在部署...",
     preview: "实时预览",
     copy: "复制链接",
-    done: "已复制！",
+    done: "已复制",
     goalDesc: "所需总额",
-    cardTitle: "活动预览",
+    cardTitle: "您的活动",
     raised: "已筹集 0.00 BCH",
-    support: "支持活动",
-    security: "资金直接进入您的钱包。非托管。",
+    support: "支持此活动",
     approx: "约",
-    currency: "货币",
-    setInUsd: "以 USD 设定",
-    setInBch: "以 BCH 设定"
+    usdMode: "美元 ($)",
+    bchMode: "BCH",
+    security: "资金直接进入您的钱包。非托管。"
   }
 };
 
@@ -141,7 +138,7 @@ export default function DonationCreatePage() {
 
   const handleGenerate = async (e) => {
     e.preventDefault();
-    if (!formData.wallet || !formData.title || !formData.goal) return alert("Title, Wallet and Goal are required");
+    if (!formData.wallet || !formData.title || !formData.goal) return alert("All fields are required");
 
     setUploading(true);
     try {
@@ -175,7 +172,7 @@ export default function DonationCreatePage() {
       localStorage.setItem('payonce_history', JSON.stringify(history));
 
     } catch (err) {
-      alert("Error creating link");
+      alert("Error");
     } finally {
       setUploading(false);
     }
@@ -225,51 +222,47 @@ export default function DonationCreatePage() {
                       </div>
 
                       <div className="bg-zinc-900/30 p-4 rounded-xl border border-zinc-800 space-y-4">
-                          <div className="flex items-center justify-between">
-                             <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{t.goalLabel}</label>
+                          <div className="flex justify-between items-center mb-1">
+                             <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{t.goalLabel}</p>
                           </div>
                           
-                          <div className="grid grid-cols-2 bg-black/50 p-1 rounded-lg border border-zinc-800">
-                              <button 
-                                type="button" 
-                                onClick={() => { setIsUsdMode(true); setInputGoal(''); setFormData(prev=>({...prev, goal:''})); }}
-                                className={`py-2 rounded-md text-[10px] font-black uppercase transition-all ${isUsdMode ? 'bg-green-500 text-black shadow-lg' : 'text-zinc-500 hover:text-white'}`}
-                              >
-                                {t.setInUsd}
-                              </button>
-                              <button 
-                                type="button" 
-                                onClick={() => { setIsUsdMode(false); setInputGoal(''); setFormData(prev=>({...prev, goal:''})); }}
-                                className={`py-2 rounded-md text-[10px] font-black uppercase transition-all ${!isUsdMode ? 'bg-green-500 text-black shadow-lg' : 'text-zinc-500 hover:text-white'}`}
-                              >
-                                {t.setInBch}
-                              </button>
+                          <div className="grid grid-cols-2 gap-2 mb-2">
+                               <button 
+                                  type="button"
+                                  onClick={() => { setIsUsdMode(true); setInputGoal(''); setFormData(prev=>({...prev, goal:''})); }}
+                                  className={`py-3 rounded-lg text-xs font-black uppercase transition-all border ${isUsdMode ? 'bg-green-500 text-black border-green-500 shadow-lg' : 'bg-transparent text-zinc-500 border-zinc-800 hover:text-white'}`}
+                               >
+                                   {t.usdMode}
+                               </button>
+                               <button 
+                                  type="button"
+                                  onClick={() => { setIsUsdMode(false); setInputGoal(''); setFormData(prev=>({...prev, goal:''})); }}
+                                  className={`py-3 rounded-lg text-xs font-black uppercase transition-all border ${!isUsdMode ? 'bg-green-500 text-black border-green-500 shadow-lg' : 'bg-transparent text-zinc-500 border-zinc-800 hover:text-white'}`}
+                               >
+                                   {t.bchMode}
+                               </button>
                           </div>
                           
-                          <div className="flex items-center gap-3">
-                              <span className="text-xl font-black text-zinc-600">{isUsdMode ? '$' : ''}</span>
+                          <div className="flex items-center gap-3 bg-black/40 p-3 rounded-lg border border-zinc-800/50">
+                              <span className="text-lg font-black text-zinc-500">{isUsdMode ? '$' : 'BCH'}</span>
                               <input 
                                   required
                                   type="number" 
                                   step="any" 
+                                  name="goal"
                                   value={inputGoal} 
                                   onChange={handleGoalChange} 
                                   placeholder="0.00" 
                                   className="flex-1 bg-transparent text-3xl font-black text-white outline-none placeholder:text-zinc-800 tabular-nums"
                               />
-                              <span className="text-xl font-black text-zinc-600">{!isUsdMode ? 'BCH' : 'USD'}</span>
                           </div>
-                          
                           {formData.goal && bchPrice > 0 && (
-                              <div className="bg-green-900/10 border border-green-500/10 rounded-lg p-3 flex justify-between items-center">
-                                  <span className="text-[9px] text-zinc-500 font-bold uppercase">{isUsdMode ? 'Converted to Protocol' : 'Approximate Value'}</span>
-                                  <span className="text-xs text-green-400 font-mono font-bold">
-                                      {isUsdMode 
-                                          ? `${parseFloat(formData.goal).toFixed(6)} BCH` 
-                                          : `$${(parseFloat(formData.goal) * bchPrice).toLocaleString()} USD`
-                                      }
-                                  </span>
-                              </div>
+                              <p className="text-xs text-green-500 font-mono text-right font-bold">
+                                  {isUsdMode 
+                                    ? `${t.approx} ${parseFloat(formData.goal).toFixed(6)} BCH` 
+                                    : `${t.approx} $${(parseFloat(formData.goal) * bchPrice).toLocaleString()} USD`
+                                  }
+                              </p>
                           )}
                       </div>
 
