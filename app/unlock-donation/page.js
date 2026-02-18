@@ -1,5 +1,3 @@
-unlock-donation: 
-
 'use client';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect, Suspense, useRef } from 'react';
