@@ -24,8 +24,8 @@ const translations = {
     raised: "0.00 BCH raised",
     support: "Support this campaign",
     approx: "≈",
-    usdMode: "USD ($)",
-    bchMode: "BCH",
+    setUsd: "Input: USD ($)",
+    setBch: "Input: BCH",
     security: "Funds go directly to your wallet. Non-custodial."
   },
   ar: {
@@ -49,8 +49,8 @@ const translations = {
     raised: "تم جمع 0.00 BCH",
     support: "ادعم هذه الحملة",
     approx: "تقريباً",
-    usdMode: "دولار ($)",
-    bchMode: "بيتكوين كاش (BCH)",
+    setUsd: "إدخال بالدولار ($)",
+    setBch: "إدخال بالـ BCH",
     security: "الأموال تصل لمحفظتك مباشرة. غير وصائي."
   },
   zh: {
@@ -74,8 +74,8 @@ const translations = {
     raised: "已筹集 0.00 BCH",
     support: "支持此活动",
     approx: "约",
-    usdMode: "美元 ($)",
-    bchMode: "BCH",
+    setUsd: "输入美元 ($)",
+    setBch: "输入 BCH",
     security: "资金直接进入您的钱包。非托管。"
   }
 };
@@ -85,7 +85,7 @@ export default function DonationCreatePage() {
     title: '', desc: '', organizer: '', email: '', wallet: '', goal: '', coverUrl: ''
   });
   const [inputGoal, setInputGoal] = useState('');
-  const [isUsdMode, setIsUsdMode] = useState(true);
+  const [isUsdMode, setIsUsdMode] = useState(false); // Default to BCH to be safe
   const [previewFile, setPreviewFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [generatedLink, setGeneratedLink] = useState('');
@@ -123,17 +123,26 @@ export default function DonationCreatePage() {
   const handleGoalChange = (e) => {
       const val = e.target.value;
       setInputGoal(val);
+      
       if (!val) {
           setFormData(prev => ({ ...prev, goal: '' }));
           return;
       }
-      
+
       if (isUsdMode && bchPrice > 0) {
-          const bchVal = parseFloat(val) / bchPrice;
-          setFormData(prev => ({ ...prev, goal: bchVal.toFixed(8) }));
+          // Convert USD input to BCH for the protocol
+          const bchValue = parseFloat(val) / bchPrice;
+          setFormData(prev => ({ ...prev, goal: bchValue.toFixed(8) }));
       } else {
+          // Direct BCH input
           setFormData(prev => ({ ...prev, goal: val }));
       }
+  };
+
+  const toggleMode = (mode) => {
+      setIsUsdMode(mode === 'USD');
+      setInputGoal('');
+      setFormData(prev => ({ ...prev, goal: '' }));
   };
 
   const handleGenerate = async (e) => {
@@ -221,48 +230,33 @@ export default function DonationCreatePage() {
                           <input name="email" value={formData.email} onChange={handleChange} placeholder={t.emailLabel} className={inputStyle} />
                       </div>
 
-                      <div className="bg-zinc-900/30 p-4 rounded-xl border border-zinc-800 space-y-4">
-                          <div className="flex justify-between items-center mb-1">
-                             <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{t.goalLabel}</p>
+                      <div className="bg-zinc-900/30 p-4 rounded-xl border border-zinc-800 space-y-3">
+                          <div className="flex justify-between items-center mb-2">
+                              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{t.goalLabel}</p>
+                              <div className="flex bg-zinc-800 rounded-lg p-1 gap-1">
+                                  <button type="button" onClick={() => toggleMode('BCH')} className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${!isUsdMode ? 'bg-green-500 text-black' : 'text-zinc-400 hover:text-white'}`}>BCH</button>
+                                  <button type="button" onClick={() => toggleMode('USD')} className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${isUsdMode ? 'bg-white text-black' : 'text-zinc-400 hover:text-white'}`}>USD</button>
+                              </div>
                           </div>
-                          
-                          <div className="grid grid-cols-2 gap-2 mb-2">
-                               <button 
-                                  type="button"
-                                  onClick={() => { setIsUsdMode(true); setInputGoal(''); setFormData(prev=>({...prev, goal:''})); }}
-                                  className={`py-3 rounded-lg text-xs font-black uppercase transition-all border ${isUsdMode ? 'bg-green-500 text-black border-green-500 shadow-lg' : 'bg-transparent text-zinc-500 border-zinc-800 hover:text-white'}`}
-                               >
-                                   {t.usdMode}
-                               </button>
-                               <button 
-                                  type="button"
-                                  onClick={() => { setIsUsdMode(false); setInputGoal(''); setFormData(prev=>({...prev, goal:''})); }}
-                                  className={`py-3 rounded-lg text-xs font-black uppercase transition-all border ${!isUsdMode ? 'bg-green-500 text-black border-green-500 shadow-lg' : 'bg-transparent text-zinc-500 border-zinc-800 hover:text-white'}`}
-                               >
-                                   {t.bchMode}
-                               </button>
-                          </div>
-                          
-                          <div className="flex items-center gap-3 bg-black/40 p-3 rounded-lg border border-zinc-800/50">
-                              <span className="text-lg font-black text-zinc-500">{isUsdMode ? '$' : 'BCH'}</span>
+
+                          <div className="flex items-center gap-3">
                               <input 
                                   required
                                   type="number" 
                                   step="any" 
-                                  name="goal"
                                   value={inputGoal} 
                                   onChange={handleGoalChange} 
                                   placeholder="0.00" 
-                                  className="flex-1 bg-transparent text-3xl font-black text-white outline-none placeholder:text-zinc-800 tabular-nums"
+                                  className="flex-1 bg-transparent text-3xl font-black text-white outline-none placeholder:text-zinc-700 tabular-nums"
                               />
+                              <span className="text-xl font-black text-zinc-500">{isUsdMode ? 'USD' : 'BCH'}</span>
                           </div>
-                          {formData.goal && bchPrice > 0 && (
-                              <p className="text-xs text-green-500 font-mono text-right font-bold">
-                                  {isUsdMode 
-                                    ? `${t.approx} ${parseFloat(formData.goal).toFixed(6)} BCH` 
-                                    : `${t.approx} $${(parseFloat(formData.goal) * bchPrice).toLocaleString()} USD`
-                                  }
-                              </p>
+                          
+                          {formData.goal && isUsdMode && bchPrice > 0 && (
+                              <p className="text-xs text-green-500 font-mono text-right">{t.approx} {parseFloat(formData.goal).toFixed(4)} BCH</p>
+                          )}
+                          {formData.goal && !isUsdMode && bchPrice > 0 && (
+                              <p className="text-xs text-zinc-400 font-mono text-right">{t.approx} ${(parseFloat(formData.goal) * bchPrice).toLocaleString()} USD</p>
                           )}
                       </div>
 
@@ -277,7 +271,6 @@ export default function DonationCreatePage() {
                       <button type="submit" disabled={uploading} className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-black font-black py-4 rounded-xl text-lg uppercase italic tracking-wider transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_40px_rgba(34,197,94,0.5)] disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.99]">
                           {uploading ? t.processing : t.launch}
                       </button>
-                      
                       <p className="text-center text-[10px] text-zinc-600 font-medium">{t.security}</p>
                   </form>
 
