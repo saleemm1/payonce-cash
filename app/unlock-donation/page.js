@@ -27,9 +27,8 @@ const translations = {
     recorded: "Feedback Recorded",
     currency: "USD",
     totalUsd: "Total Value",
-    approx: "≈",
-    goalReached: "GOAL REACHED! 🎉",
-    campaignEnded: "This campaign has been fully funded."
+    goalReached: "GOAL REACHED!",
+    campaignEnded: "Fully Funded"
   },
   ar: {
     loading: "جاري التحميل...",
@@ -55,9 +54,8 @@ const translations = {
     recorded: "تم تسجيل التقييم",
     currency: "USD",
     totalUsd: "القيمة الإجمالية",
-    approx: "تقريباً",
-    goalReached: "تم تحقيق الهدف! 🎉",
-    campaignEnded: "هذه الحملة ممولة بالكامل."
+    goalReached: "تم تحقيق الهدف!",
+    campaignEnded: "ممولة بالكامل"
   },
   zh: {
     loading: "正在初始化...",
@@ -83,9 +81,8 @@ const translations = {
     recorded: "反馈已记录",
     currency: "USD",
     totalUsd: "总价值",
-    approx: "约",
-    goalReached: "目标达成! 🎉",
-    campaignEnded: "此活动已全额资助。"
+    goalReached: "目标达成!",
+    campaignEnded: "全额资助"
   }
 };
 
@@ -109,14 +106,10 @@ function DonationContent() {
     const id = searchParams.get('id');
     if (id) {
         try {
-            // Using your original decoding method
             const decoded = JSON.parse(decodeURIComponent(escape(atob(id))));
-            if (!decoded || !decoded.w) throw new Error("Invalid"); // Safety Check
+            if (!decoded || !decoded.w) throw new Error("Invalid");
             setData(decoded);
-        } catch(e) { 
-            console.error(e);
-            setLoading(false); 
-        }
+        } catch(e) { setLoading(false); }
     } else {
         setLoading(false);
     }
@@ -205,11 +198,10 @@ function DonationContent() {
   const t = translations[lang];
   const dir = lang === 'ar' ? 'rtl' : 'ltr';
 
-  // Fix: Return loading or error state BEFORE accessing data properties
+  // Fix: Check data strictly before rendering to prevent client-side exception
   if (!data && !loading) return <div className="min-h-screen bg-black text-red-500 flex justify-center items-center font-black uppercase text-xl">{t.notFound}</div>;
   if (loading || !data) return <div className="min-h-screen bg-[#050505] flex items-center justify-center text-white font-black italic tracking-[10px] animate-pulse">{t.loading}</div>;
 
-  // Now it's safe to access data
   const percentage = data.g ? Math.min(100, (stats.raised / data.g) * 100) : 0;
   const isGoalReached = data.g && stats.raised >= data.g;
   const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
@@ -320,7 +312,6 @@ function DonationContent() {
                             <div className="h-full bg-gradient-to-r from-green-600 to-green-400 shadow-[0_0_15px_#22c55e]" style={{width: `${percentage}%`}}></div>
                         </div>
 
-                        {/* CONDITIONAL RENDERING: Goal Reached vs Payment Form */}
                         {!isGoalReached ? (
                             <>
                                 <div className="grid grid-cols-3 gap-2 mb-4">
