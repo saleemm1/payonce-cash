@@ -110,8 +110,12 @@ function DonationContent() {
     if (id) {
         try {
             const decoded = JSON.parse(decodeURIComponent(escape(atob(id))));
+            if (!decoded || !decoded.w) throw new Error("Invalid Data");
             setData(decoded);
-        } catch(e) { setLoading(false); }
+        } catch(e) { 
+            console.error("Decode Error", e);
+            setLoading(false); 
+        }
     } else {
         setLoading(false);
     }
