@@ -28,7 +28,7 @@ const translations = {
     currency: "USD",
     totalUsd: "Total Value",
     approx: "≈",
-    goalReached: "GOAL REACHED",
+    goalReached: "GOAL REACHED! 🎉",
     campaignEnded: "This campaign has been fully funded."
   },
   ar: {
@@ -56,7 +56,7 @@ const translations = {
     currency: "USD",
     totalUsd: "القيمة الإجمالية",
     approx: "تقريباً",
-    goalReached: "تم تحقيق الهدف",
+    goalReached: "تم تحقيق الهدف! 🎉",
     campaignEnded: "هذه الحملة ممولة بالكامل."
   },
   zh: {
@@ -84,7 +84,7 @@ const translations = {
     currency: "USD",
     totalUsd: "总价值",
     approx: "约",
-    goalReached: "目标达成",
+    goalReached: "目标达成! 🎉",
     campaignEnded: "此活动已全额资助。"
   }
 };
@@ -113,7 +113,7 @@ function DonationContent() {
             if (!decoded || !decoded.w) throw new Error("Invalid Data");
             setData(decoded);
         } catch(e) { 
-            console.error("Decode Error", e);
+            console.error(e);
             setLoading(false); 
         }
     } else {
@@ -149,6 +149,7 @@ function DonationContent() {
                   }
               });
 
+              // Check if we just hit the goal or new donation arrived
               if (total > (stats.raised * 100000000) && stats.raised !== 0) {
                   setCelebrate(true);
                   setTimeout(() => setCelebrate(false), 5000);
@@ -156,7 +157,7 @@ function DonationContent() {
 
               setStats({
                   raised: total / 100000000,
-                  txs: txs.slice(0, 5) 
+                  txs: txs.slice(0, 7)
               });
               setLoading(false);
 
@@ -317,13 +318,8 @@ function DonationContent() {
                             <div className="h-full bg-gradient-to-r from-green-600 to-green-400 shadow-[0_0_15px_#22c55e]" style={{width: `${percentage}%`}}></div>
                         </div>
 
-                        {isGoalReached ? (
-                            <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-8 text-center animate-in zoom-in duration-300">
-                                <div className="text-4xl mb-4">🎉</div>
-                                <h3 className="text-2xl font-black text-green-500 uppercase italic tracking-tighter mb-2">{t.goalReached}</h3>
-                                <p className="text-zinc-400 text-xs font-bold uppercase">{t.campaignEnded}</p>
-                            </div>
-                        ) : (
+                        {/* Logic: Show Inputs if Goal NOT Reached, Show Success Message if Reached */}
+                        {!isGoalReached ? (
                             <>
                                 <div className="grid grid-cols-3 gap-2 mb-4">
                                     {[5, 20, 50].map(val => (
@@ -371,6 +367,12 @@ function DonationContent() {
                                     </div>
                                 )}
                             </>
+                        ) : (
+                            <div className="bg-green-500/10 border border-green-500/30 rounded-3xl p-8 text-center animate-in zoom-in duration-500">
+                                <div className="text-5xl mb-4 animate-bounce">🎉</div>
+                                <h3 className="text-2xl font-black text-green-500 uppercase italic tracking-tighter mb-2">{t.goalReached}</h3>
+                                <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest">{t.campaignEnded}</p>
+                            </div>
                         )}
                     </div>
 
