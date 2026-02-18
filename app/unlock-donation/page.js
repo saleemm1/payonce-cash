@@ -28,7 +28,7 @@ const translations = {
     currency: "USD",
     totalUsd: "Total Value",
     goalReached: "GOAL REACHED!",
-    campaignEnded: "Fully Funded"
+    campaignEnded: "This campaign is fully funded."
   },
   ar: {
     loading: "جاري التحميل...",
@@ -55,7 +55,7 @@ const translations = {
     currency: "USD",
     totalUsd: "القيمة الإجمالية",
     goalReached: "تم تحقيق الهدف!",
-    campaignEnded: "ممولة بالكامل"
+    campaignEnded: "هذه الحملة ممولة بالكامل."
   },
   zh: {
     loading: "正在初始化...",
@@ -82,7 +82,7 @@ const translations = {
     currency: "USD",
     totalUsd: "总价值",
     goalReached: "目标达成!",
-    campaignEnded: "全额资助"
+    campaignEnded: "此活动已全额资助。"
   }
 };
 
@@ -107,9 +107,12 @@ function DonationContent() {
     if (id) {
         try {
             const decoded = JSON.parse(decodeURIComponent(escape(atob(id))));
-            if (!decoded || !decoded.w) throw new Error("Invalid");
+            if(!decoded || !decoded.w) throw new Error("Invalid"); // SAFETY CHECK
             setData(decoded);
-        } catch(e) { setLoading(false); }
+        } catch(e) { 
+            console.log("Decode error", e);
+            setLoading(false); 
+        }
     } else {
         setLoading(false);
     }
@@ -188,7 +191,6 @@ function DonationContent() {
   };
 
   const copyAddr = () => {
-    if (!data?.w) return;
     const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
     navigator.clipboard.writeText(cleanAddr);
     setIsCopied(true);
@@ -198,9 +200,9 @@ function DonationContent() {
   const t = translations[lang];
   const dir = lang === 'ar' ? 'rtl' : 'ltr';
 
-  // Fix: Check data strictly before rendering to prevent client-side exception
-  if (!data && !loading) return <div className="min-h-screen bg-black text-red-500 flex justify-center items-center font-black uppercase text-xl">{t.notFound}</div>;
-  if (loading || !data) return <div className="min-h-screen bg-[#050505] flex items-center justify-center text-white font-black italic tracking-[10px] animate-pulse">{t.loading}</div>;
+  // CRITICAL FIX: Ensure we do NOT render until data is confirmed
+  if (loading) return <div className="min-h-screen bg-[#050505] flex items-center justify-center text-white font-black italic tracking-[10px] animate-pulse">{t.loading}</div>;
+  if (!data) return <div className="min-h-screen bg-black text-red-500 flex justify-center items-center font-black uppercase text-xl">{t.notFound}</div>;
 
   const percentage = data.g ? Math.min(100, (stats.raised / data.g) * 100) : 0;
   const isGoalReached = data.g && stats.raised >= data.g;
@@ -312,7 +314,14 @@ function DonationContent() {
                             <div className="h-full bg-gradient-to-r from-green-600 to-green-400 shadow-[0_0_15px_#22c55e]" style={{width: `${percentage}%`}}></div>
                         </div>
 
-                        {!isGoalReached ? (
+                        {/* Goal Reached Logic */}
+                        {isGoalReached ? (
+                            <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-8 text-center animate-in zoom-in duration-500">
+                                <div className="text-5xl mb-4 animate-bounce">🎉</div>
+                                <h3 className="text-2xl font-black text-green-500 uppercase italic tracking-tighter mb-2">{t.goalReached}</h3>
+                                <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest">{t.campaignEnded}</p>
+                            </div>
+                        ) : (
                             <>
                                 <div className="grid grid-cols-3 gap-2 mb-4">
                                     {[5, 20, 50].map(val => (
@@ -360,12 +369,6 @@ function DonationContent() {
                                     </div>
                                 )}
                             </>
-                        ) : (
-                            <div className="bg-green-500/10 border border-green-500/30 rounded-3xl p-8 text-center animate-in zoom-in duration-500">
-                                <div className="text-5xl mb-4 animate-bounce">🎉</div>
-                                <h3 className="text-2xl font-black text-green-500 uppercase italic tracking-tighter mb-2">{t.goalReached}</h3>
-                                <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest">{t.campaignEnded}</p>
-                            </div>
                         )}
                     </div>
 
