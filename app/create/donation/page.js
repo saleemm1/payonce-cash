@@ -11,7 +11,7 @@ const translations = {
     organizerLabel: "Organizer",
     emailLabel: "Email",
     walletLabel: "BCH Wallet",
-    goalLabel: "Funding Goal (BCH)",
+    goalLabel: "Funding Goal",
     coverLabel: "Cover Image URL",
     fileLabel: "Or Upload Image",
     launch: "Launch Campaign",
@@ -23,7 +23,9 @@ const translations = {
     cardTitle: "Your Campaign",
     raised: "0.00 BCH raised",
     support: "Support this campaign",
-    approx: "≈"
+    approx: "≈",
+    setUsd: "Input in USD ($)",
+    setBch: "Input in BCH"
   },
   ar: {
     header: "ابدأ حراكاً",
@@ -33,7 +35,7 @@ const translations = {
     organizerLabel: "المنظم",
     emailLabel: "البريد",
     walletLabel: "محفظة BCH",
-    goalLabel: "هدف التمويل (BCH)",
+    goalLabel: "هدف التمويل",
     coverLabel: "رابط صورة الغلاف",
     fileLabel: "أو رفع صورة",
     launch: "إطلاق الحملة",
@@ -45,7 +47,9 @@ const translations = {
     cardTitle: "حملتك",
     raised: "تم جمع 0.00 BCH",
     support: "ادعم هذه الحملة",
-    approx: "تقريباً"
+    approx: "تقريباً",
+    setUsd: "إدخال بالدولار ($)",
+    setBch: "إدخال بالـ BCH"
   },
   zh: {
     header: "发起运动",
@@ -55,7 +59,7 @@ const translations = {
     organizerLabel: "组织者",
     emailLabel: "电子邮件",
     walletLabel: "BCH 钱包",
-    goalLabel: "目标 (BCH)",
+    goalLabel: "目标",
     coverLabel: "封面图片链接",
     fileLabel: "或上传图片",
     launch: "发起活动",
@@ -67,7 +71,9 @@ const translations = {
     cardTitle: "您的活动",
     raised: "已筹集 0.00 BCH",
     support: "支持此活动",
-    approx: "约"
+    approx: "约",
+    setUsd: "以美元输入",
+    setBch: "以 BCH 输入"
   }
 };
 
@@ -75,6 +81,8 @@ export default function DonationCreatePage() {
   const [formData, setFormData] = useState({
     title: '', desc: '', organizer: '', email: '', wallet: '', goal: '', coverUrl: ''
   });
+  const [inputGoal, setInputGoal] = useState('');
+  const [isUsdMode, setIsUsdMode] = useState(false);
   const [previewFile, setPreviewFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [generatedLink, setGeneratedLink] = useState('');
@@ -107,6 +115,30 @@ export default function DonationCreatePage() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleGoalChange = (e) => {
+      const val = e.target.value;
+      setInputGoal(val);
+      
+      if (!val) {
+          setFormData(prev => ({ ...prev, goal: '' }));
+          return;
+      }
+
+      if (isUsdMode && bchPrice > 0) {
+          // Convert USD to BCH immediately for storage
+          const bchVal = parseFloat(val) / bchPrice;
+          setFormData(prev => ({ ...prev, goal: bchVal.toFixed(8) }));
+      } else {
+          setFormData(prev => ({ ...prev, goal: val }));
+      }
+  };
+
+  const toggleMode = (mode) => {
+      setIsUsdMode(mode === 'USD');
+      setInputGoal('');
+      setFormData(prev => ({ ...prev, goal: '' }));
   };
 
   const handleGenerate = async (e) => {
@@ -195,22 +227,34 @@ export default function DonationCreatePage() {
                       </div>
 
                       <div className="bg-zinc-900/30 p-4 rounded-xl border border-zinc-800 space-y-3">
-                          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{t.goalLabel}</p>
+                          <div className="flex justify-between items-center mb-2">
+                              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{t.goalLabel}</p>
+                              <div className="flex bg-zinc-800 rounded-lg p-1 gap-1">
+                                  <button type="button" onClick={() => toggleMode('BCH')} className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${!isUsdMode ? 'bg-green-500 text-black' : 'text-zinc-400 hover:text-white'}`}>BCH</button>
+                                  <button type="button" onClick={() => toggleMode('USD')} className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${isUsdMode ? 'bg-white text-black' : 'text-zinc-400 hover:text-white'}`}>USD</button>
+                              </div>
+                          </div>
+
                           <div className="flex items-center gap-3">
                               <input 
                                   required
                                   type="number" 
                                   step="any" 
-                                  name="goal"
-                                  value={formData.goal} 
-                                  onChange={handleChange} 
+                                  value={inputGoal}
+                                  onChange={handleGoalChange} 
                                   placeholder="0.00" 
                                   className="flex-1 bg-transparent text-3xl font-black text-white outline-none placeholder:text-zinc-700 tabular-nums"
                               />
-                              <span className="text-xl font-black text-green-500">BCH</span>
+                              <span className="text-xl font-black text-zinc-500">{isUsdMode ? 'USD' : 'BCH'}</span>
                           </div>
+                          
                           {formData.goal && bchPrice > 0 && (
-                              <p className="text-xs text-zinc-400 font-mono text-right">{t.approx} ${(formData.goal * bchPrice).toLocaleString()} USD</p>
+                              <p className="text-xs text-zinc-400 font-mono text-right">
+                                  {isUsdMode 
+                                    ? `${t.approx} ${parseFloat(formData.goal).toFixed(4)} BCH`
+                                    : `${t.approx} $${(parseFloat(formData.goal) * bchPrice).toLocaleString()} USD`
+                                  }
+                              </p>
                           )}
                       </div>
 
@@ -272,7 +316,7 @@ export default function DonationCreatePage() {
                            </div>
                            <div className="flex justify-between text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-6">
                                <span>{t.raised}</span>
-                               <span>{formData.goal || "0"} BCH</span>
+                               <span>{formData.goal ? parseFloat(formData.goal).toFixed(4) : "0"} BCH</span>
                            </div>
 
                            <div className="w-full py-4 bg-white/5 rounded-xl border border-white/5 flex items-center justify-center gap-2 text-zinc-500 font-black text-xs uppercase">
