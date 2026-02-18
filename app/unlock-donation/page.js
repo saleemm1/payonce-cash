@@ -107,12 +107,9 @@ function DonationContent() {
     if (id) {
         try {
             const decoded = JSON.parse(decodeURIComponent(escape(atob(id))));
-            if(!decoded || !decoded.w) throw new Error("Invalid"); // SAFETY CHECK
+            if (!decoded || !decoded.w) throw new Error("Invalid"); // حماية إضافية
             setData(decoded);
-        } catch(e) { 
-            console.log("Decode error", e);
-            setLoading(false); 
-        }
+        } catch(e) { setLoading(false); }
     } else {
         setLoading(false);
     }
@@ -191,6 +188,7 @@ function DonationContent() {
   };
 
   const copyAddr = () => {
+    if (!data?.w) return;
     const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
     navigator.clipboard.writeText(cleanAddr);
     setIsCopied(true);
@@ -200,7 +198,7 @@ function DonationContent() {
   const t = translations[lang];
   const dir = lang === 'ar' ? 'rtl' : 'ltr';
 
-  // CRITICAL FIX: Ensure we do NOT render until data is confirmed
+  // FIX: This check prevents the "Client-side exception" by ensuring data exists
   if (loading) return <div className="min-h-screen bg-[#050505] flex items-center justify-center text-white font-black italic tracking-[10px] animate-pulse">{t.loading}</div>;
   if (!data) return <div className="min-h-screen bg-black text-red-500 flex justify-center items-center font-black uppercase text-xl">{t.notFound}</div>;
 
@@ -314,14 +312,7 @@ function DonationContent() {
                             <div className="h-full bg-gradient-to-r from-green-600 to-green-400 shadow-[0_0_15px_#22c55e]" style={{width: `${percentage}%`}}></div>
                         </div>
 
-                        {/* Goal Reached Logic */}
-                        {isGoalReached ? (
-                            <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-8 text-center animate-in zoom-in duration-500">
-                                <div className="text-5xl mb-4 animate-bounce">🎉</div>
-                                <h3 className="text-2xl font-black text-green-500 uppercase italic tracking-tighter mb-2">{t.goalReached}</h3>
-                                <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest">{t.campaignEnded}</p>
-                            </div>
-                        ) : (
+                        {!isGoalReached ? (
                             <>
                                 <div className="grid grid-cols-3 gap-2 mb-4">
                                     {[5, 20, 50].map(val => (
@@ -369,6 +360,12 @@ function DonationContent() {
                                     </div>
                                 )}
                             </>
+                        ) : (
+                            <div className="bg-green-500/10 border border-green-500/30 rounded-3xl p-8 text-center animate-in zoom-in duration-500">
+                                <div className="text-5xl mb-4 animate-bounce">🎉</div>
+                                <h3 className="text-2xl font-black text-green-500 uppercase italic tracking-tighter mb-2">{t.goalReached}</h3>
+                                <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest">{t.campaignEnded}</p>
+                            </div>
                         )}
                     </div>
 
