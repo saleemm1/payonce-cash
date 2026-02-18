@@ -24,7 +24,7 @@ const translations = {
     raised: "0.00 BCH raised",
     support: "Support this campaign",
     approx: "≈",
-    setUsd: "Input in USD ($)",
+    setUsd: "Input in USD",
     setBch: "Input in BCH"
   },
   ar: {
@@ -48,7 +48,7 @@ const translations = {
     raised: "تم جمع 0.00 BCH",
     support: "ادعم هذه الحملة",
     approx: "تقريباً",
-    setUsd: "إدخال بالدولار ($)",
+    setUsd: "إدخال بالدولار",
     setBch: "إدخال بالـ BCH"
   },
   zh: {
@@ -81,10 +81,8 @@ export default function DonationCreatePage() {
   const [formData, setFormData] = useState({
     title: '', desc: '', organizer: '', email: '', wallet: '', goal: '', coverUrl: ''
   });
-  // New state for input mode
   const [inputGoal, setInputGoal] = useState('');
   const [isUsdMode, setIsUsdMode] = useState(false);
-
   const [previewFile, setPreviewFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [generatedLink, setGeneratedLink] = useState('');
@@ -119,7 +117,7 @@ export default function DonationCreatePage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Logic to handle goal input with conversion
+  // Logic to handle conversion instantly
   const handleGoalChange = (e) => {
       const val = e.target.value;
       setInputGoal(val);
@@ -130,17 +128,12 @@ export default function DonationCreatePage() {
       }
 
       if (isUsdMode && bchPrice > 0) {
+          // Convert USD to BCH for the protocol
           const bchVal = parseFloat(val) / bchPrice;
           setFormData(prev => ({ ...prev, goal: bchVal.toFixed(8) }));
       } else {
           setFormData(prev => ({ ...prev, goal: val }));
       }
-  };
-
-  const toggleMode = (mode) => {
-      setIsUsdMode(mode === 'USD');
-      setInputGoal('');
-      setFormData(prev => ({ ...prev, goal: '' }));
   };
 
   const handleGenerate = async (e) => {
@@ -231,12 +224,12 @@ export default function DonationCreatePage() {
                       <div className="bg-zinc-900/30 p-4 rounded-xl border border-zinc-800 space-y-3">
                           <div className="flex justify-between items-center mb-2">
                               <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{t.goalLabel}</p>
-                              <div className="flex gap-2 bg-zinc-800 rounded-lg p-1">
-                                  <button type="button" onClick={() => toggleMode('BCH')} className={`px-3 py-1 rounded text-[10px] font-bold transition-all ${!isUsdMode ? 'bg-green-500 text-black' : 'text-zinc-400'}`}>BCH</button>
-                                  <button type="button" onClick={() => toggleMode('USD')} className={`px-3 py-1 rounded text-[10px] font-bold transition-all ${isUsdMode ? 'bg-white text-black' : 'text-zinc-400'}`}>USD</button>
+                              <div className="flex gap-2 bg-zinc-800 p-1 rounded-lg">
+                                  <button type="button" onClick={()=>{setIsUsdMode(false); setInputGoal(''); setFormData(prev=>({...prev, goal:''}))}} className={`text-[9px] font-bold px-3 py-1 rounded transition-all ${!isUsdMode ? 'bg-green-500 text-black' : 'text-zinc-400'}`}>BCH</button>
+                                  <button type="button" onClick={()=>{setIsUsdMode(true); setInputGoal(''); setFormData(prev=>({...prev, goal:''}))}} className={`text-[9px] font-bold px-3 py-1 rounded transition-all ${isUsdMode ? 'bg-white text-black' : 'text-zinc-400'}`}>USD</button>
                               </div>
                           </div>
-
+                          
                           <div className="flex items-center gap-3">
                               <input 
                                   required
@@ -249,14 +242,8 @@ export default function DonationCreatePage() {
                               />
                               <span className="text-xl font-black text-zinc-500">{isUsdMode ? 'USD' : 'BCH'}</span>
                           </div>
-                          
                           {formData.goal && bchPrice > 0 && (
-                              <p className="text-xs text-green-500 font-mono text-right">
-                                  {isUsdMode 
-                                    ? `${t.approx} ${parseFloat(formData.goal).toFixed(4)} BCH`
-                                    : `${t.approx} $${(parseFloat(formData.goal) * bchPrice).toLocaleString()} USD`
-                                  }
-                              </p>
+                              <p className="text-xs text-green-500 font-mono text-right">{t.approx} {isUsdMode ? `${parseFloat(formData.goal).toFixed(4)} BCH` : `$${(parseFloat(formData.goal) * bchPrice).toLocaleString()} USD`}</p>
                           )}
                       </div>
 
