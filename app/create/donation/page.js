@@ -208,11 +208,11 @@ export default function DonationCreatePage() {
                           <input name="email" value={formData.email} onChange={handleChange} placeholder={t.emailLabel} className={inputStyle} />
                       </div>
 
-                      <div className="bg-zinc-900/30 p-4 rounded-xl border border-zinc-800 space-y-3">
+                      <div className="bg-zinc-900/30 p-4 rounded-xl border border-zinc-800 space-y-3 overflow-hidden">
                           <div className="flex justify-between items-center">
                               <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{t.goalLabel}</p>
                           </div>
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3 w-full">
                               <input 
                                   required
                                   type="number" 
@@ -221,19 +221,19 @@ export default function DonationCreatePage() {
                                   value={formData.goal} 
                                   onChange={handleChange} 
                                   placeholder="0.00" 
-                                  className="flex-1 bg-transparent text-3xl font-black text-white outline-none placeholder:text-zinc-700 tabular-nums"
+                                  className="flex-1 min-w-0 bg-transparent text-3xl font-black text-white outline-none placeholder:text-zinc-700 tabular-nums"
                               />
                               <button 
                                   type="button" 
                                   onClick={toggleCurrency}
-                                  className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-3 rounded-xl border border-zinc-700 hover:border-green-500 transition-all active:scale-95 cursor-pointer shadow-sm"
+                                  className="shrink-0 flex items-center gap-1.5 bg-zinc-900 hover:bg-zinc-800 text-white px-3 py-2 rounded-xl border border-zinc-800 hover:border-green-500 transition-all active:scale-95 shadow-sm group"
                               >
-                                  <span className="text-lg font-black">{goalCurrency}</span>
-                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-green-500"><path d="M7 16V4M7 4L3 8M7 4L11 8M17 8v12M17 20l-4-4M17 20l4-4"/></svg>
+                                  <span className="text-sm font-black group-hover:text-green-500 transition-colors">{goalCurrency}</span>
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-500 group-hover:text-green-500 transition-colors"><path d="M7 16V4M7 4L3 8M7 4L11 8M17 8v12M17 20l-4-4M17 20l4-4"/></svg>
                               </button>
                           </div>
                           {formData.goal && bchPrice > 0 && (
-                              <p className="text-xs text-zinc-400 font-mono text-right">
+                              <p className="text-xs text-zinc-400 font-mono text-right truncate">
                                   {t.approx} {goalCurrency === 'BCH' ? `$${(formData.goal * bchPrice).toLocaleString()} USD` : `${(formData.goal / bchPrice).toFixed(8)} BCH`}
                               </p>
                           )}
@@ -254,8 +254,8 @@ export default function DonationCreatePage() {
 
                   {generatedLink && (
                       <div className="bg-black border border-green-500/30 p-4 rounded-2xl flex items-center gap-3 animate-in slide-in-from-bottom-4">
-                          <input readOnly value={generatedLink} className="flex-1 bg-transparent text-xs text-green-500 font-mono outline-none" />
-                          <button onClick={()=>{navigator.clipboard.writeText(generatedLink); setCopied(true); setTimeout(()=>setCopied(false),2000)}} className="text-[10px] font-black bg-green-500/10 hover:bg-green-500/20 text-green-500 px-3 py-1.5 rounded-lg uppercase transition-colors">
+                          <input readOnly value={generatedLink} className="flex-1 min-w-0 bg-transparent text-xs text-green-500 font-mono outline-none" />
+                          <button onClick={()=>{navigator.clipboard.writeText(generatedLink); setCopied(true); setTimeout(()=>setCopied(false),2000)}} className="shrink-0 text-[10px] font-black bg-green-500/10 hover:bg-green-500/20 text-green-500 px-3 py-1.5 rounded-lg uppercase transition-colors">
                               {copied ? t.done : t.copy}
                           </button>
                       </div>
