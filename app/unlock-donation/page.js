@@ -21,10 +21,6 @@ const translations = {
     back: "Create Your Own",
     live: "LIVE",
     of: "OF",
-    feedback: "Quality Feedback",
-    trusted: "Trusted",
-    avoid: "Avoid",
-    recorded: "Feedback Recorded",
     currency: "USD",
     totalUsd: "Total Value"
   },
@@ -46,10 +42,6 @@ const translations = {
     back: "أنشئ حملتك",
     live: "مباشر",
     of: "من",
-    feedback: "تقييم الجودة",
-    trusted: "موثوق",
-    avoid: "تجنب",
-    recorded: "تم تسجيل التقييم",
     currency: "USD",
     totalUsd: "القيمة الإجمالية"
   },
@@ -71,10 +63,6 @@ const translations = {
     back: "创建您的活动",
     live: "实时",
     of: " / ",
-    feedback: "质量反馈",
-    trusted: "信任",
-    avoid: "避免",
-    recorded: "反馈已记录",
     currency: "USD",
     totalUsd: "总价值"
   }
@@ -92,7 +80,6 @@ function DonationContent() {
   const [isCopied, setIsCopied] = useState(false);
   const [activePreset, setActivePreset] = useState(null);
   const [celebrate, setCelebrate] = useState(false);
-  const [rating, setRating] = useState(null);
 
   useEffect(() => {
     const saved = localStorage.getItem('payonce_lang');
@@ -349,20 +336,6 @@ function DonationContent() {
                             {isCopied ? t.copied : t.copy}
                         </button>
                     </div>
-
-                    {!rating ? (
-                        <div className="bg-[#0a0a0a] p-4 rounded-[24px] border border-white/5 flex justify-between items-center gap-4">
-                            <p className="text-[9px] text-zinc-500 uppercase font-black tracking-widest">{t.feedback}</p>
-                            <div className="flex gap-2">
-                                <button onClick={() => setRating('pos')} className="bg-zinc-900 hover:bg-green-500/20 text-zinc-400 hover:text-green-500 w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-all">👍</button>
-                                <button onClick={() => setRating('neg')} className="bg-zinc-900 hover:bg-red-500/20 text-zinc-400 hover:text-red-500 w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-all">👎</button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-[24px] text-center">
-                            <p className="text-[10px] font-black text-green-500 uppercase italic tracking-widest">{t.recorded}</p>
-                        </div>
-                    )}
 
                 </div>
             </div>
