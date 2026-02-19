@@ -156,8 +156,21 @@ export default function FolderUploadPage() {
         pc: enablePromo && promoCode && promoDiscount ? { code: promoCode.toUpperCase(), discount: promoDiscount } : null
       };
 
-      const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-      setGeneratedLink(`${window.location.origin}/unlock?id=${encodedId}`);
+      const jsonRes = await fetch('/api/upload-json', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+      });
+      const jsonHashData = await jsonRes.json();
+      if (!jsonHashData.cid) throw new Error("JSON Upload Failed");
+
+      const link = `${window.location.origin}/unlock?cid=${jsonHashData.cid}`;
+      setGeneratedLink(link);
+      
+      const history = JSON.parse(localStorage.getItem('payonce_history') || '[]');
+      history.push({ title: productName, price: usdPrice + ' USD', url: link });
+      localStorage.setItem('payonce_history', JSON.stringify(history));
+
     } catch (err) {
       alert("Error during processing");
     } finally {
