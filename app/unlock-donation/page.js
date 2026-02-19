@@ -84,12 +84,23 @@ function DonationContent() {
   useEffect(() => {
     const saved = localStorage.getItem('payonce_lang');
     if (saved) setLang(saved);
-    const id = searchParams.get('id');
-    if (id) {
-        try {
-            const decoded = JSON.parse(decodeURIComponent(escape(atob(id))));
+    const cid = searchParams.get('cid');
+    if (cid) {
+      fetch(`https://gateway.pinata.cloud/ipfs/${cid}`)
+        .then(res => {
+            if (!res.ok) throw new Error("Invalid Response");
+            return res.json();
+        })
+        .then(decoded => {
+            if (!decoded || !decoded.w) throw new Error("Invalid format");
             setData(decoded);
-        } catch(e) { setLoading(false); }
+            setLoading(false);
+        })
+        .catch(() => {
+            setLoading(false);
+        });
+    } else {
+        setLoading(false);
     }
   }, [searchParams]);
 
@@ -130,9 +141,8 @@ function DonationContent() {
                   raised: total / 100000000,
                   txs: txs.slice(0, 7)
               });
-              setLoading(false);
 
-          } catch(e) { setLoading(false); }
+          } catch(e) {}
       };
 
       refreshData();
@@ -166,6 +176,7 @@ function DonationContent() {
   };
 
   const copyAddr = () => {
+    if(!data?.w) return;
     const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
     navigator.clipboard.writeText(cleanAddr);
     setIsCopied(true);
@@ -175,8 +186,8 @@ function DonationContent() {
   const t = translations[lang];
   const dir = lang === 'ar' ? 'rtl' : 'ltr';
 
-  if (!data && !loading) return <div className="min-h-screen bg-black text-red-500 flex justify-center items-center font-black uppercase text-xl">{t.notFound}</div>;
   if (loading) return <div className="min-h-screen bg-[#050505] flex items-center justify-center text-white font-black italic tracking-[10px] animate-pulse">{t.loading}</div>;
+  if (!data) return <div className="min-h-screen bg-black text-red-500 flex justify-center items-center font-black uppercase text-xl">{t.notFound}</div>;
 
   const percentage = data.g ? Math.min(100, (stats.raised / data.g) * 100) : 0;
   const cleanAddr = data.w.includes(':') ? data.w.split(':')[1] : data.w;
@@ -202,7 +213,9 @@ function DonationContent() {
         </div>
 
         <nav className="relative z-50 flex justify-between items-center p-6 max-w-7xl mx-auto">
-            <h1 className="text-sm font-black tracking-widest text-zinc-500 uppercase">PAYONCE</h1>
+            <Link href="/" className="text-sm font-black tracking-widest text-zinc-500 uppercase hover:text-white transition-colors">
+               PAYONCE
+            </Link>
             <div className="flex gap-2 text-[10px] font-black uppercase bg-white/5 px-4 py-2 rounded-full border border-white/5 backdrop-blur-md">
                 <button onClick={() => changeLang('en')} className={`${lang === 'en' ? 'text-green-400' : 'text-zinc-500 hover:text-white'}`}>EN</button>
                 <span className="text-zinc-700">|</span>
@@ -274,10 +287,10 @@ function DonationContent() {
                         <div className="text-center mb-8 mt-2">
                              <span className="text-6xl font-black text-white tracking-tighter block tabular-nums">{stats.raised.toFixed(3)}</span>
                              <span className="text-sm font-bold text-green-500 uppercase tracking-widest block mt-2">
-                                BCH {t.raised} {t.of} {Number(data.g).toFixed(4)}
+                                BCH {t.raised} {t.of} {data.g}
                              </span>
                              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mt-1">
-                                {t.totalUsd}: ${(stats.raised * bchPrice).toFixed(2)} / ${(data.g * bchPrice).toFixed(2)}
+                                {t.totalUsd}: ${(stats.raised * bchPrice).toFixed(2)}
                              </span>
                         </div>
 
