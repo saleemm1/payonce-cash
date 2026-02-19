@@ -11,7 +11,7 @@ const translations = {
     hero2: "Partner",
     desc: "Promote any PayOnce product and earn instant crypto commissions directly to your wallet. No sign-up required.",
     step1: "1. Paste Product Link",
-    paste: "https://payonce.cash/unlock?id=...",
+    paste: "https://payonce.cash/unlock?cid=...",
     price: "Price:",
     comm: "Commission: 10%",
     unknown: "Unknown Product",
@@ -24,7 +24,8 @@ const translations = {
     note: "Share this link. When someone buys, the smart contract automatically routes 10% of the sale directly to your wallet instantly.",
     error: "Error generating link",
     invalid: "Invalid Link or Viral Mode not active.",
-    disabled: "Viral Mode is DISABLED by the creator for this product."
+    disabled: "Viral Mode is DISABLED by the creator for this product.",
+    fetching: "Fetching product details..."
   },
   ar: {
     back: "العودة للرئيسية",
@@ -33,7 +34,7 @@ const translations = {
     hero2: "شريكاً",
     desc: "روج لأي منتج PayOnce واربح عمولات فورية مباشرة لمحفظتك. لا تسجيل مطلوب.",
     step1: "1. الصق رابط المنتج",
-    paste: "https://payonce.cash/unlock?id=...",
+    paste: "https://payonce.cash/unlock?cid=...",
     price: "السعر:",
     comm: "العمولة: 10%",
     unknown: "منتج غير معروف",
@@ -46,7 +47,8 @@ const translations = {
     note: "شارك هذا الرابط. عندما يشتري شخص ما، يوجه العقد الذكي 10% من المبيعات مباشرة لمحفظتك فوراً.",
     error: "خطأ في إنشاء الرابط",
     invalid: "رابط غير صالح أو الوضع الفيروسي غير مفعل.",
-    disabled: "الوضع الفيروسي معطل من قبل المنشئ لهذا المنتج."
+    disabled: "الوضع الفيروسي معطل من قبل المنشئ لهذا المنتج.",
+    fetching: "جاري جلب تفاصيل المنتج..."
   },
   zh: {
     back: "返回首页",
@@ -55,7 +57,7 @@ const translations = {
     hero2: "合作伙伴",
     desc: "推广任何 PayOnce 产品并直接赚取即时加密佣金到您的钱包。无需注册。",
     step1: "1. 粘贴产品链接",
-    paste: "https://payonce.cash/unlock?id=...",
+    paste: "https://payonce.cash/unlock?cid=...",
     price: "价格:",
     comm: "佣金: 10%",
     unknown: "未知产品",
@@ -68,7 +70,8 @@ const translations = {
     note: "分享此链接。当有人购买时，智能合约会自动将 10% 的销售额即时转入您的钱包。",
     error: "生成链接错误",
     invalid: "无效链接或病毒模式未激活。",
-    disabled: "创建者已为此产品禁用病毒模式。"
+    disabled: "创建者已为此产品禁用病毒模式。",
+    fetching: "正在获取产品详细信息..."
   }
 };
 
@@ -82,6 +85,8 @@ function AffiliateContent() {
   const [productData, setProductData] = useState(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [lang, setLang] = useState('en');
 
   useEffect(() => {
@@ -89,7 +94,7 @@ function AffiliateContent() {
     if (savedLang) setLang(savedLang);
 
     if (urlProduct) {
-        setOriginalLink(`${window.location.origin}/unlock?id=${urlProduct}`);
+        setOriginalLink(`${window.location.origin}/unlock?cid=${urlProduct}`);
     }
   }, [urlProduct]);
 
@@ -108,46 +113,76 @@ function AffiliateContent() {
         return;
     }
 
-    try {
-        let idParam = '';
-        if (originalLink.includes('id=')) {
-            const urlObj = new URL(originalLink);
-            idParam = urlObj.searchParams.get('id');
-        } else {
-            idParam = originalLink; 
-        }
-
-        if (!idParam) throw new Error("Invalid Link");
-
-        const decoded = JSON.parse(decodeURIComponent(escape(atob(idParam))));
-        
-        if (!decoded.a) { 
-            throw new Error(t.disabled);
-        }
-
-        setProductData(decoded);
+    const fetchProductFromIPFS = async () => {
+        setIsFetching(true);
         setError('');
-    } catch (e) {
         setProductData(null);
-        setError(t.invalid);
-    }
-  }, [originalLink, lang]); // Added lang dependency to refresh error messages
+        
+        try {
+            let cidParam = '';
+            if (originalLink.includes('cid=')) {
+                const urlObj = new URL(originalLink);
+                cidParam = urlObj.searchParams.get('cid');
+            } else {
+                cidParam = originalLink.trim();
+            }
 
-  const generateViralLink = (e) => {
+            if (!cidParam) throw new Error("Invalid Link");
+
+            const res = await fetch(`https://gateway.pinata.cloud/ipfs/${cidParam}`);
+            if (!res.ok) throw new Error("Fetch failed");
+            
+            const decoded = await res.json();
+            
+            if (!decoded.a) { 
+                throw new Error(t.disabled);
+            }
+
+            setProductData(decoded);
+            setError('');
+        } catch (e) {
+            setProductData(null);
+            setError(e.message === t.disabled ? t.disabled : t.invalid);
+        } finally {
+            setIsFetching(false);
+        }
+    };
+
+    const timerId = setTimeout(() => {
+        fetchProductFromIPFS();
+    }, 800);
+
+    return () => clearTimeout(timerId);
+
+  }, [originalLink, lang]);
+
+  const generateViralLink = async (e) => {
     e.preventDefault();
     if (!productData || !promoterWallet) return;
 
+    setIsGenerating(true);
     try {
         const newPayload = {
             ...productData,
-            aff: promoterWallet 
+            ref: promoterWallet 
         };
 
-        const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(newPayload))));
-        const newUrl = `${window.location.origin}/unlock?id=${encodedId}`;
+        const res = await fetch('/api/upload-json', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newPayload)
+        });
+        
+        const jsonHashData = await res.json();
+        
+        if (!jsonHashData.cid) throw new Error("JSON Upload Failed");
+
+        const newUrl = `${window.location.origin}/unlock?cid=${jsonHashData.cid}&ref=${promoterWallet}`;
         setViralLink(newUrl);
     } catch (e) {
         alert(t.error);
+    } finally {
+        setIsGenerating(false);
     }
   };
 
@@ -194,9 +229,12 @@ function AffiliateContent() {
                     placeholder={t.paste} 
                     className="w-full p-5 bg-zinc-900 border border-zinc-800 rounded-2xl text-white outline-none focus:border-green-500 transition-all font-mono text-xs"
                 />
-                {error && <p className="text-red-500 text-[10px] font-bold mt-2 uppercase tracking-wide">⚠️ {error}</p>}
                 
-                {productData && !error && (
+                {isFetching && <p className="text-zinc-400 text-[10px] font-bold mt-2 uppercase animate-pulse">{t.fetching}</p>}
+                
+                {error && !isFetching && <p className="text-red-500 text-[10px] font-bold mt-2 uppercase tracking-wide">⚠️ {error}</p>}
+                
+                {productData && !error && !isFetching && (
                     <div className="mt-4 bg-green-900/10 border border-green-500/20 p-4 rounded-xl flex items-center gap-4 animate-fade-in">
                         <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center text-xl">
                             🎁
@@ -225,10 +263,12 @@ function AffiliateContent() {
 
             <button 
                 onClick={generateViralLink}
-                disabled={!productData || !promoterWallet}
-                className="w-full bg-green-600 hover:bg-green-500 text-black font-black py-5 rounded-2xl text-xl uppercase italic shadow-[0_0_40px_rgba(34,197,94,0.3)] hover:shadow-[0_0_60px_rgba(34,197,94,0.5)] transition-all disabled:opacity-50 disabled:shadow-none"
+                disabled={!productData || !promoterWallet || isGenerating}
+                className="w-full flex justify-center items-center gap-2 bg-green-600 hover:bg-green-500 text-black font-black py-5 rounded-2xl text-xl uppercase italic shadow-[0_0_40px_rgba(34,197,94,0.3)] hover:shadow-[0_0_60px_rgba(34,197,94,0.5)] transition-all disabled:opacity-50 disabled:shadow-none"
             >
-                {t.generate}
+                {isGenerating ? (
+                    <svg className="animate-spin h-6 w-6 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                ) : t.generate}
             </button>
 
             {viralLink && (
@@ -240,7 +280,7 @@ function AffiliateContent() {
                             onClick={() => {navigator.clipboard.writeText(viralLink); setCopied(true); setTimeout(()=>setCopied(false), 2000)}} 
                             className="bg-green-600 hover:bg-green-500 text-black px-6 rounded-xl font-bold uppercase text-xs transition-all"
                         >
-                            {copied ? t.copied : t.copy}
+                            {copied ? t.done : t.copy}
                         </button>
                     </div>
                     <p className="text-center text-[10px] text-zinc-600 mt-4 max-w-md mx-auto leading-relaxed">
