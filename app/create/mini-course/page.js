@@ -154,8 +154,21 @@ export default function CourseUploadPage() {
         pc: enablePromo && promoCode && promoDiscount ? { code: promoCode.toUpperCase(), discount: promoDiscount } : null
       };
 
-      const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-      setGeneratedLink(`${window.location.origin}/unlock?id=${encodedId}`);
+      const jsonRes = await fetch('/api/upload-json', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+      });
+      const jsonHashData = await jsonRes.json();
+      if (!jsonHashData.cid) throw new Error("JSON Upload Failed");
+
+      const link = `${window.location.origin}/unlock?cid=${jsonHashData.cid}`;
+      setGeneratedLink(link);
+      
+      const history = JSON.parse(localStorage.getItem('payonce_history') || '[]');
+      history.push({ title: productName, price: usdPrice + ' USD', url: link });
+      localStorage.setItem('payonce_history', JSON.stringify(history));
+
     } catch (err) {
       alert("Upload failed");
     } finally {
@@ -237,7 +250,7 @@ export default function CourseUploadPage() {
         </div>
 
         <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className={inputBaseStyles} placeholder={t.wallet} />
-
+        
         <div className="bg-gradient-to-br from-zinc-900/80 to-zinc-900/40 p-4 rounded-xl border border-dashed border-zinc-700 hover:border-zinc-500 transition-colors flex flex-col gap-3 group">
             <div className="flex items-center justify-between">
                 <div>
