@@ -11,7 +11,7 @@ const translations = {
     organizerLabel: "Organizer",
     emailLabel: "Email",
     walletLabel: "BCH Wallet",
-    goalLabel: "Funding Goal (BCH)",
+    goalLabel: "Funding Goal",
     coverLabel: "Cover Image URL",
     fileLabel: "Or Upload Image",
     launch: "Launch Campaign",
@@ -33,7 +33,7 @@ const translations = {
     organizerLabel: "المنظم",
     emailLabel: "البريد",
     walletLabel: "محفظة BCH",
-    goalLabel: "هدف التمويل (BCH)",
+    goalLabel: "هدف التمويل",
     coverLabel: "رابط صورة الغلاف",
     fileLabel: "أو رفع صورة",
     launch: "إطلاق الحملة",
@@ -55,7 +55,7 @@ const translations = {
     organizerLabel: "组织者",
     emailLabel: "电子邮件",
     walletLabel: "BCH 钱包",
-    goalLabel: "目标 (BCH)",
+    goalLabel: "目标",
     coverLabel: "封面图片链接",
     fileLabel: "或上传图片",
     launch: "发起活动",
@@ -75,6 +75,7 @@ export default function DonationCreatePage() {
   const [formData, setFormData] = useState({
     title: '', desc: '', organizer: '', email: '', wallet: '', goal: '', coverUrl: ''
   });
+  const [goalCurrency, setGoalCurrency] = useState('BCH');
   const [previewFile, setPreviewFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [generatedLink, setGeneratedLink] = useState('');
@@ -109,6 +110,17 @@ export default function DonationCreatePage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const toggleCurrency = () => {
+    setGoalCurrency(prev => prev === 'BCH' ? 'USD' : 'BCH');
+    setFormData(prev => ({...prev, goal: ''}));
+  };
+
+  const getFinalBchGoal = () => {
+    const val = parseFloat(formData.goal);
+    if (isNaN(val)) return 0;
+    return goalCurrency === 'USD' && bchPrice > 0 ? val / bchPrice : val;
+  };
+
   const handleGenerate = async (e) => {
     e.preventDefault();
     if (!formData.wallet || !formData.title || !formData.goal) return alert("All fields are required");
@@ -125,13 +137,15 @@ export default function DonationCreatePage() {
         if (imgJson.ipfsHash) finalCover = `https://gateway.pinata.cloud/ipfs/${imgJson.ipfsHash}`;
       }
 
+      const finalGoal = getFinalBchGoal();
+
       const payload = {
         n: formData.title,
         d: formData.desc,
         sn: formData.organizer,
         se: formData.email,
         w: formData.wallet,
-        g: parseFloat(formData.goal),
+        g: finalGoal,
         pr: finalCover,
         dt: 'donation'
       };
@@ -195,7 +209,9 @@ export default function DonationCreatePage() {
                       </div>
 
                       <div className="bg-zinc-900/30 p-4 rounded-xl border border-zinc-800 space-y-3">
-                          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{t.goalLabel}</p>
+                          <div className="flex justify-between items-center">
+                              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{t.goalLabel}</p>
+                          </div>
                           <div className="flex items-center gap-3">
                               <input 
                                   required
@@ -207,10 +223,18 @@ export default function DonationCreatePage() {
                                   placeholder="0.00" 
                                   className="flex-1 bg-transparent text-3xl font-black text-white outline-none placeholder:text-zinc-700 tabular-nums"
                               />
-                              <span className="text-xl font-black text-green-500">BCH</span>
+                              <button 
+                                  type="button" 
+                                  onClick={toggleCurrency}
+                                  className="text-xl font-black text-green-500 bg-green-500/10 px-4 py-2 rounded-xl hover:bg-green-500/20 transition-colors"
+                              >
+                                  {goalCurrency}
+                              </button>
                           </div>
                           {formData.goal && bchPrice > 0 && (
-                              <p className="text-xs text-zinc-400 font-mono text-right">{t.approx} ${(formData.goal * bchPrice).toLocaleString()} USD</p>
+                              <p className="text-xs text-zinc-400 font-mono text-right">
+                                  {t.approx} {goalCurrency === 'BCH' ? `$${(formData.goal * bchPrice).toLocaleString()} USD` : `${(formData.goal / bchPrice).toFixed(8)} BCH`}
+                              </p>
                           )}
                       </div>
 
@@ -272,7 +296,7 @@ export default function DonationCreatePage() {
                            </div>
                            <div className="flex justify-between text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-6">
                                <span>{t.raised}</span>
-                               <span>{formData.goal || "0"} BCH</span>
+                               <span>{getFinalBchGoal() > 0 ? getFinalBchGoal().toFixed(4) : "0"} BCH</span>
                            </div>
 
                            <div className="w-full py-4 bg-white/5 rounded-xl border border-white/5 flex items-center justify-center gap-2 text-zinc-500 font-black text-xs uppercase">
