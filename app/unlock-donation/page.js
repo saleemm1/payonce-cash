@@ -287,10 +287,10 @@ function DonationContent() {
                         <div className="text-center mb-8 mt-2">
                              <span className="text-6xl font-black text-white tracking-tighter block tabular-nums">{stats.raised.toFixed(3)}</span>
                              <span className="text-sm font-bold text-green-500 uppercase tracking-widest block mt-2">
-                                BCH {t.raised} {t.of} {data.g}
+                                BCH {t.raised} {t.of} {Number(data.g).toFixed(4)}
                              </span>
                              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mt-1">
-                                {t.totalUsd}: ${(stats.raised * bchPrice).toFixed(2)}
+                                {t.totalUsd}: ${(stats.raised * bchPrice).toFixed(2)} / ${(data.g * bchPrice).toFixed(2)}
                              </span>
                         </div>
 
