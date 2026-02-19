@@ -157,8 +157,16 @@ export default function PDFUploadPage() {
         pc: enablePromo && promoCode && promoDiscount ? { code: promoCode.toUpperCase(), discount: promoDiscount } : null
       };
 
-      const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-      setGeneratedLink(`${window.location.origin}/unlock?id=${encodedId}`);
+      const jsonRes = await fetch('/api/upload-json', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+      });
+      const jsonHashData = await jsonRes.json();
+      if (!jsonHashData.cid) throw new Error("JSON Upload Failed");
+
+      const link = `${window.location.origin}/unlock?cid=${jsonHashData.cid}`;
+      setGeneratedLink(link);
     } catch (err) {
       alert("Error during processing");
     } finally {
@@ -291,10 +299,7 @@ export default function PDFUploadPage() {
 
         <div className="bg-gradient-to-r from-zinc-900 to-zinc-800/50 p-4 rounded-xl border border-zinc-700/50 flex items-center justify-between hover:shadow-lg hover:shadow-green-900/10 transition-all duration-300">
           <div>
-            <h3 className="text-sm font-bold uppercase italic text-white group flex items-center gap-1">
-                {t.viral}
-                <span className="text-[10px] bg-green-600/20 text-green-400 px-1.5 rounded ml-2 not-italic">{t.rec}</span>
-            </h3>
+            <h3 className="text-sm font-bold uppercase italic text-white group flex items-center gap-1">{t.viral} <span className="text-[10px] bg-green-600/20 text-green-400 px-1.5 rounded ml-2 not-italic">{t.rec}</span></h3>
             <p className="text-[10px] text-zinc-400 leading-tight mt-1">{t.comm}</p>
           </div>
           <input type="checkbox" checked={enableAffiliate} onChange={(e) => setEnableAffiliate(e.target.checked)} className="w-5 h-5 accent-green-500 cursor-pointer rounded bg-zinc-700 border-zinc-600 focus:ring-green-500 focus:ring-offset-zinc-900" />
