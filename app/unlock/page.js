@@ -209,21 +209,28 @@ function UnlockContent() {
     const savedLang = localStorage.getItem('payonce_lang');
     if (savedLang) setLang(savedLang);
 
-    const id = searchParams.get('id');
-    if (id) {
-      try {
-        const decoded = JSON.parse(decodeURIComponent(escape(atob(id))));
-        setData(decoded);
-        setCurrentPrice(parseFloat(decoded.p));
-      } catch (e) {
-        setError("Invalid Secure Link");
-      }
+    const cid = searchParams.get('cid');
+    if (cid) {
+      fetch(`https://gateway.pinata.cloud/ipfs/${cid}`)
+        .then(res => {
+          if (!res.ok) throw new Error("Network response was not ok");
+          return res.json();
+        })
+        .then(decoded => {
+          setData(decoded);
+          setCurrentPrice(parseFloat(decoded.p));
+        })
+        .catch(() => {
+          setError("Invalid Secure Link");
+        });
+    } else {
+      setError("Invalid Secure Link");
     }
   }, [searchParams]);
 
   useEffect(() => {
     const fetchPrice = async () => {
-      if (currentPrice) {
+      if (currentPrice !== null) {
         try {
           const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd');
           const json = await res.json();
@@ -660,7 +667,7 @@ function UnlockContent() {
                 </div>
                 
                 {data.a && !affiliateAddr && (
-                    <button onClick={() => router.push(`/affiliate?product=${searchParams.get('id')}`)} className="w-full mt-4 py-3 rounded-xl border border-dashed border-zinc-700 text-zinc-500 hover:text-white hover:border-zinc-500 text-[9px] font-black uppercase tracking-widest transition-all">
+                    <button onClick={() => router.push(`/affiliate?product=${searchParams.get('cid')}`)} className="w-full mt-4 py-3 rounded-xl border border-dashed border-zinc-700 text-zinc-500 hover:text-white hover:border-zinc-500 text-[9px] font-black uppercase tracking-widest transition-all">
                         {t.become}
                     </button>
                 )}
