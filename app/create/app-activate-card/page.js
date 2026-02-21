@@ -27,7 +27,13 @@ const translations = {
     done: "✅",
     supply: "Supply Limit",
     unlimited: "Leave empty for unlimited",
-    qty: "Qty:"
+    qty: "Qty:",
+    tokenRule: "CashTokens Rule",
+    tokenDesc: "Web3 Token-Gated Commerce",
+    discountMode: "💸 Discount",
+    gatedMode: "🔒 Required",
+    tokenId: "Token Category ID",
+    tokenPct: "Discount %"
   },
   ar: {
     title: "مفتاح تفعيل التطبيق",
@@ -53,7 +59,13 @@ const translations = {
     done: "✅",
     supply: "حد المخزون",
     unlimited: "اتركه فارغاً لعدد لا نهائي",
-    qty: "العدد:"
+    qty: "العدد:",
+    tokenRule: "قواعد CashTokens",
+    tokenDesc: "تجارة مشروطة بالتوكنز Web3",
+    discountMode: "💸 خصم",
+    gatedMode: "🔒 وصول مشروط",
+    tokenId: "معرف التوكن (Category ID)",
+    tokenPct: "نسبة الخصم %"
   },
   zh: {
     title: "应用激活密钥",
@@ -79,7 +91,13 @@ const translations = {
     done: "✅",
     supply: "供应限制",
     unlimited: "留空表示无限",
-    qty: "数量:"
+    qty: "数量:",
+    tokenRule: "CashTokens 规则",
+    tokenDesc: "Web3 代币门控商业",
+    discountMode: "💸 折扣",
+    gatedMode: "🔒 必须",
+    tokenId: "代币类别 ID",
+    tokenPct: "折扣 %"
   }
 };
 
@@ -103,6 +121,13 @@ export default function AppLicensePage() {
   const [promoCode, setPromoCode] = useState('');
   const [promoDiscount, setPromoDiscount] = useState('');
   const [maxSupply, setMaxSupply] = useState('');
+  
+  // CashTokens States
+  const [enableToken, setEnableToken] = useState(false);
+  const [tokenMode, setTokenMode] = useState('discount'); // 'discount' or 'gated'
+  const [tokenId, setTokenId] = useState('');
+  const [tokenDiscount, setTokenDiscount] = useState('');
+
   const [lang, setLang] = useState('en');
 
   useEffect(() => {
@@ -136,6 +161,13 @@ export default function AppLicensePage() {
       return alert("Please upload the license file");
     }
 
+    if (enableToken && !tokenId) {
+        return alert("Please enter the Token Category ID");
+    }
+    if (enableToken && tokenMode === 'discount' && !tokenDiscount) {
+        return alert("Please enter the discount percentage for token holders");
+    }
+
     setUploading(true);
     try {
       let finalPreview = previewLink;
@@ -155,6 +187,18 @@ export default function AppLicensePage() {
       
       if (!json.ipfsHash) throw new Error("Upload Failed");
 
+      // Build CashTokens Rule object
+      let tkRule = null;
+      if (enableToken) {
+          tkRule = {
+              type: tokenMode,
+              id: tokenId.trim()
+          };
+          if (tokenMode === 'discount') {
+              tkRule.discount = tokenDiscount;
+          }
+      }
+
       const payload = {
         w: wallet,
         p: usdPrice,
@@ -167,7 +211,8 @@ export default function AppLicensePage() {
         a: enableAffiliate,
         dt: 'file',
         l: maxSupply ? parseInt(maxSupply) : null,
-        pc: enablePromo && promoCode && promoDiscount ? { code: promoCode.toUpperCase(), discount: promoDiscount } : null
+        pc: enablePromo && promoCode && promoDiscount ? { code: promoCode.toUpperCase(), discount: promoDiscount } : null,
+        tk: tkRule
       };
 
       const jsonRes = await fetch('/api/upload-json', {
@@ -285,6 +330,39 @@ export default function AppLicensePage() {
                 <div className="flex gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
                     <input type="text" maxLength={5} placeholder="CODE" value={promoCode} onChange={(e)=>setPromoCode(e.target.value.toUpperCase())} className="flex-1 p-2 bg-black/50 border border-zinc-700 rounded-lg text-xs text-white uppercase outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 tracking-widest font-bold" />
                     <input type="number" placeholder="%" min="1" max="100" value={promoDiscount} onChange={(e)=>setPromoDiscount(e.target.value)} className="w-20 p-2 bg-black/50 border border-zinc-700 rounded-lg text-xs text-white outline-none focus:border-green-500 text-center font-bold" />
+                </div>
+            )}
+        </div>
+
+        {/* 🚀 New CashTokens Section */}
+        <div className={`bg-gradient-to-br from-[#0c1610] to-[#09090b] p-4 rounded-xl border border-dashed transition-all duration-300 ${enableToken ? 'border-green-500/50 shadow-[0_0_15px_rgba(34,197,94,0.1)]' : 'border-zinc-700 hover:border-green-900/50'}`}>
+            <div className="flex items-center justify-between mb-2">
+                <div>
+                   <h3 className="text-sm font-bold uppercase italic text-white flex items-center gap-2">
+                       {t.tokenRule} 
+                       {enableToken && <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_5px_#22c55e]"></span>}
+                   </h3>
+                   <p className="text-[9px] text-green-500/70">{t.tokenDesc}</p>
+                </div>
+                <div className={`relative inline-block w-10 ${lang === 'ar' ? 'ml-2' : 'mr-2'} align-middle select-none transition duration-200 ease-in`}>
+                    <input type="checkbox" checked={enableToken} onChange={(e) => setEnableToken(e.target.checked)} className={`toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer ${lang === 'ar' ? 'checked:left-0 left-5' : 'checked:right-0 right-5'} checked:border-green-500 border-zinc-600 transition-all duration-300`}/>
+                    <label className="toggle-label block overflow-hidden h-5 rounded-full bg-zinc-700 cursor-pointer"></label>
+                </div>
+            </div>
+            
+            {enableToken && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-300 space-y-3 mt-3 border-t border-green-900/30 pt-3">
+                    <div className="flex bg-black/50 p-1 rounded-lg border border-green-900/50 gap-1">
+                        <button type="button" onClick={() => setTokenMode('discount')} className={`flex-1 py-2 text-[10px] font-black uppercase rounded-md transition-all duration-300 ${tokenMode === 'discount' ? 'bg-green-600 text-black shadow-md' : 'text-zinc-500 hover:text-white hover:bg-zinc-800'}`}>{t.discountMode}</button>
+                        <button type="button" onClick={() => setTokenMode('gated')} className={`flex-1 py-2 text-[10px] font-black uppercase rounded-md transition-all duration-300 ${tokenMode === 'gated' ? 'bg-green-600 text-black shadow-md' : 'text-zinc-500 hover:text-white hover:bg-zinc-800'}`}>{t.gatedMode}</button>
+                    </div>
+
+                    <div className="flex gap-2">
+                        <input type="text" placeholder={t.tokenId} value={tokenId} onChange={(e)=>setTokenId(e.target.value)} className="flex-1 p-2 bg-black border border-zinc-800 rounded-lg text-xs text-white outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 font-mono tracking-tighter" />
+                        {tokenMode === 'discount' && (
+                            <input type="number" placeholder={t.tokenPct} min="1" max="100" value={tokenDiscount} onChange={(e)=>setTokenDiscount(e.target.value)} className="w-24 p-2 bg-black border border-zinc-800 rounded-lg text-xs text-white outline-none focus:border-green-500 text-center font-bold" />
+                        )}
+                    </div>
                 </div>
             )}
         </div>
