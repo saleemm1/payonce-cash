@@ -15,9 +15,9 @@ const translations = {
     applied: "Code Applied",
     off: "Off",
     scan: "Scanning Network...",
-    smart: "Smart Pay ",
-    manual: "Manual Pay",
-    address: "Address",
+    smart: "Smart Pay (Wallets)",
+    manual: "Manual (Exchanges)",
+    address: "Address (Exchanges)",
     recipient: "Recipient Address",
     copy: "COPY",
     done: "DONE",
@@ -79,9 +79,9 @@ const translations = {
     applied: "تم تطبيق الكود",
     off: "خصم",
     scan: "فحص الشبكة...",
-    smart: "دفع ذكي ",
-    manual: "دفع يدوي",
-    address: "العنوان",
+    smart: "دفع ذكي (محافظ)",
+    manual: "يدوي (منصات)",
+    address: "عنوان (منصات)",
     recipient: "عنوان المستلم",
     copy: "نسخ",
     done: "تم",
@@ -143,9 +143,9 @@ const translations = {
     applied: "代码已应用",
     off: "折",
     scan: "扫描网络...",
-    smart: "智能支付 ",
-    manual: "手动支付",
-    address: "地址",
+    smart: "智能支付 (钱包)",
+    manual: "手动 (交易所)",
+    address: "地址 (交易所)",
     recipient: "收款人地址",
     copy: "复制",
     done: "完成",
@@ -209,7 +209,7 @@ function UnlockContent() {
   const [data, setData] = useState(null);
   const [bchPrice, setBchPrice] = useState(null);
   const [loadingPrice, setLoadingPrice] = useState(true);
-  const [qrMode, setQrMode] = useState('address');
+  const [qrMode, setQrMode] = useState('smart');
   const [copied, setCopied] = useState('');
   const [error, setError] = useState('');
   const [promoCode, setPromoCode] = useState('');
@@ -398,7 +398,7 @@ function UnlockContent() {
     if (data?.a && affiliateAddr && affiliateAddr !== sellerClean) {
       setQrMode('smart');
     } else {
-      setQrMode('address');
+      setQrMode('smart'); 
     }
   }, [data, searchParams]);
 
@@ -456,7 +456,7 @@ function UnlockContent() {
   const standardLink = `bitcoincash:${cleanAddr}?amount=${fullPriceBch}`;
   const smartViralLink = `bitcoincash:${cleanAddr}?amount=${sellerAmt}&address=${affiliateAddr}&amount=${affAmt}`;
 
-  const buttonLink = qrMode === 'smart' && isViral ? smartViralLink : standardLink;
+  const qrData = qrMode === 'smart' ? (isViral ? smartViralLink : standardLink) : cleanAddr;
 
   const copyToClipboard = (text, type) => {
     navigator.clipboard.writeText(text);
@@ -465,7 +465,7 @@ function UnlockContent() {
   };
 
   const handleOpenWallet = () => {
-    window.location.assign(buttonLink);
+    window.location.assign(isViral ? smartViralLink : standardLink);
   };
 
   const isGated = data.tk && data.tk.type === 'gated' && !tokenVerified;
@@ -642,7 +642,7 @@ function UnlockContent() {
                                 <div className="bg-white p-4 rounded-[24px] shadow-lg mb-6 relative group cursor-pointer hover:shadow-[0_0_30px_rgba(34,197,94,0.2)] transition-shadow">
                                     {!loadingPrice ? (
                                         <img
-                                            src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(buttonLink)}`}
+                                            src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`}
                                             alt="QR" className="w-[160px] h-[160px] mix-blend-multiply"
                                         />
                                     ) : <div className="w-[160px] h-[160px] bg-zinc-200 animate-pulse rounded-xl"></div>}
