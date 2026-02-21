@@ -33,6 +33,7 @@ const translations = {
     discountMode: "💸 Discount",
     gatedMode: "🔒 Required",
     tokenId: "Token Category ID",
+    tokenName: "Token Name (e.g. GURU)",
     tokenPct: "Discount %"
   },
   ar: {
@@ -65,6 +66,7 @@ const translations = {
     discountMode: "💸 خصم",
     gatedMode: "🔒 وصول مشروط",
     tokenId: "معرف التوكن (Category ID)",
+    tokenName: "اسم التوكن (مثال: GURU)",
     tokenPct: "نسبة الخصم %"
   },
   zh: {
@@ -97,6 +99,7 @@ const translations = {
     discountMode: "💸 折扣",
     gatedMode: "🔒 必须",
     tokenId: "代币类别 ID",
+    tokenName: "代币名称 (例如 GURU)",
     tokenPct: "折扣 %"
   }
 };
@@ -121,10 +124,13 @@ export default function AppLicensePage() {
   const [promoCode, setPromoCode] = useState('');
   const [promoDiscount, setPromoDiscount] = useState('');
   const [maxSupply, setMaxSupply] = useState('');
+  
   const [enableToken, setEnableToken] = useState(false);
   const [tokenMode, setTokenMode] = useState('discount');
   const [tokenId, setTokenId] = useState('');
+  const [tokenName, setTokenName] = useState('');
   const [tokenDiscount, setTokenDiscount] = useState('');
+
   const [lang, setLang] = useState('en');
 
   useEffect(() => {
@@ -158,8 +164,11 @@ export default function AppLicensePage() {
       return alert("Please upload the license file");
     }
 
-    if (enableToken && !tokenId) return alert("Please enter the Token Category ID");
-    if (enableToken && tokenMode === 'discount' && !tokenDiscount) return alert("Please enter the discount percentage for token holders");
+    if (enableToken) {
+        if (!tokenId) return alert("Please enter the Token Category ID");
+        if (!tokenName) return alert("Please enter the Token Name");
+        if (tokenMode === 'discount' && !tokenDiscount) return alert("Please enter the discount percentage");
+    }
 
     setUploading(true);
     try {
@@ -182,7 +191,11 @@ export default function AppLicensePage() {
 
       let tkRule = null;
       if (enableToken) {
-          tkRule = { type: tokenMode, id: tokenId.trim() };
+          tkRule = { 
+              type: tokenMode, 
+              id: tokenId.trim(),
+              name: tokenName.trim()
+          };
           if (tokenMode === 'discount') tkRule.discount = tokenDiscount;
       }
 
@@ -343,11 +356,14 @@ export default function AppLicensePage() {
                         <button type="button" onClick={() => setTokenMode('gated')} className={`flex-1 py-2 text-[10px] font-black uppercase rounded-md transition-all duration-300 ${tokenMode === 'gated' ? 'bg-green-600 text-black shadow-md' : 'text-zinc-500 hover:text-white hover:bg-zinc-800'}`}>{t.gatedMode}</button>
                     </div>
 
-                    <div className="flex gap-2">
-                        <input type="text" placeholder={t.tokenId} value={tokenId} onChange={(e)=>setTokenId(e.target.value)} className="flex-1 p-2 bg-black border border-zinc-800 rounded-lg text-xs text-white outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 font-mono tracking-tighter" />
-                        {tokenMode === 'discount' && (
-                            <input type="number" placeholder={t.tokenPct} min="1" max="100" value={tokenDiscount} onChange={(e)=>setTokenDiscount(e.target.value)} className="w-24 p-2 bg-black border border-zinc-800 rounded-lg text-xs text-white outline-none focus:border-green-500 text-center font-bold" />
-                        )}
+                    <div className="space-y-2">
+                        <input type="text" placeholder={t.tokenName} value={tokenName} onChange={(e)=>setTokenName(e.target.value)} className="w-full p-2 bg-black border border-zinc-800 rounded-lg text-xs text-white outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" />
+                        <div className="flex gap-2">
+                            <input type="text" placeholder={t.tokenId} value={tokenId} onChange={(e)=>setTokenId(e.target.value)} className="flex-1 p-2 bg-black border border-zinc-800 rounded-lg text-xs text-white outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 font-mono tracking-tighter" />
+                            {tokenMode === 'discount' && (
+                                <input type="number" placeholder={t.tokenPct} min="1" max="100" value={tokenDiscount} onChange={(e)=>setTokenDiscount(e.target.value)} className="w-24 p-2 bg-black border border-zinc-800 rounded-lg text-xs text-white outline-none focus:border-green-500 text-center font-bold" />
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
