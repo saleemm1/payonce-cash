@@ -68,7 +68,8 @@ const translations = {
     gatedWarning: "Requires Token:",
     discountAvailable: "Holder Discount:",
     holdToGet: "Hold to get",
-    discountOff: "off!"
+    discountOff: "off!",
+    viewExplorer: "View on Explorer"
   },
   ar: {
     loading: "جاري التحميل...",
@@ -135,7 +136,8 @@ const translations = {
     gatedWarning: "يتطلب توكن:",
     discountAvailable: "خصم لحاملي توكن:",
     holdToGet: "امتلكه لتحصل على",
-    discountOff: "خصم!"
+    discountOff: "خصم!",
+    viewExplorer: "عرض على المستكشف"
   },
   zh: {
     loading: "加载中...",
@@ -202,7 +204,8 @@ const translations = {
     gatedWarning: "需要代币：",
     discountAvailable: "持有人折扣：",
     holdToGet: "持有以获得",
-    discountOff: "折扣！"
+    discountOff: "折扣！",
+    viewExplorer: "在浏览器中查看"
   }
 };
 
@@ -576,8 +579,15 @@ function UnlockContent() {
                                 {data.tk.type === 'gated' ? t.gatedWarning : t.discountAvailable} 
                                 <span className="text-white bg-green-500/20 px-2 py-0.5 rounded-md tracking-widest">{data.tk.name}</span>
                             </h3>
+                            <div className="flex items-center justify-between text-[10px] text-zinc-400 font-mono mt-1 pr-1">
+                                <span>ID: {data.tk.id.substring(0, 6)}...{data.tk.id.substring(data.tk.id.length - 4)}</span>
+                                <a href={`https://tokenexplorer.cash/token/${data.tk.id}`} target="_blank" rel="noopener noreferrer" className="text-green-500 hover:text-green-400 flex items-center gap-1 underline decoration-green-500/30 underline-offset-2 transition-colors">
+                                    {t.viewExplorer}
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                </a>
+                            </div>
                             {data.tk.type === 'discount' && (
-                                <p className="text-[10px] text-zinc-400">{t.holdToGet} <span className="text-green-400 font-bold">{data.tk.discount}%</span> {t.discountOff}</p>
+                                <p className="text-[10px] text-zinc-400 mt-1">{t.holdToGet} <span className="text-green-400 font-bold">{data.tk.discount}%</span> {t.discountOff}</p>
                             )}
                         </div>
                         <div className="flex gap-2">
