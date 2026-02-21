@@ -579,18 +579,20 @@ function UnlockContent() {
                                 {data.tk.type === 'gated' ? t.gatedWarning : t.discountAvailable} 
                                 <span className="text-white bg-green-500/20 px-2 py-0.5 rounded-md tracking-widest">{data.tk.name}</span>
                             </h3>
-                            <div className="flex items-center justify-between text-[10px] text-zinc-400 font-mono mt-1 pr-1">
-                                <span>ID: {data.tk.id.substring(0, 6)}...{data.tk.id.substring(data.tk.id.length - 4)}</span>
-                                <a href={`https://tokenexplorer.cash/token/${data.tk.id}`} target="_blank" rel="noopener noreferrer" className="text-green-500 hover:text-green-400 flex items-center gap-1 underline decoration-green-500/30 underline-offset-2 transition-colors">
-                                    {t.viewExplorer}
+                            
+                            <div className="flex items-center justify-between bg-black/40 p-2 rounded-lg border border-green-900/30 mt-2">
+                                <span className="text-[10px] text-zinc-400 font-mono">ID: {data.tk.id.substring(0, 8)}...{data.tk.id.substring(data.tk.id.length - 6)}</span>
+                                <a href={`https://tokenexplorer.cash/token/${data.tk.id}`} target="_blank" rel="noopener noreferrer" className="bg-green-900/30 hover:bg-green-500/20 text-green-500 px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors border border-green-500/20">
+                                    <span className="text-[9px] font-black uppercase tracking-wider">{t.viewExplorer}</span>
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                                 </a>
                             </div>
+
                             {data.tk.type === 'discount' && (
-                                <p className="text-[10px] text-zinc-400 mt-1">{t.holdToGet} <span className="text-green-400 font-bold">{data.tk.discount}%</span> {t.discountOff}</p>
+                                <p className="text-[10px] text-zinc-400 mt-2">{t.holdToGet} <span className="text-green-400 font-bold">{data.tk.discount}%</span> {t.discountOff}</p>
                             )}
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 mt-2">
                             <input 
                                 type="text" 
                                 placeholder={t.tokenWalletPlaceholder} 
