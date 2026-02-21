@@ -121,13 +121,10 @@ export default function AppLicensePage() {
   const [promoCode, setPromoCode] = useState('');
   const [promoDiscount, setPromoDiscount] = useState('');
   const [maxSupply, setMaxSupply] = useState('');
-  
-  // CashTokens States
   const [enableToken, setEnableToken] = useState(false);
-  const [tokenMode, setTokenMode] = useState('discount'); // 'discount' or 'gated'
+  const [tokenMode, setTokenMode] = useState('discount');
   const [tokenId, setTokenId] = useState('');
   const [tokenDiscount, setTokenDiscount] = useState('');
-
   const [lang, setLang] = useState('en');
 
   useEffect(() => {
@@ -161,12 +158,8 @@ export default function AppLicensePage() {
       return alert("Please upload the license file");
     }
 
-    if (enableToken && !tokenId) {
-        return alert("Please enter the Token Category ID");
-    }
-    if (enableToken && tokenMode === 'discount' && !tokenDiscount) {
-        return alert("Please enter the discount percentage for token holders");
-    }
+    if (enableToken && !tokenId) return alert("Please enter the Token Category ID");
+    if (enableToken && tokenMode === 'discount' && !tokenDiscount) return alert("Please enter the discount percentage for token holders");
 
     setUploading(true);
     try {
@@ -187,16 +180,10 @@ export default function AppLicensePage() {
       
       if (!json.ipfsHash) throw new Error("Upload Failed");
 
-      // Build CashTokens Rule object
       let tkRule = null;
       if (enableToken) {
-          tkRule = {
-              type: tokenMode,
-              id: tokenId.trim()
-          };
-          if (tokenMode === 'discount') {
-              tkRule.discount = tokenDiscount;
-          }
+          tkRule = { type: tokenMode, id: tokenId.trim() };
+          if (tokenMode === 'discount') tkRule.discount = tokenDiscount;
       }
 
       const payload = {
@@ -334,7 +321,6 @@ export default function AppLicensePage() {
             )}
         </div>
 
-        {/* 🚀 New CashTokens Section */}
         <div className={`bg-gradient-to-br from-[#0c1610] to-[#09090b] p-4 rounded-xl border border-dashed transition-all duration-300 ${enableToken ? 'border-green-500/50 shadow-[0_0_15px_rgba(34,197,94,0.1)]' : 'border-zinc-700 hover:border-green-900/50'}`}>
             <div className="flex items-center justify-between mb-2">
                 <div>
