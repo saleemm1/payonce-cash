@@ -60,13 +60,15 @@ const translations = {
     browse: "Browse Other Items",
     supply: "Total Supply",
     left: "🔥 High Demand: Only",
-    verifyToken: "Verify Token",
+    verifyToken: "Verify Wallet",
     tokenWalletPlaceholder: "Your BCH Wallet Address",
-    checkingToken: "Checking Blockchain...",
-    tokenFound: "Token Verified! Discount Applied.",
-    noToken: "Token not found in this wallet.",
-    gatedWarning: "This item requires a specific CashToken to purchase.",
-    discountAvailable: "Hold the community token? Verify to get a discount!"
+    checkingToken: "Checking...",
+    tokenFound: "Token Verified! Access Granted.",
+    noToken: "Required token not found in this wallet.",
+    gatedWarning: "Requires Token:",
+    discountAvailable: "Holder Discount:",
+    holdToGet: "Hold to get",
+    discountOff: "off!"
   },
   ar: {
     loading: "جاري التحميل...",
@@ -125,13 +127,15 @@ const translations = {
     browse: "تصفح عناصر أخرى",
     supply: "إجمالي العرض",
     left: "🔥 طلب عالي: بقي فقط",
-    verifyToken: "التحقق من التوكن",
+    verifyToken: "تحقق من المحفظة",
     tokenWalletPlaceholder: "عنوان محفظة BCH الخاص بك",
-    checkingToken: "جاري فحص البلوكشين...",
-    tokenFound: "تم التحقق من التوكن! تم تطبيق الخصم.",
-    noToken: "لم يتم العثور على التوكن في هذه المحفظة.",
-    gatedWarning: "يتطلب هذا العنصر توكن CashToken محدد للشراء.",
-    discountAvailable: "هل تملك توكن المجتمع؟ تحقق للحصول على خصم!"
+    checkingToken: "جاري الفحص...",
+    tokenFound: "تم التحقق! تم منح الوصول.",
+    noToken: "لم يتم العثور على التوكن المطلوب.",
+    gatedWarning: "يتطلب توكن:",
+    discountAvailable: "خصم لحاملي توكن:",
+    holdToGet: "امتلكه لتحصل على",
+    discountOff: "خصم!"
   },
   zh: {
     loading: "加载中...",
@@ -190,13 +194,15 @@ const translations = {
     browse: "浏览其他项目",
     supply: "总供应量",
     left: "🔥 高需求：仅剩",
-    verifyToken: "验证代币",
+    verifyToken: "验证钱包",
     tokenWalletPlaceholder: "您的 BCH 钱包地址",
-    checkingToken: "正在检查区块链...",
-    tokenFound: "代币已验证！折扣已应用。",
-    noToken: "在此钱包中未找到代币。",
-    gatedWarning: "此项目需要特定的 CashToken 才能购买。",
-    discountAvailable: "持有社区代币？验证以获得折扣！"
+    checkingToken: "检查中...",
+    tokenFound: "代币已验证！访问已授权。",
+    noToken: "在此钱包中未找到所需的代币。",
+    gatedWarning: "需要代币：",
+    discountAvailable: "持有人折扣：",
+    holdToGet: "持有以获得",
+    discountOff: "折扣！"
   }
 };
 
@@ -563,27 +569,34 @@ function UnlockContent() {
                 </div>}
 
                 {data.tk && !tokenVerified && (
-                    <div className="mt-6 w-full bg-gradient-to-br from-[#0c1610] to-[#09090b] p-4 rounded-xl border border-dashed border-green-900/50 flex flex-col gap-3 text-start">
-                        <h3 className="text-xs font-black uppercase text-green-500 flex items-center gap-2">
-                            {data.tk.type === 'gated' ? t.gatedWarning : t.discountAvailable}
-                        </h3>
+                    <div className="mt-6 w-full bg-gradient-to-br from-[#0c1610] to-[#09090b] p-5 rounded-2xl border border-green-900/50 flex flex-col gap-4 text-start relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
+                        <div className="flex flex-col gap-1">
+                            <h3 className="text-xs font-black uppercase text-green-500 flex items-center gap-2">
+                                {data.tk.type === 'gated' ? t.gatedWarning : t.discountAvailable} 
+                                <span className="text-white bg-green-500/20 px-2 py-0.5 rounded-md tracking-widest">{data.tk.name}</span>
+                            </h3>
+                            {data.tk.type === 'discount' && (
+                                <p className="text-[10px] text-zinc-400">{t.holdToGet} <span className="text-green-400 font-bold">{data.tk.discount}%</span> {t.discountOff}</p>
+                            )}
+                        </div>
                         <div className="flex gap-2">
                             <input 
                                 type="text" 
                                 placeholder={t.tokenWalletPlaceholder} 
                                 value={tokenWallet} 
                                 onChange={(e)=>setTokenWallet(e.target.value)} 
-                                className="flex-1 bg-black/50 p-2 rounded-lg border border-green-900/50 text-xs text-green-400 font-mono outline-none focus:border-green-500"
+                                className="flex-1 bg-black/50 p-3 rounded-xl border border-green-900/50 text-xs text-green-400 font-mono outline-none focus:border-green-500"
                             />
                             <button 
                                 onClick={handleVerifyToken}
                                 disabled={verifyingToken || !tokenWallet}
-                                className="bg-green-600 hover:bg-green-500 text-black font-bold text-[10px] px-4 rounded-lg uppercase disabled:opacity-50 transition-colors"
+                                className="bg-green-600 hover:bg-green-500 text-black font-bold text-[10px] px-5 rounded-xl uppercase disabled:opacity-50 transition-colors shadow-lg shadow-green-900/20"
                             >
                                 {verifyingToken ? t.checkingToken : t.verifyToken}
                             </button>
                         </div>
-                        {tokenError && <p className="text-[9px] text-red-500 font-bold uppercase">{tokenError}</p>}
+                        {tokenError && <p className="text-[10px] text-red-500 font-bold uppercase">{tokenError}</p>}
                     </div>
                 )}
 
