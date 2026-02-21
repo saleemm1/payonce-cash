@@ -35,7 +35,8 @@ const translations = {
     tokenId: "Token Category ID",
     tokenName: "Token Name (e.g. GURU)",
     tokenPct: "Discount %",
-    verifyExplorer: "Verify ID on Explorer ↗"
+    verifyExplorer: "Verify ID on Explorer",
+    evmWarning: "⚠️ Native CashToken IDs are 64 characters and do not start with 0x."
   },
   ar: {
     title: "مفتاح تفعيل التطبيق",
@@ -69,7 +70,8 @@ const translations = {
     tokenId: "معرف التوكن (Category ID)",
     tokenName: "اسم التوكن (مثال: GURU)",
     tokenPct: "نسبة الخصم %",
-    verifyExplorer: "تحقق من المعرف على المستكشف ↗"
+    verifyExplorer: "تحقق من المعرف على المستكشف",
+    evmWarning: "⚠️ معرف CashToken الأصلي يتكون من 64 حرفاً ولا يبدأ بـ 0x."
   },
   zh: {
     title: "应用激活密钥",
@@ -103,7 +105,8 @@ const translations = {
     tokenId: "代币类别 ID",
     tokenName: "代币名称 (例如 GURU)",
     tokenPct: "折扣 %",
-    verifyExplorer: "在浏览器中验证 ID ↗"
+    verifyExplorer: "在浏览器中验证 ID",
+    evmWarning: "⚠️ 原生 CashToken ID 为 64 个字符，且不以 0x 开头。"
   }
 };
 
@@ -169,6 +172,7 @@ export default function AppLicensePage() {
 
     if (enableToken) {
         if (!tokenId) return alert("Please enter the Token Category ID");
+        if (tokenId.startsWith('0x')) return alert(t.evmWarning);
         if (!tokenName) return alert("Please enter the Token Name");
         if (tokenMode === 'discount' && !tokenDiscount) return alert("Please enter the discount percentage");
     }
@@ -362,14 +366,18 @@ export default function AppLicensePage() {
                     <div className="space-y-2">
                         <input type="text" placeholder={t.tokenName} value={tokenName} onChange={(e)=>setTokenName(e.target.value)} className="w-full p-2 bg-black border border-zinc-800 rounded-lg text-xs text-white outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" />
                         <div className="flex gap-2">
-                            <input type="text" placeholder={t.tokenId} value={tokenId} onChange={(e)=>setTokenId(e.target.value)} className="flex-1 p-2 bg-black border border-zinc-800 rounded-lg text-xs text-white outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 font-mono tracking-tighter" />
+                            <input type="text" placeholder={t.tokenId} value={tokenId} onChange={(e)=>setTokenId(e.target.value)} className={`flex-1 p-2 bg-black border rounded-lg text-xs text-white outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 font-mono tracking-tighter ${tokenId.startsWith('0x') ? 'border-red-500' : 'border-zinc-800'}`} />
                             {tokenMode === 'discount' && (
                                 <input type="number" placeholder={t.tokenPct} min="1" max="100" value={tokenDiscount} onChange={(e)=>setTokenDiscount(e.target.value)} className="w-24 p-2 bg-black border border-zinc-800 rounded-lg text-xs text-white outline-none focus:border-green-500 text-center font-bold" />
                             )}
                         </div>
-                        {tokenId.length > 20 && (
-                            <a href={`https://tokenexplorer.cash/token/${tokenId}`} target="_blank" rel="noopener noreferrer" className="text-[9px] text-green-500 hover:text-green-400 underline decoration-green-500/30 underline-offset-2 inline-block">
+                        {tokenId.startsWith('0x') && (
+                            <p className="text-[9px] text-red-500 font-bold mt-1 bg-red-500/10 p-2 rounded-lg">{t.evmWarning}</p>
+                        )}
+                        {tokenId.length > 20 && !tokenId.startsWith('0x') && (
+                            <a href={`https://tokenexplorer.cash/token/${tokenId}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full bg-zinc-800/50 hover:bg-zinc-800 text-green-500 py-2.5 rounded-lg text-[10px] font-black uppercase transition-all border border-zinc-700 hover:border-green-500/50">
                                 {t.verifyExplorer}
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                             </a>
                         )}
                     </div>
