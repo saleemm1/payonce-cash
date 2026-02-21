@@ -59,7 +59,14 @@ const translations = {
     gone: "This limited edition asset is gone.",
     browse: "Browse Other Items",
     supply: "Total Supply",
-    left: "🔥 High Demand: Only"
+    left: "🔥 High Demand: Only",
+    verifyToken: "Verify Token",
+    tokenWalletPlaceholder: "Your BCH Wallet Address",
+    checkingToken: "Checking Blockchain...",
+    tokenFound: "Token Verified! Discount Applied.",
+    noToken: "Token not found in this wallet.",
+    gatedWarning: "This item requires a specific CashToken to purchase.",
+    discountAvailable: "Hold the community token? Verify to get a discount!"
   },
   ar: {
     loading: "جاري التحميل...",
@@ -117,7 +124,14 @@ const translations = {
     gone: "هذا الإصدار المحدود قد انتهى.",
     browse: "تصفح عناصر أخرى",
     supply: "إجمالي العرض",
-    left: "🔥 طلب عالي: بقي فقط"
+    left: "🔥 طلب عالي: بقي فقط",
+    verifyToken: "التحقق من التوكن",
+    tokenWalletPlaceholder: "عنوان محفظة BCH الخاص بك",
+    checkingToken: "جاري فحص البلوكشين...",
+    tokenFound: "تم التحقق من التوكن! تم تطبيق الخصم.",
+    noToken: "لم يتم العثور على التوكن في هذه المحفظة.",
+    gatedWarning: "يتطلب هذا العنصر توكن CashToken محدد للشراء.",
+    discountAvailable: "هل تملك توكن المجتمع؟ تحقق للحصول على خصم!"
   },
   zh: {
     loading: "加载中...",
@@ -175,7 +189,14 @@ const translations = {
     gone: "此限量版资产已售罄。",
     browse: "浏览其他项目",
     supply: "总供应量",
-    left: "🔥 高需求：仅剩"
+    left: "🔥 高需求：仅剩",
+    verifyToken: "验证代币",
+    tokenWalletPlaceholder: "您的 BCH 钱包地址",
+    checkingToken: "正在检查区块链...",
+    tokenFound: "代币已验证！折扣已应用。",
+    noToken: "在此钱包中未找到代币。",
+    gatedWarning: "此项目需要特定的 CashToken 才能购买。",
+    discountAvailable: "持有社区代币？验证以获得折扣！"
   }
 };
 
@@ -200,6 +221,12 @@ function UnlockContent() {
   const [promoError, setPromoError] = useState('');
   const [currentPrice, setCurrentPrice] = useState(null);
   const [txHash, setTxHash] = useState('');
+  
+  const [tokenWallet, setTokenWallet] = useState('');
+  const [verifyingToken, setVerifyingToken] = useState(false);
+  const [tokenVerified, setTokenVerified] = useState(false);
+  const [tokenError, setTokenError] = useState('');
+
   const [lang, setLang] = useState('en');
   
   const initialTxHistory = useRef(new Set());
@@ -254,7 +281,7 @@ function UnlockContent() {
   };
 
   const handleApplyPromo = () => {
-    if (data?.pc && data.pc.code === promoCode && !promoApplied) {
+    if (data?.pc && data.pc.code === promoCode && !promoApplied && !tokenVerified) {
       const discount = (parseFloat(data.p) * (parseFloat(data.pc.discount) / 100));
       const newPrice = Math.max(0, parseFloat(data.p) - discount);
       setCurrentPrice(newPrice);
@@ -265,6 +292,31 @@ function UnlockContent() {
     }
   };
 
+  const handleVerifyToken = async () => {
+    if (!tokenWallet || !data?.tk?.id) return;
+    setVerifyingToken(true);
+    setTokenError('');
+    try {
+        const cleanAddr = tokenWallet.includes(':') ? tokenWallet.split(':')[1] : tokenWallet;
+        const res = await fetch(`https://rest.mainnet.cash/v1/address/utxos/${cleanAddr}`);
+        const utxos = await res.json();
+        const hasToken = utxos.some(u => u.token && u.token.category === data.tk.id);
+        
+        if (hasToken) {
+            setTokenVerified(true);
+            if (data.tk.type === 'discount' && !promoApplied) {
+                const discountAmount = parseFloat(data.p) * (parseFloat(data.tk.discount) / 100);
+                setCurrentPrice(Math.max(0, parseFloat(data.p) - discountAmount));
+            }
+        } else {
+            setTokenError(translations[lang].noToken);
+        }
+    } catch(e) {
+        setTokenError(translations[lang].noToken);
+    }
+    setVerifyingToken(false);
+  };
+
   const validateTransaction = async (hash) => {
     setTxHash(hash);
     setChecking(false);
@@ -273,7 +325,6 @@ function UnlockContent() {
 
     try {
       setTimeout(() => setSecurityStep(1), 1000);
-      
       const res = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/transaction/${hash}`);
       const json = await res.json();
       const txData = json.data[hash];
@@ -299,10 +350,8 @@ function UnlockContent() {
 
   useEffect(() => {
     let interval;
-    
     const checkBlockchain = async () => {
       if (!data?.w || !bchPrice) return;
-      
       const rawAddr = data.w;
       const sellerClean = rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr;
       const expectedSats = Math.floor(parseFloat(bchPrice) * 100000000) - 1000; 
@@ -314,7 +363,6 @@ function UnlockContent() {
           if (data.l) { 
               const totalSales = history.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 5000).length;
               setSoldCount(totalSales);
-              
               if (totalSales >= data.l) {
                   setIsSoldOut(true);
                   setChecking(false);
@@ -338,7 +386,6 @@ function UnlockContent() {
               history.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
               isHistoryLoaded.current = true;
           }
-
       } catch (err) {}
     };
 
@@ -418,6 +465,8 @@ function UnlockContent() {
     window.location.assign(buttonLink);
   };
 
+  const isGated = data.tk && data.tk.type === 'gated' && !tokenVerified;
+
   return (
     <div dir={dir} className={`min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center px-4 py-12 font-sans relative overflow-hidden ${lang === 'ar' ? 'font-arabic' : ''}`}>
       
@@ -459,7 +508,7 @@ function UnlockContent() {
       )}
 
       {!isPaid && !isValidating && (
-        <div className="w-full max-w-[480px] bg-[#121214] rounded-[32px] border border-white/5 shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-500">
+        <div className="w-full max-w-[480px] bg-[#121214] rounded-[32px] border border-white/5 shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-500 p-8">
             
             {isViral && (
               <div className={`absolute -right-12 top-8 bg-green-500 text-black text-[10px] font-black px-12 py-1 rotate-45 uppercase shadow-[0_0_20px_rgba(34,197,94,0.4)] z-20 tracking-widest`}>
@@ -467,222 +516,253 @@ function UnlockContent() {
               </div>
             )}
 
-            <div className="p-8">
-                <div className="flex flex-col items-center text-center mb-8">
-                    {data.cn && (
-                        <div className="mb-6 inline-flex items-center gap-2 bg-green-900/20 border border-green-500/20 px-4 py-1.5 rounded-full">
-                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-                            <span className="text-[10px] text-green-500 font-bold uppercase tracking-widest">{t.bill}: {data.cn}</span>
-                        </div>
-                    )}
-
-                    {data.pr && (
-                        <div className="w-full relative mb-6 group overflow-hidden rounded-[24px] border border-white/5">
-                            <img src={data.pr} className="w-full h-52 object-cover transition-transform duration-700 group-hover:scale-105" alt="Preview" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-                            <div className="absolute bottom-4 left-4 right-4 text-left">
-                                <p className="text-[10px] text-zinc-400 font-black uppercase tracking-wider mb-1">
-                                    {t.preview}
-                                </p>
-                            </div>
-                        </div>
-                    )}
-
-                    <h1 className="text-3xl font-black italic uppercase tracking-tighter text-white leading-none mb-2">{data.n}</h1>
-                    
-                    <div className="inline-block bg-white/5 px-3 py-1 rounded-lg border border-white/5 mb-3">
-                       <p className="text-[10px] text-green-500/80 font-bold truncate italic uppercase">
-                         {data.fn || "Secure_Attachment.enc"}
-                       </p>
+            <div className="flex flex-col items-center text-center mb-6">
+                {data.cn && (
+                    <div className="mb-6 inline-flex items-center gap-2 bg-green-900/20 border border-green-500/20 px-4 py-1.5 rounded-full">
+                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-[10px] text-green-500 font-bold uppercase tracking-widest">{t.bill}: {data.cn}</span>
                     </div>
-                    
-                    {isViral && (
-                       <p className="text-[10px] text-green-500 font-bold uppercase tracking-widest block">
-                         {t.reward}
-                       </p>
-                    )}
-                    
-                    {data.l && (
-                        <div className="mt-2 mb-2 text-center">
-                            <span className="inline-block bg-red-500/10 text-red-500 border border-red-500/20 text-[9px] font-black uppercase px-2 py-1 rounded animate-pulse">
-                                {t.left} {data.l - soldCount}
-                            </span>
+                )}
+
+                {data.pr && (
+                    <div className="w-full relative mb-6 group overflow-hidden rounded-[24px] border border-white/5">
+                        <img src={data.pr} className="w-full h-52 object-cover transition-transform duration-700 group-hover:scale-105" alt="Preview" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                        <div className="absolute bottom-4 left-4 right-4 text-left">
+                            <p className="text-[10px] text-zinc-400 font-black uppercase tracking-wider mb-1">
+                                {t.preview}
+                            </p>
                         </div>
-                    )}
+                    </div>
+                )}
 
-                    {data.d && <div className="mt-4 bg-zinc-900/50 p-3 rounded-xl border border-white/5 w-full text-left">
-                        <p className="text-zinc-400 text-[11px] leading-relaxed italic">{data.d}</p>
-                    </div>}
+                <h1 className="text-3xl font-black italic uppercase tracking-tighter text-white leading-none mb-2">{data.n}</h1>
+                
+                <div className="inline-block bg-white/5 px-3 py-1 rounded-lg border border-white/5 mb-3">
+                   <p className="text-[10px] text-green-500/80 font-bold truncate italic uppercase">
+                     {data.fn || "Secure_Attachment.enc"}
+                   </p>
+                </div>
+                
+                {isViral && (
+                   <p className="text-[10px] text-green-500 font-bold uppercase tracking-widest block">
+                     {t.reward}
+                   </p>
+                )}
+                
+                {data.l && (
+                    <div className="mt-2 mb-2 text-center">
+                        <span className="inline-block bg-red-500/10 text-red-500 border border-red-500/20 text-[9px] font-black uppercase px-2 py-1 rounded animate-pulse">
+                            {t.left} {data.l - soldCount}
+                        </span>
+                    </div>
+                )}
 
-                    {data.pc && !isPaid && !promoApplied && (
-                        <div className="mt-4 w-full bg-zinc-900/50 p-2 rounded-xl border border-white/5 flex gap-2">
+                {data.d && <div className="mt-4 bg-zinc-900/50 p-3 rounded-xl border border-white/5 w-full text-left">
+                    <p className="text-zinc-400 text-[11px] leading-relaxed italic">{data.d}</p>
+                </div>}
+
+                {data.tk && !tokenVerified && (
+                    <div className="mt-6 w-full bg-gradient-to-br from-[#0c1610] to-[#09090b] p-4 rounded-xl border border-dashed border-green-900/50 flex flex-col gap-3 text-start">
+                        <h3 className="text-xs font-black uppercase text-green-500 flex items-center gap-2">
+                            {data.tk.type === 'gated' ? t.gatedWarning : t.discountAvailable}
+                        </h3>
+                        <div className="flex gap-2">
                             <input 
                                 type="text" 
-                                placeholder={t.promo} 
-                                value={promoCode} 
-                                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                                className="bg-transparent w-full text-xs p-2 outline-none text-white placeholder:text-zinc-600 font-mono"
-                                maxLength={5}
+                                placeholder={t.tokenWalletPlaceholder} 
+                                value={tokenWallet} 
+                                onChange={(e)=>setTokenWallet(e.target.value)} 
+                                className="flex-1 bg-black/50 p-2 rounded-lg border border-green-900/50 text-xs text-green-400 font-mono outline-none focus:border-green-500"
                             />
                             <button 
-                                onClick={handleApplyPromo}
-                                className="bg-white/10 hover:bg-white/20 text-white text-[10px] font-bold px-3 rounded-lg uppercase transition-all"
+                                onClick={handleVerifyToken}
+                                disabled={verifyingToken || !tokenWallet}
+                                className="bg-green-600 hover:bg-green-500 text-black font-bold text-[10px] px-4 rounded-lg uppercase disabled:opacity-50 transition-colors"
                             >
-                                {t.apply}
+                                {verifyingToken ? t.checkingToken : t.verifyToken}
                             </button>
                         </div>
-                    )}
-                    {promoError && <p className="text-[9px] text-red-500 font-bold mt-1 uppercase">{promoError}</p>}
-                    {promoApplied && <p className="text-[9px] text-green-500 font-bold mt-1 uppercase">{t.applied}: {data.pc.discount}% {t.off}</p>}
+                        {tokenError && <p className="text-[9px] text-red-500 font-bold uppercase">{tokenError}</p>}
+                    </div>
+                )}
 
-                </div>
+                {tokenVerified && data.tk && (
+                    <div className="mt-4 w-full bg-green-500/10 p-3 rounded-xl border border-green-500/30 text-green-500 text-[10px] font-black uppercase tracking-widest">
+                        ✅ {t.tokenFound}
+                    </div>
+                )}
 
-                <div className="bg-zinc-900/30 rounded-[24px] border border-white/5 p-6 mb-6">
-                    <div className="flex flex-col items-center">
-                        {!(isViral && qrMode === 'manual') && (
-                            <div className="bg-white p-4 rounded-[24px] shadow-lg mb-6 relative group cursor-pointer hover:shadow-[0_0_30px_rgba(34,197,94,0.2)] transition-shadow">
-                                {!loadingPrice ? (
-                                    <img
-                                        src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(buttonLink)}`}
-                                        alt="QR" className="w-[160px] h-[160px] mix-blend-multiply"
-                                    />
-                                ) : <div className="w-[160px] h-[160px] bg-zinc-200 animate-pulse rounded-xl"></div>}
-                                
-                                {checking && (
-                                    <div className="absolute inset-0 bg-black/90 backdrop-blur-sm rounded-[24px] flex flex-col items-center justify-center">
-                                        <div className="w-8 h-8 border-2 border-green-500 border-t-transparent rounded-full animate-spin mb-2"></div>
-                                        <p className="text-[8px] font-black text-green-500 uppercase tracking-widest">{t.scan}</p>
-                                    </div>
+                {data.pc && !isPaid && !promoApplied && !tokenVerified && !isGated && (
+                    <div className="mt-4 w-full bg-zinc-900/50 p-2 rounded-xl border border-white/5 flex gap-2">
+                        <input 
+                            type="text" 
+                            placeholder={t.promo} 
+                            value={promoCode} 
+                            onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                            className="bg-transparent w-full text-xs p-2 outline-none text-white placeholder:text-zinc-600 font-mono"
+                            maxLength={5}
+                        />
+                        <button 
+                            onClick={handleApplyPromo}
+                            className="bg-white/10 hover:bg-white/20 text-white text-[10px] font-bold px-3 rounded-lg uppercase transition-all"
+                        >
+                            {t.apply}
+                        </button>
+                    </div>
+                )}
+                {promoError && <p className="text-[9px] text-red-500 font-bold mt-1 uppercase">{promoError}</p>}
+                {promoApplied && <p className="text-[9px] text-green-500 font-bold mt-1 uppercase">{t.applied}: {data.pc.discount}% {t.off}</p>}
+            </div>
+
+            {!isGated && (
+                <>
+                    <div className="bg-zinc-900/30 rounded-[24px] border border-white/5 p-6 mb-6">
+                        <div className="flex flex-col items-center">
+                            {!(isViral && qrMode === 'manual') && (
+                                <div className="bg-white p-4 rounded-[24px] shadow-lg mb-6 relative group cursor-pointer hover:shadow-[0_0_30px_rgba(34,197,94,0.2)] transition-shadow">
+                                    {!loadingPrice ? (
+                                        <img
+                                            src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(buttonLink)}`}
+                                            alt="QR" className="w-[160px] h-[160px] mix-blend-multiply"
+                                        />
+                                    ) : <div className="w-[160px] h-[160px] bg-zinc-200 animate-pulse rounded-xl"></div>}
+                                    
+                                    {checking && (
+                                        <div className="absolute inset-0 bg-black/90 backdrop-blur-sm rounded-[24px] flex flex-col items-center justify-center">
+                                            <div className="w-8 h-8 border-2 border-green-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                                            <p className="text-[8px] font-black text-green-500 uppercase tracking-widest">{t.scan}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            <div className="flex bg-black p-1 rounded-xl border border-white/10 w-full mb-6">
+                                {isViral ? (
+                                    <>
+                                        <button onClick={() => setQrMode('smart')} className={`flex-1 py-2.5 rounded-lg text-[9px] font-black uppercase transition-all ${qrMode === 'smart' ? 'bg-green-600 text-black shadow' : 'text-zinc-500 hover:text-white'}`}>{t.smart}</button>
+                                        <button onClick={() => setQrMode('manual')} className={`flex-1 py-2.5 rounded-lg text-[9px] font-black uppercase transition-all ${qrMode === 'manual' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-white'}`}>{t.manual}</button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <button onClick={() => setQrMode('address')} className={`flex-1 py-2.5 rounded-lg text-[9px] font-black uppercase transition-all ${qrMode === 'address' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-white'}`}>{t.address}</button>
+                                        <button onClick={() => setQrMode('smart')} className={`flex-1 py-2.5 rounded-lg text-[9px] font-black uppercase transition-all ${qrMode === 'smart' ? 'bg-green-600 text-black shadow' : 'text-zinc-500 hover:text-white'}`}>{t.smart}</button>
+                                    </>
                                 )}
                             </div>
-                        )}
 
-                        <div className="flex bg-black p-1 rounded-xl border border-white/10 w-full mb-6">
-                            {isViral ? (
-                                <>
-                                    <button onClick={() => setQrMode('smart')} className={`flex-1 py-2.5 rounded-lg text-[9px] font-black uppercase transition-all ${qrMode === 'smart' ? 'bg-green-600 text-black shadow' : 'text-zinc-500 hover:text-white'}`}>{t.smart}</button>
-                                    <button onClick={() => setQrMode('manual')} className={`flex-1 py-2.5 rounded-lg text-[9px] font-black uppercase transition-all ${qrMode === 'manual' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-white'}`}>{t.manual}</button>
-                                </>
-                            ) : (
-                                <>
-                                    <button onClick={() => setQrMode('address')} className={`flex-1 py-2.5 rounded-lg text-[9px] font-black uppercase transition-all ${qrMode === 'address' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-white'}`}>{t.address}</button>
-                                    <button onClick={() => setQrMode('smart')} className={`flex-1 py-2.5 rounded-lg text-[9px] font-black uppercase transition-all ${qrMode === 'smart' ? 'bg-green-600 text-black shadow' : 'text-zinc-500 hover:text-white'}`}>{t.smart}</button>
-                                </>
-                            )}
-                        </div>
-
-                        {qrMode === 'address' && !isViral && (
-                            <div className="w-full bg-black/40 rounded-xl p-3 border border-white/5 flex items-center gap-3 group hover:border-white/20 transition-colors">
-                                <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-[10px]">🏁</div>
-                                <div className="flex-1 overflow-hidden text-start">
-                                    <p className="text-[8px] text-zinc-500 font-black uppercase mb-0.5">{t.recipient}</p>
-                                    <p className="text-[10px] font-mono text-zinc-300 truncate">{cleanAddr}</p>
-                                </div>
-                                <button onClick={() => copyToClipboard(cleanAddr, 'seller')} className="bg-white/5 hover:bg-white/10 p-2 rounded-lg text-[10px] text-white transition-all">
-                                    {copied === 'seller' ? t.done : t.copy}
-                                </button>
-                            </div>
-                        )}
-
-                        {qrMode === 'manual' && isViral && (
-                            <div className="w-full space-y-2">
-                                     <div className="bg-black/40 rounded-xl p-3 border border-white/5 flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-[10px]">🏪</div>
+                            {qrMode === 'address' && !isViral && (
+                                <div className="w-full bg-black/40 rounded-xl p-3 border border-white/5 flex items-center gap-3 group hover:border-white/20 transition-colors">
+                                    <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-[10px]">🏁</div>
                                     <div className="flex-1 overflow-hidden text-start">
-                                        <p className="text-[8px] text-zinc-500 font-black uppercase mb-0.5">{t.seller} (90%) - {sellerAmt} BCH</p>
+                                        <p className="text-[8px] text-zinc-500 font-black uppercase mb-0.5">{t.recipient}</p>
                                         <p className="text-[10px] font-mono text-zinc-300 truncate">{cleanAddr}</p>
                                     </div>
-                                    <button onClick={() => copyToClipboard(cleanAddr, 'seller')} className="bg-white/5 hover:bg-white/10 p-2 rounded-lg text-[10px] text-white">
+                                    <button onClick={() => copyToClipboard(cleanAddr, 'seller')} className="bg-white/5 hover:bg-white/10 p-2 rounded-lg text-[10px] text-white transition-all">
                                         {copied === 'seller' ? t.done : t.copy}
                                     </button>
                                 </div>
-                                <div className="bg-black/40 rounded-xl p-3 border border-white/5 flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-[10px]">🚀</div>
-                                    <div className="flex-1 overflow-hidden text-start">
-                                        <p className="text-[8px] text-zinc-500 font-black uppercase mb-0.5">{t.promoter} (10%) - {affAmt} BCH</p>
-                                        <p className="text-[10px] font-mono text-zinc-300 truncate">{affiliateAddr}</p>
+                            )}
+
+                            {qrMode === 'manual' && isViral && (
+                                <div className="w-full space-y-2">
+                                         <div className="bg-black/40 rounded-xl p-3 border border-white/5 flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-[10px]">🏪</div>
+                                        <div className="flex-1 overflow-hidden text-start">
+                                            <p className="text-[8px] text-zinc-500 font-black uppercase mb-0.5">{t.seller} (90%) - {sellerAmt} BCH</p>
+                                            <p className="text-[10px] font-mono text-zinc-300 truncate">{cleanAddr}</p>
+                                        </div>
+                                        <button onClick={() => copyToClipboard(cleanAddr, 'seller')} className="bg-white/5 hover:bg-white/10 p-2 rounded-lg text-[10px] text-white">
+                                            {copied === 'seller' ? t.done : t.copy}
+                                        </button>
                                     </div>
-                                    <button onClick={() => copyToClipboard(affiliateAddr, 'aff')} className="bg-white/5 hover:bg-white/10 p-2 rounded-lg text-[10px] text-white">
-                                        {copied === 'aff' ? t.done : t.copy}
-                                    </button>
+                                    <div className="bg-black/40 rounded-xl p-3 border border-white/5 flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-[10px]">🚀</div>
+                                        <div className="flex-1 overflow-hidden text-start">
+                                            <p className="text-[8px] text-zinc-500 font-black uppercase mb-0.5">{t.promoter} (10%) - {affAmt} BCH</p>
+                                            <p className="text-[10px] font-mono text-zinc-300 truncate">{affiliateAddr}</p>
+                                        </div>
+                                        <button onClick={() => copyToClipboard(affiliateAddr, 'aff')} className="bg-white/5 hover:bg-white/10 p-2 rounded-lg text-[10px] text-white">
+                                            {copied === 'aff' ? t.done : t.copy}
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="text-center mb-6">
+                        <p className="text-[9px] text-zinc-500 font-black uppercase mb-1 tracking-widest">{t.total}</p>
+                        <div className="flex items-baseline justify-center gap-2">
+                            <span className="text-4xl font-black text-white tracking-tighter tabular-nums">
+                                {fullPriceBch}
+                            </span>
+                            <span className="text-lg font-bold text-green-500 tracking-tight">BCH</span>
+                        </div>
+                        <p className="text-[10px] text-zinc-500 mt-1 font-bold">≈ ${currentPrice} USD</p>
+                        {isViral && <span className="inline-block mt-2 text-[9px] bg-green-500/10 text-green-500 px-2 py-0.5 rounded border border-green-500/20 font-bold uppercase">Viral Mode Applied</span>}
+                    </div>
+
+                    <button 
+                        onClick={() => setChecking(true)} 
+                        disabled={checking}
+                        className="w-full bg-green-600 hover:bg-green-500 text-black font-black py-4 rounded-xl transition-all uppercase tracking-tight text-base shadow-[0_10px_30px_rgba(22,163,74,0.3)] hover:shadow-[0_10px_40px_rgba(22,163,74,0.5)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+                    >
+                        {checking ? t.scanning : t.verify}
+                    </button>
+
+                    <div className="mt-8 w-full space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                        <div className="flex items-center gap-2 mb-2">
+                            <div className="h-[1px] bg-zinc-800 flex-1"></div>
+                            <span className="text-[9px] font-black text-zinc-500 uppercase tracking-[3px]">Instant Connect</span>
+                            <div className="h-[1px] bg-zinc-800 flex-1"></div>
+                        </div>
+
+                        {!loadingPrice && (
+                            <button 
+                                onClick={handleOpenWallet}
+                                className="flex items-center justify-between w-full bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl transition-all group active:scale-[0.98] cursor-pointer"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform">⚡</div>
+                                    <div className="text-start">
+                                        <p className="text-[10px] font-black text-white uppercase italic">{t.open}</p>
+                                        <p className="text-[8px] text-zinc-500 uppercase">{t.tap}</p>
+                                    </div>
+                                </div>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className={`text-zinc-600 group-hover:text-green-500 transition-colors ${lang === 'ar' ? 'rotate-180' : ''}`}><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                            </button>
                         )}
                     </div>
-                </div>
-
-                <div className="text-center mb-6">
-                    <p className="text-[9px] text-zinc-500 font-black uppercase mb-1 tracking-widest">{t.total}</p>
-                    <div className="flex items-baseline justify-center gap-2">
-                        <span className="text-4xl font-black text-white tracking-tighter tabular-nums">
-                            {fullPriceBch}
-                        </span>
-                        <span className="text-lg font-bold text-green-500 tracking-tight">BCH</span>
+                    
+                    <div className="grid grid-cols-2 gap-3 mt-6">
+                        <div className="bg-black/20 p-3 rounded-2xl border border-white/5">
+                            <span className="text-[7px] font-black text-zinc-600 uppercase block mb-1">{t.seller}</span>
+                            <span className="text-[11px] font-bold text-white truncate block">{data.sn}</span>
+                        </div>
+                        <div className="bg-black/20 p-3 rounded-2xl border border-white/5">
+                            <span className="text-[7px] font-black text-zinc-600 uppercase block mb-1">{t.support}</span>
+                            <span className="text-[11px] font-bold text-green-500/70 truncate block">{data.se}</span>
+                        </div>
                     </div>
-                    <p className="text-[10px] text-zinc-500 mt-1 font-bold">≈ ${currentPrice} USD</p>
-                    {isViral && <span className="inline-block mt-2 text-[9px] bg-green-500/10 text-green-500 px-2 py-0.5 rounded border border-green-500/20 font-bold uppercase">Viral Mode Applied</span>}
-                </div>
-
-                <button 
-                    onClick={() => setChecking(true)} 
-                    disabled={checking}
-                    className="w-full bg-green-600 hover:bg-green-500 text-black font-black py-4 rounded-xl transition-all uppercase tracking-tight text-base shadow-[0_10px_30px_rgba(22,163,74,0.3)] hover:shadow-[0_10px_40px_rgba(22,163,74,0.5)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mb-4"
-                >
-                    {checking ? t.scanning : t.verify}
-                </button>
-
-                <div className="mt-8 w-full space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="h-[1px] bg-zinc-800 flex-1"></div>
-                        <span className="text-[9px] font-black text-zinc-500 uppercase tracking-[3px]">Instant Connect</span>
-                        <div className="h-[1px] bg-zinc-800 flex-1"></div>
-                    </div>
-
-                    {!loadingPrice && (
-                        <button 
-                            onClick={handleOpenWallet}
-                            className="flex items-center justify-between w-full bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl transition-all group active:scale-[0.98] cursor-pointer"
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform">⚡</div>
-                                <div className="text-start">
-                                    <p className="text-[10px] font-black text-white uppercase italic">{t.open}</p>
-                                    <p className="text-[8px] text-zinc-500 uppercase">{t.tap}</p>
-                                </div>
-                            </div>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className={`text-zinc-600 group-hover:text-green-500 transition-colors ${lang === 'ar' ? 'rotate-180' : ''}`}><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    
+                    {data.a && !affiliateAddr && (
+                        <button onClick={() => router.push(`/affiliate?product=${searchParams.get('cid')}`)} className="w-full mt-4 py-3 rounded-xl border border-dashed border-zinc-700 text-zinc-500 hover:text-white hover:border-zinc-500 text-[9px] font-black uppercase tracking-widest transition-all">
+                            {t.become}
                         </button>
                     )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 mt-6">
-                    <div className="bg-black/20 p-3 rounded-2xl border border-white/5">
-                        <span className="text-[7px] font-black text-zinc-600 uppercase block mb-1">{t.seller}</span>
-                        <span className="text-[11px] font-bold text-white truncate block">{data.sn}</span>
+                    
+                    <div className="mt-6 flex justify-center items-center gap-4 opacity-30 grayscale">
+                         <div className="flex items-center gap-1">
+                            <span className="text-[10px] font-bold">{t.custodial}</span>
+                         </div>
+                         <div className="w-1 h-1 bg-white rounded-full"></div>
+                         <div className="flex items-center gap-1">
+                            <span className="text-[10px] font-bold">{t.p2p}</span>
+                         </div>
                     </div>
-                    <div className="bg-black/20 p-3 rounded-2xl border border-white/5">
-                        <span className="text-[7px] font-black text-zinc-600 uppercase block mb-1">{t.support}</span>
-                        <span className="text-[11px] font-bold text-green-500/70 truncate block">{data.se}</span>
-                    </div>
-                </div>
-                
-                {data.a && !affiliateAddr && (
-                    <button onClick={() => router.push(`/affiliate?product=${searchParams.get('cid')}`)} className="w-full mt-4 py-3 rounded-xl border border-dashed border-zinc-700 text-zinc-500 hover:text-white hover:border-zinc-500 text-[9px] font-black uppercase tracking-widest transition-all">
-                        {t.become}
-                    </button>
-                )}
-                
-                <div className="mt-6 flex justify-center items-center gap-4 opacity-30 grayscale">
-                     <div className="flex items-center gap-1">
-                        <span className="text-[10px] font-bold">{t.custodial}</span>
-                     </div>
-                     <div className="w-1 h-1 bg-white rounded-full"></div>
-                     <div className="flex items-center gap-1">
-                        <span className="text-[10px] font-bold">{t.p2p}</span>
-                     </div>
-                </div>
-
-            </div>
+                </>
+            )}
         </div>
       )}
 
