@@ -375,7 +375,7 @@ export default function AppLicensePage() {
                             <p className="text-[9px] text-red-500 font-bold mt-1 bg-red-500/10 p-2 rounded-lg">{t.evmWarning}</p>
                         )}
                         {tokenId.length > 20 && !tokenId.startsWith('0x') && (
-                            <a href={`https://tokenexplorer.cash/token/${tokenId}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full bg-zinc-800/50 hover:bg-zinc-800 text-green-500 py-2.5 rounded-lg text-[10px] font-black uppercase transition-all border border-zinc-700 hover:border-green-500/50">
+                            <a href={`https://explorer.salemkode.com/token/${tokenId}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full bg-zinc-800/50 hover:bg-zinc-800 text-green-500 py-2.5 rounded-lg text-[10px] font-black uppercase transition-all border border-zinc-700 hover:border-green-500/50">
                                 {t.verifyExplorer}
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                             </a>
