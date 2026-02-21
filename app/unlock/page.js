@@ -51,10 +51,6 @@ const translations = {
     download: "Download",
     click: "Click text to select",
     receipt: "Download Official Receipt",
-    feedback: "Quality Feedback",
-    trusted: "Trusted",
-    avoid: "Avoid",
-    recorded: "Verification Recorded",
     soldOut: "SOLD OUT",
     gone: "This limited edition asset is gone.",
     browse: "Browse Other Items",
@@ -119,10 +115,6 @@ const translations = {
     download: "تحميل",
     click: "اضغط للنص للتحديد",
     receipt: "تحميل الإيصال الرسمي",
-    feedback: "تقييم الجودة",
-    trusted: "موثوق",
-    avoid: "تجنب",
-    recorded: "تم تسجيل التوثيق",
     soldOut: "نفذت الكمية",
     gone: "هذا الإصدار المحدود قد انتهى.",
     browse: "تصفح عناصر أخرى",
@@ -187,10 +179,6 @@ const translations = {
     download: "下载",
     click: "点击文本选择",
     receipt: "下载官方收据",
-    feedback: "质量反馈",
-    trusted: "信任",
-    avoid: "避免",
-    recorded: "验证已记录",
     soldOut: "售罄",
     gone: "此限量版资产已售罄。",
     browse: "浏览其他项目",
@@ -223,19 +211,16 @@ function UnlockContent() {
   const [loadingPrice, setLoadingPrice] = useState(true);
   const [qrMode, setQrMode] = useState('address');
   const [copied, setCopied] = useState('');
-  const [rating, setRating] = useState(null);
   const [error, setError] = useState('');
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoError, setPromoError] = useState('');
   const [currentPrice, setCurrentPrice] = useState(null);
   const [txHash, setTxHash] = useState('');
-  
   const [tokenWallet, setTokenWallet] = useState('');
   const [verifyingToken, setVerifyingToken] = useState(false);
   const [tokenVerified, setTokenVerified] = useState(false);
   const [tokenError, setTokenError] = useState('');
-
   const [lang, setLang] = useState('en');
   
   const initialTxHistory = useRef(new Set());
@@ -416,6 +401,15 @@ function UnlockContent() {
       setQrMode('address');
     }
   }, [data, searchParams]);
+
+  const handleDownloadReceipt = () => {
+    const receiptText = `=== PAYONCE SECURE RECEIPT ===\n\nItem: ${data.n}\nPrice: ${fullPriceBch} BCH\nTxID: ${txHash}\nSeller: ${data.sn}\nSupport: ${data.se}\nDate: ${new Date().toLocaleString()}\n\nThank you for using PayOnce.cash!`;
+    const blob = new Blob([receiptText], { type: 'text/plain' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `PayOnce_Receipt_${txHash.substring(0,8)}.txt`;
+    link.click();
+  };
 
   const t = translations[lang];
   const dir = lang === 'ar' ? 'rtl' : 'ltr';
@@ -850,28 +844,10 @@ function UnlockContent() {
                 
                 <div className="text-[9px] text-zinc-600 font-mono mb-6 truncate">TxID: {txHash}</div>
 
-                <button className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-3 rounded-xl font-bold uppercase text-[10px] tracking-widest mb-8 flex items-center justify-center gap-2 transition-all">
-                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                     {t.receipt}
+                <button onClick={handleDownloadReceipt} className="w-full bg-zinc-800 hover:bg-zinc-700 text-green-500 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest mb-4 flex items-center justify-center gap-2 transition-all border border-green-500/20 hover:border-green-500/50 shadow-lg">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    {t.receipt}
                 </button>
-
-                {!rating ? (
-                    <div className="bg-black/40 p-5 rounded-[24px] border border-white/5">
-                        <p className="text-[9px] text-zinc-500 uppercase font-black mb-4 tracking-widest">{t.feedback}</p>
-                        <div className="flex gap-3">
-                            <button onClick={() => setRating('pos')} className="flex-1 bg-zinc-900/50 hover:bg-green-500/10 rounded-2xl transition-all text-[10px] font-black uppercase border border-white/5 group border-b-2 border-b-transparent hover:border-b-green-500 p-5">
-                                <span className="block text-2xl mb-2 group-hover:scale-110 transition-transform">👍</span> {t.trusted}
-                            </button>
-                            <button onClick={() => setRating('neg')} className="flex-1 bg-zinc-900/50 hover:bg-red-500/10 rounded-2xl transition-all text-[10px] font-black uppercase border border-white/5 group border-b-2 border-b-transparent hover:border-b-red-500 p-5">
-                                <span className="block text-2xl mb-2 group-hover:scale-110 transition-transform">👎</span> {t.avoid}
-                            </button>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="py-5 bg-green-600/10 text-green-500 border border-green-500/20 rounded-2xl font-black text-[10px] uppercase italic tracking-[2px] animate-pulse">
-                        {t.recorded}
-                    </div>
-                )}
             </div>
         </div>
       )}
