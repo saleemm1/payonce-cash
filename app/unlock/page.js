@@ -582,7 +582,7 @@ function UnlockContent() {
                             
                             <div className="flex items-center justify-between bg-black/40 p-2 rounded-lg border border-green-900/30 mt-2">
                                 <span className="text-[10px] text-zinc-400 font-mono">ID: {data.tk.id.substring(0, 8)}...{data.tk.id.substring(data.tk.id.length - 6)}</span>
-                                <a href={`https://tokenexplorer.cash/token/${data.tk.id}`} target="_blank" rel="noopener noreferrer" className="bg-green-900/30 hover:bg-green-500/20 text-green-500 px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors border border-green-500/20">
+                                <a href={`https://explorer.salemkode.com/token/${data.tk.id}`} target="_blank" rel="noopener noreferrer" className="bg-green-900/30 hover:bg-green-500/20 text-green-500 px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors border border-green-500/20">
                                     <span className="text-[9px] font-black uppercase tracking-wider">{t.viewExplorer}</span>
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                                 </a>
