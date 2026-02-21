@@ -34,7 +34,8 @@ const translations = {
     gatedMode: "🔒 Required",
     tokenId: "Token Category ID",
     tokenName: "Token Name (e.g. GURU)",
-    tokenPct: "Discount %"
+    tokenPct: "Discount %",
+    verifyExplorer: "Verify ID on Explorer ↗"
   },
   ar: {
     title: "مفتاح تفعيل التطبيق",
@@ -67,7 +68,8 @@ const translations = {
     gatedMode: "🔒 وصول مشروط",
     tokenId: "معرف التوكن (Category ID)",
     tokenName: "اسم التوكن (مثال: GURU)",
-    tokenPct: "نسبة الخصم %"
+    tokenPct: "نسبة الخصم %",
+    verifyExplorer: "تحقق من المعرف على المستكشف ↗"
   },
   zh: {
     title: "应用激活密钥",
@@ -100,7 +102,8 @@ const translations = {
     gatedMode: "🔒 必须",
     tokenId: "代币类别 ID",
     tokenName: "代币名称 (例如 GURU)",
-    tokenPct: "折扣 %"
+    tokenPct: "折扣 %",
+    verifyExplorer: "在浏览器中验证 ID ↗"
   }
 };
 
@@ -364,6 +367,11 @@ export default function AppLicensePage() {
                                 <input type="number" placeholder={t.tokenPct} min="1" max="100" value={tokenDiscount} onChange={(e)=>setTokenDiscount(e.target.value)} className="w-24 p-2 bg-black border border-zinc-800 rounded-lg text-xs text-white outline-none focus:border-green-500 text-center font-bold" />
                             )}
                         </div>
+                        {tokenId.length > 20 && (
+                            <a href={`https://tokenexplorer.cash/token/${tokenId}`} target="_blank" rel="noopener noreferrer" className="text-[9px] text-green-500 hover:text-green-400 underline decoration-green-500/30 underline-offset-2 inline-block">
+                                {t.verifyExplorer}
+                            </a>
+                        )}
                     </div>
                 </div>
             )}
