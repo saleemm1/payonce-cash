@@ -24,7 +24,16 @@ const translations = {
     done: "✅",
     supply: "Supply Limit",
     unlimited: "Leave empty for unlimited",
-    qty: "Qty:"
+    qty: "Qty:",
+    tokenRule: "CashTokens Rule",
+    tokenDesc: "Web3 Token-Gated Commerce",
+    discountMode: "💸 Discount",
+    gatedMode: "🔒 Required",
+    tokenId: "Token Category ID",
+    tokenName: "Token Name (e.g. GURU)",
+    tokenPct: "Discount %",
+    verifyExplorer: "Verify ID on Explorer ↗",
+    evmWarning: "⚠️ Native CashToken IDs are 64 characters and do not start with 0x."
   },
   ar: {
     title: "رفع فيديو متميز",
@@ -47,7 +56,16 @@ const translations = {
     done: "✅",
     supply: "حد المخزون",
     unlimited: "اتركه فارغاً لعدد لا نهائي",
-    qty: "العدد:"
+    qty: "العدد:",
+    tokenRule: "قواعد CashTokens",
+    tokenDesc: "تجارة مشروطة بالتوكنز Web3",
+    discountMode: "💸 خصم",
+    gatedMode: "🔒 وصول مشروط",
+    tokenId: "معرف التوكن (Category ID)",
+    tokenName: "اسم التوكن (مثال: GURU)",
+    tokenPct: "نسبة الخصم %",
+    verifyExplorer: "تحقق من المعرف على المستكشف ↗",
+    evmWarning: "⚠️ معرف CashToken الأصلي يتكون من 64 حرفاً ولا يبدأ بـ 0x."
   },
   zh: {
     title: "上传优质视频",
@@ -70,7 +88,16 @@ const translations = {
     done: "✅",
     supply: "供应限制",
     unlimited: "留空表示无限",
-    qty: "数量:"
+    qty: "数量:",
+    tokenRule: "CashTokens 规则",
+    tokenDesc: "Web3 代币门控商业",
+    discountMode: "💸 折扣",
+    gatedMode: "🔒 必须",
+    tokenId: "代币类别 ID",
+    tokenName: "代币名称 (例如 GURU)",
+    tokenPct: "折扣 %",
+    verifyExplorer: "在浏览器中验证 ID ↗",
+    evmWarning: "⚠️ 原生 CashToken ID 为 64 个字符，且不以 0x 开头。"
   }
 };
 
@@ -92,6 +119,13 @@ export default function VideoUploadPage() {
   const [promoCode, setPromoCode] = useState('');
   const [promoDiscount, setPromoDiscount] = useState('');
   const [maxSupply, setMaxSupply] = useState('');
+  
+  const [enableToken, setEnableToken] = useState(false);
+  const [tokenMode, setTokenMode] = useState('discount');
+  const [tokenId, setTokenId] = useState('');
+  const [tokenName, setTokenName] = useState('');
+  const [tokenDiscount, setTokenDiscount] = useState('');
+
   const [lang, setLang] = useState('en');
 
   useEffect(() => {
@@ -123,6 +157,13 @@ export default function VideoUploadPage() {
     e.preventDefault();
     if (!file) return alert("Please select the Video file");
 
+    if (enableToken) {
+        if (!tokenId) return alert("Please enter the Token Category ID");
+        if (tokenId.startsWith('0x')) return alert(t.evmWarning);
+        if (!tokenName) return alert("Please enter the Token Name");
+        if (tokenMode === 'discount' && !tokenDiscount) return alert("Please enter the discount percentage");
+    }
+
     setUploading(true);
     try {
       let finalPreview = previewLink;
@@ -143,11 +184,23 @@ export default function VideoUploadPage() {
 
       if (!json.ipfsHash) throw new Error("File Upload Failed");
 
+      let tkRule = null;
+      if (enableToken) {
+          tkRule = { 
+              type: tokenMode, 
+              id: tokenId.trim(),
+              name: tokenName.trim()
+          };
+          if (tokenMode === 'discount') tkRule.discount = tokenDiscount;
+      }
+
       const payload = {
         w: wallet, p: usdPrice, n: productName, sn: sellerName,
         se: sellerEmail, pr: finalPreview, i: json.ipfsHash, fn: originalFileName, a: enableAffiliate,
+        dt: 'file',
         l: maxSupply ? parseInt(maxSupply) : null,
-        pc: enablePromo && promoCode && promoDiscount ? { code: promoCode.toUpperCase(), discount: promoDiscount } : null
+        pc: enablePromo && promoCode && promoDiscount ? { code: promoCode.toUpperCase(), discount: promoDiscount } : null,
+        tk: tkRule
       };
 
       const jsonRes = await fetch('/api/upload-json', {
@@ -260,6 +313,50 @@ export default function VideoUploadPage() {
                 <div className="flex gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
                     <input type="text" maxLength={5} placeholder="CODE" value={promoCode} onChange={(e)=>setPromoCode(e.target.value.toUpperCase())} className="flex-1 p-2 bg-black/50 border border-zinc-700 rounded-lg text-xs text-white uppercase outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 tracking-widest font-bold" />
                     <input type="number" placeholder="%" min="1" max="100" value={promoDiscount} onChange={(e)=>setPromoDiscount(e.target.value)} className="w-20 p-2 bg-black/50 border border-zinc-700 rounded-lg text-xs text-white outline-none focus:border-green-500 text-center font-bold" />
+                </div>
+            )}
+        </div>
+
+        <div className={`bg-gradient-to-br from-[#0c1610] to-[#09090b] p-4 rounded-xl border border-dashed transition-all duration-300 ${enableToken ? 'border-green-500/50 shadow-[0_0_15px_rgba(34,197,94,0.1)]' : 'border-zinc-700 hover:border-green-900/50'}`}>
+            <div className="flex items-center justify-between mb-2">
+                <div>
+                   <h3 className="text-sm font-bold uppercase italic text-white flex items-center gap-2">
+                       {t.tokenRule} 
+                       {enableToken && <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_5px_#22c55e]"></span>}
+                   </h3>
+                   <p className="text-[9px] text-green-500/70">{t.tokenDesc}</p>
+                </div>
+                <div className={`relative inline-block w-10 ${lang === 'ar' ? 'ml-2' : 'mr-2'} align-middle select-none transition duration-200 ease-in`}>
+                    <input type="checkbox" checked={enableToken} onChange={(e) => setEnableToken(e.target.checked)} className={`toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer ${lang === 'ar' ? 'checked:left-0 left-5' : 'checked:right-0 right-5'} checked:border-green-500 border-zinc-600 transition-all duration-300`}/>
+                    <label className="toggle-label block overflow-hidden h-5 rounded-full bg-zinc-700 cursor-pointer"></label>
+                </div>
+            </div>
+            
+            {enableToken && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-300 space-y-3 mt-3 border-t border-green-900/30 pt-3">
+                    <div className="flex bg-black/50 p-1 rounded-lg border border-green-900/50 gap-1">
+                        <button type="button" onClick={() => setTokenMode('discount')} className={`flex-1 py-2 text-[10px] font-black uppercase rounded-md transition-all duration-300 ${tokenMode === 'discount' ? 'bg-green-600 text-black shadow-md' : 'text-zinc-500 hover:text-white hover:bg-zinc-800'}`}>{t.discountMode}</button>
+                        <button type="button" onClick={() => setTokenMode('gated')} className={`flex-1 py-2 text-[10px] font-black uppercase rounded-md transition-all duration-300 ${tokenMode === 'gated' ? 'bg-green-600 text-black shadow-md' : 'text-zinc-500 hover:text-white hover:bg-zinc-800'}`}>{t.gatedMode}</button>
+                    </div>
+
+                    <div className="space-y-2">
+                        <input type="text" placeholder={t.tokenName} value={tokenName} onChange={(e)=>setTokenName(e.target.value)} className="w-full p-2 bg-black border border-zinc-800 rounded-lg text-xs text-white outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" />
+                        <div className="flex gap-2">
+                            <input type="text" placeholder={t.tokenId} value={tokenId} onChange={(e)=>setTokenId(e.target.value)} className={`flex-1 p-2 bg-black border rounded-lg text-xs text-white outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 font-mono tracking-tighter ${tokenId.startsWith('0x') ? 'border-red-500' : 'border-zinc-800'}`} />
+                            {tokenMode === 'discount' && (
+                                <input type="number" placeholder={t.tokenPct} min="1" max="100" value={tokenDiscount} onChange={(e)=>setTokenDiscount(e.target.value)} className="w-24 p-2 bg-black border border-zinc-800 rounded-lg text-xs text-white outline-none focus:border-green-500 text-center font-bold" />
+                            )}
+                        </div>
+                        {tokenId.startsWith('0x') && (
+                            <p className="text-[9px] text-red-500 font-bold mt-1 bg-red-500/10 p-2 rounded-lg">{t.evmWarning}</p>
+                        )}
+                        {tokenId.length > 20 && !tokenId.startsWith('0x') && (
+                            <a href={`https://explorer.salemkode.com/token/${tokenId}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full bg-zinc-800/50 hover:bg-zinc-800 text-green-500 py-2.5 rounded-lg text-[10px] font-black uppercase transition-all border border-zinc-700 hover:border-green-500/50">
+                                {t.verifyExplorer}
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            </a>
+                        )}
+                    </div>
                 </div>
             )}
         </div>
