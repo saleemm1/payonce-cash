@@ -25,6 +25,7 @@ const translations = {
     key: "Enter Secret Key (e.g. sk_live_...)",
     keyDesc: "Adds a signature to the payload to prevent client-side price modification.",
     gen: "Generate Embed Code",
+    processing: "Processing...",
     preview: "Button Preview",
     html: "HTML Embed Code",
     copied: "COPIED!",
@@ -56,6 +57,7 @@ const translations = {
     key: "أدخل المفتاح السري (مثال: sk_live_...)",
     keyDesc: "يضيف توقيعاً للحمولة لمنع تعديل السعر من جانب العميل.",
     gen: "إنشاء كود التضمين",
+    processing: "جاري المعالجة...",
     preview: "معاينة الزر",
     html: "كود تضمين HTML",
     copied: "تم النسخ!",
@@ -87,6 +89,7 @@ const translations = {
     key: "输入密钥 (如 sk_live_...)",
     keyDesc: "向负载添加签名以防止客户端价格修改。",
     gen: "生成嵌入代码",
+    processing: "处理中...",
     preview: "按钮预览",
     html: "HTML 嵌入代码",
     copied: "已复制！",
@@ -106,6 +109,7 @@ export default function DevelopersPage() {
   const [secret, setSecret] = useState('');
   const [generatedCode, setGeneratedCode] = useState('');
   const [copied, setCopied] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [lang, setLang] = useState('en');
 
   useEffect(() => {
@@ -121,26 +125,39 @@ export default function DevelopersPage() {
   const t = translations[lang];
   const dir = lang === 'ar' ? 'rtl' : 'ltr';
 
-  const generateCode = () => {
+  const generateCode = async () => {
     if (!wallet) return alert('Please enter a BCH wallet address');
+    setIsGenerating(true);
     
-    const payload = {
+    try {
+      const payload = {
         w: wallet,
         p: price,
         n: productName,
         dt: 'invoice',
         sec: secret ? `hmac_sha256_${secret.substring(0, 4)}...` : null
-    };
-    
-    const encodedId = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-    const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://payonce-cash.vercel.app'}/unlock?id=${encodedId}`;
-    
-    const code = `<a href="${url}" target="_blank" style="background-color: #22c55e; color: black; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-family: sans-serif; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.3); transition: transform 0.2s ease;">
-  <span>⚡ Pay with BCH</span>
-</a>`;
-    
-    setGeneratedCode(code);
-    setCopied(false);
+      };
+
+      const res = await fetch('/api/upload-json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if (!data.cid) throw new Error("Failed to generate link");
+
+      const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://payonce-cash.vercel.app'}/unlock?cid=${data.cid}`;
+      
+      const code = `<a href="${url}" target="_blank" style="background-color: #22c55e; color: black; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-family: sans-serif; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(34,197,94,0.3); transition: transform 0.2s ease;">\n  <span>⚡ Pay with BCH</span>\n</a>`;
+      
+      setGeneratedCode(code);
+      setCopied(false);
+    } catch (err) {
+      alert("Error generating code");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleCopy = () => {
@@ -154,14 +171,18 @@ npm install git+https://github.com/saleemm1/payonce-sdk.git
 
 const { PayOnce } = require('payonce-sdk');
 
-const invoice = PayOnce.createInvoice({
-  wallet: "bitcoincash:qp...", 
-  price: 15.00,
-  product: "Premium Asset",
-  secretKey: process.env.PAYONCE_SECRET
-});
+async function generatePayment() {
+  const invoice = await PayOnce.createInvoice({
+    wallet: "bitcoincash:qp...", 
+    price: 15.00,
+    product: "Premium Asset",
+    secretKey: process.env.PAYONCE_SECRET
+  });
 
-console.log(invoice.url);
+  console.log(invoice.url);
+}
+
+generatePayment();
 `;
 
   return (
@@ -274,8 +295,8 @@ console.log(invoice.url);
                             </p>
                         </div>
 
-                        <button onClick={generateCode} className="w-full bg-white text-black font-black uppercase py-3 rounded-xl hover:bg-green-500 hover:scale-[1.02] transition-all shadow-xl">
-                            {t.gen}
+                        <button onClick={generateCode} disabled={isGenerating} className="w-full bg-white text-black font-black uppercase py-3 rounded-xl hover:bg-green-500 hover:scale-[1.02] transition-all shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
+                            {isGenerating ? t.processing : t.gen}
                         </button>
                     </div>
 
@@ -334,7 +355,7 @@ console.log(invoice.url);
                             dir="ltr"
                         />
                         <div className={`absolute top-10 ${lang === 'ar' ? 'left-4' : 'right-4'}`}>
-                             <span className="text-[10px] bg-green-900/30 text-green-400 px-2 py-1 rounded border border-green-500/20">v1.0.2</span>
+                             <span className="text-[10px] bg-green-900/30 text-green-400 px-2 py-1 rounded border border-green-500/20">v1.1.0</span>
                         </div>
                     </div>
                     
