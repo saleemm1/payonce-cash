@@ -5,7 +5,9 @@ import Link from 'next/link';
 const translations = {
   en: {
     title: "Generate Event Ticket",
-    eventName: "Event Name",
+    singleTicket: "Single Ticket",
+    batchTickets: "Batch Tickets",
+    eventName: "Event / Ticket Name",
     uploadLabel: "Ticket Asset (.pdf, .png, .jpg)",
     organizer: "Organizer",
     email: "Support Email",
@@ -22,7 +24,7 @@ const translations = {
     processing: "Processing...",
     copy: "Copy",
     done: "✅",
-    supply: "Supply Limit",
+    supply: "Ticket Supply",
     unlimited: "Leave empty for unlimited",
     qty: "Qty:",
     tokenRule: "CashTokens Rule",
@@ -37,7 +39,9 @@ const translations = {
   },
   ar: {
     title: "إنشاء تذكرة حدث",
-    eventName: "اسم الحدث",
+    singleTicket: "تذكرة فردية",
+    batchTickets: "مجموعة تذاكر (فئة)",
+    eventName: "اسم الحدث / التذكرة",
     uploadLabel: "ملف التذكرة (.pdf, .png, .jpg)",
     organizer: "المنظم",
     email: "بريد الدعم",
@@ -54,7 +58,7 @@ const translations = {
     processing: "جاري المعالجة...",
     copy: "نسخ",
     done: "✅",
-    supply: "حد المخزون",
+    supply: "كمية التذاكر المتاحة",
     unlimited: "اتركه فارغاً لعدد لا نهائي",
     qty: "العدد:",
     tokenRule: "قواعد CashTokens",
@@ -69,7 +73,9 @@ const translations = {
   },
   zh: {
     title: "生成活动门票",
-    eventName: "活动名称",
+    singleTicket: "单张门票",
+    batchTickets: "批量门票",
+    eventName: "活动 / 门票名称",
     uploadLabel: "门票资产 (.pdf, .png, .jpg)",
     organizer: "组织者",
     email: "支持邮箱",
@@ -86,7 +92,7 @@ const translations = {
     processing: "处理中...",
     copy: "复制",
     done: "✅",
-    supply: "供应限制",
+    supply: "门票供应",
     unlimited: "留空表示无限",
     qty: "数量:",
     tokenRule: "CashTokens 规则",
@@ -102,6 +108,7 @@ const translations = {
 };
 
 export default function TicketUploadPage() {
+  const [ticketMode, setTicketMode] = useState('batch');
   const [productName, setProductName] = useState('');
   const [sellerName, setSellerName] = useState('');
   const [sellerEmail, setSellerEmail] = useState('');
@@ -194,6 +201,8 @@ export default function TicketUploadPage() {
           if (tokenMode === 'discount') tkRule.discount = tokenDiscount;
       }
 
+      const finalSupply = ticketMode === 'single' ? 1 : (maxSupply ? parseInt(maxSupply) : null);
+
       const payload = {
         w: wallet, 
         p: usdPrice, 
@@ -205,7 +214,7 @@ export default function TicketUploadPage() {
         fn: originalFileName, 
         a: enableAffiliate,
         dt: 'file',
-        l: maxSupply ? parseInt(maxSupply) : null,
+        l: finalSupply,
         pc: enablePromo && promoCode && promoDiscount ? { code: promoCode.toUpperCase(), discount: promoDiscount } : null,
         tk: tkRule
       };
@@ -249,9 +258,15 @@ export default function TicketUploadPage() {
         <Link href="/create" className={`absolute top-8 ${lang === 'ar' ? 'left-8' : 'right-8'} text-zinc-600 hover:text-white transition-colors cursor-pointer z-20`}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </Link>
-        <div className="text-center space-y-1">
+        
+        <div className="text-center space-y-1 mb-2">
             <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600 uppercase italic tracking-tighter drop-shadow-sm">{t.title}</h1>
             <div className="h-1 w-20 bg-green-500/50 rounded-full mx-auto"></div>
+        </div>
+
+        <div className="flex bg-zinc-900/50 p-1.5 rounded-xl border border-zinc-700/50 gap-2 backdrop-blur-sm">
+          <button type="button" onClick={() => setTicketMode('single')} className={`flex-1 py-3 text-[11px] font-black uppercase italic rounded-lg transition-all duration-300 ${ticketMode === 'single' ? 'bg-gradient-to-br from-green-600 to-green-500 text-white shadow-lg shadow-green-900/20' : 'text-zinc-500 hover:text-white hover:bg-zinc-800'}`}>🎟️ {t.singleTicket}</button>
+          <button type="button" onClick={() => setTicketMode('batch')} className={`flex-1 py-3 text-[11px] font-black uppercase italic rounded-lg transition-all duration-300 ${ticketMode === 'batch' ? 'bg-gradient-to-br from-green-600 to-green-500 text-white shadow-lg shadow-green-900/20' : 'text-zinc-500 hover:text-white hover:bg-zinc-800'}`}>🎫 {t.batchTickets}</button>
         </div>
         
         <input required type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className={inputBaseStyles} placeholder={t.eventName} />
@@ -285,23 +300,25 @@ export default function TicketUploadPage() {
           </div>
         </div>
 
-        <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 flex items-center justify-between">
-            <div>
-                <h3 className="text-sm font-bold uppercase italic text-white">{t.supply}</h3>
-                <p className="text-[10px] text-zinc-500">{t.unlimited}</p>
+        {ticketMode === 'batch' && (
+            <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+                <div>
+                    <h3 className="text-sm font-bold uppercase italic text-white">{t.supply}</h3>
+                    <p className="text-[10px] text-zinc-500">{t.unlimited}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-zinc-500">{t.qty}</span>
+                    <input 
+                        type="number" 
+                        min="1" 
+                        placeholder="∞" 
+                        value={maxSupply} 
+                        onChange={(e) => setMaxSupply(e.target.value)} 
+                        className="w-16 p-2 bg-black border border-zinc-700 rounded-lg text-center text-white outline-none focus:border-green-500 font-bold"
+                    />
+                </div>
             </div>
-            <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-zinc-500">{t.qty}</span>
-                <input 
-                    type="number" 
-                    min="1" 
-                    placeholder="∞" 
-                    value={maxSupply} 
-                    onChange={(e) => setMaxSupply(e.target.value)} 
-                    className="w-16 p-2 bg-black border border-zinc-700 rounded-lg text-center text-white outline-none focus:border-green-500 font-bold"
-                />
-            </div>
-        </div>
+        )}
 
         <input required type="text" value={wallet} onChange={(e) => setWallet(e.target.value)} className={inputBaseStyles} placeholder={t.wallet} />
         
