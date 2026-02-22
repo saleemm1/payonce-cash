@@ -9,7 +9,7 @@ const translations = {
     localCurr: "Local Currency",
     save: "Save & Start",
     live: "Live",
-    scan: "Scan with Bitcoin.com, Paytaca, or Electron Cash",
+    scan: "Scan with Zapit, Paytaca, or Electron Cash",
     destAddr: "Destination Address",
     copy: "Copy",
     cex: "⚠️ Centralized Exchanges Only",
