@@ -149,7 +149,7 @@ export default function CreateHubPage() {
                   <div className="w-6 h-6 rounded-full bg-zinc-900 flex items-center justify-center text-[10px] font-bold text-zinc-500 shrink-0 mt-2">{index + 1}</div>
                   <div className="flex-1 space-y-3">
                     <input type="text" value={link.title} onChange={(e) => updateLink(link.id, 'title', e.target.value)} className="w-full bg-transparent border-b border-white/10 p-1 text-sm text-white outline-none focus:border-green-500" placeholder="Link Title (e.g., Buy My E-Book)" />
-                    <input type="text" value={link.url} onChange={(e) => updateLink(link.id, 'url', e.target.value)} className="w-full bg-transparent border-b border-white/10 p-1 text-xs text-zinc-400 outline-none focus:border-green-500" placeholder="URL (e.g., https://payonce.cash/unlock?cid=...)" />
+                    <input type="text" value={link.url} onChange={(e) => updateLink(link.id, 'url', e.target.value)} className="w-full bg-transparent border-b border-white/10 p-1 text-xs text-zinc-400 outline-none focus:border-green-500" placeholder="URL (e.g., https://payonce.cash/...)" />
                   </div>
                   <button onClick={() => removeLink(link.id)} className="w-8 h-8 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center shrink-0 hover:bg-red-500 hover:text-white transition-colors mt-1">✕</button>
                 </div>
@@ -182,12 +182,15 @@ export default function CreateHubPage() {
               </div>
 
               <div className="w-full space-y-3">
-                {links.map(link => (
-                  <div key={link.id} className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-4 text-sm font-bold transition-all cursor-pointer hover:scale-[1.02] flex items-center justify-between">
-                    <span className="truncate pr-2">{link.title || 'Untitled Link'}</span>
-                    <span className="text-[10px] bg-green-500/20 text-green-500 px-2 py-1 rounded-md shrink-0">BCH</span>
-                  </div>
-                ))}
+                {links.map(link => {
+                  const isPayOnce = link.url.includes('payonce.cash');
+                  return (
+                    <div key={link.id} className={`w-full border rounded-xl p-4 text-sm font-bold transition-all cursor-pointer hover:scale-[1.02] flex items-center justify-between ${isPayOnce ? 'bg-green-500/10 border-green-500/50 hover:bg-green-500/20' : 'bg-white/5 hover:bg-white/10 border-white/10'}`}>
+                      <span className="truncate pr-2">{link.title || 'Untitled Link'}</span>
+                      {isPayOnce && <span className="text-[10px] bg-green-500 text-black px-2 py-1 rounded-md shrink-0 font-black flex items-center gap-1">BCH ⚡</span>}
+                    </div>
+                  );
+                })}
               </div>
               
               <div className="mt-auto pt-8 pb-4 opacity-50 text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
