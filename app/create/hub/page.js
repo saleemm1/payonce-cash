@@ -2,9 +2,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
-const PLATFORM_WALLET = "bitcoincash:qp...YOUR_WALLET_HERE";
-const HUB_FEE_BCH = 0.01;
-
 export default function CreateHubPage() {
   const [profile, setProfile] = useState({
     name: 'My Web3 Store',
@@ -20,7 +17,6 @@ export default function CreateHubPage() {
 
   const [paymentStep, setPaymentStep] = useState('edit');
   const [finalCid, setFinalCid] = useState('');
-  const [qrCodeUrl, setQrCodeUrl] = useState('');
 
   const handleProfileChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -38,13 +34,7 @@ export default function CreateHubPage() {
     setLinks(links.filter(link => link.id !== id));
   };
 
-  const startDeployment = () => {
-    setPaymentStep('pay');
-    const payUrl = `${PLATFORM_WALLET}?amount=${HUB_FEE_BCH}`;
-    setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(payUrl)}`);
-  };
-
-  const simulatePaymentSuccess = async () => {
+  const deployToIPFS = async () => {
     setPaymentStep('uploading');
     try {
       const payload = {
@@ -150,8 +140,12 @@ export default function CreateHubPage() {
             </div>
           </div>
 
-          <button onClick={startDeployment} disabled={links.length === 0} className="w-full bg-white text-black font-black uppercase py-4 rounded-2xl hover:bg-green-500 hover:scale-[1.02] transition-all shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
-            Deploy Storefront (0.01 BCH)
+          <button onClick={deployToIPFS} disabled={links.length === 0} className="w-full bg-white text-black py-4 rounded-2xl hover:bg-zinc-200 hover:scale-[1.02] transition-all shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center justify-center">
+            <span className="font-black uppercase tracking-widest text-lg mb-1">Deploy Storefront</span>
+            <span className="text-[10px] text-zinc-600 uppercase font-bold flex items-center gap-2">
+              <del className="text-zinc-400">0.01 BCH</del> 
+              <span className="text-green-600 bg-green-500/20 px-2 py-0.5 rounded-full">FREE (Hackathon & Public Beta)</span>
+            </span>
           </button>
         </div>
 
@@ -185,23 +179,6 @@ export default function CreateHubPage() {
 
             {paymentStep !== 'edit' && (
               <div className="absolute inset-0 bg-black/90 backdrop-blur-md z-30 flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-300">
-                {paymentStep === 'pay' && (
-                  <>
-                    <h3 className="font-black uppercase text-xl mb-2 text-white">Deploy Hub</h3>
-                    <p className="text-xs text-zinc-400 mb-6">Send exactly <span className="text-green-500 font-bold">0.01 BCH</span> to publish your storefront immutably on IPFS.</p>
-                    <div className="bg-white p-2 rounded-2xl mb-6 shadow-2xl shadow-green-500/20">
-                      <img src={qrCodeUrl} alt="QR" className="w-48 h-48 rounded-xl" />
-                    </div>
-                    <div className="bg-zinc-900 border border-white/10 rounded-xl p-3 w-full mb-6">
-                      <p className="text-[9px] text-zinc-500 uppercase font-bold mb-1">Platform Wallet</p>
-                      <p className="text-[10px] text-green-500 font-mono break-all">{PLATFORM_WALLET}</p>
-                    </div>
-                    <button onClick={simulatePaymentSuccess} className="w-full border border-green-500/50 text-green-500 font-bold uppercase text-[10px] py-3 rounded-xl hover:bg-green-500/10 transition-colors">
-                      [Hackathon] Simulate Payment Success
-                    </button>
-                  </>
-                )}
-
                 {paymentStep === 'uploading' && (
                   <div className="flex flex-col items-center">
                     <div className="w-12 h-12 border-4 border-zinc-800 border-t-green-500 rounded-full animate-spin mb-4"></div>
