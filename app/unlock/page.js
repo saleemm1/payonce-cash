@@ -225,6 +225,7 @@ function UnlockContent() {
   
   const initialTxHistory = useRef(new Set());
   const isHistoryLoaded = useRef(false);
+  const checkTimeoutRef = useRef(null);
 
   useEffect(() => {
     const savedLang = localStorage.getItem('payonce_lang');
@@ -254,13 +255,23 @@ function UnlockContent() {
       if (currentPrice !== null) {
         try {
           const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd');
+          if (!res.ok) throw new Error('Rate limit');
           const json = await res.json();
           if (json['bitcoin-cash']) {
             setBchPrice((currentPrice / json['bitcoin-cash'].usd).toFixed(8));
             setLoadingPrice(false);
           }
         } catch (e) {
-          setLoadingPrice(false);
+          try {
+            const res2 = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BCHUSDT');
+            const json2 = await res2.json();
+            if (json2.price) {
+              setBchPrice((currentPrice / parseFloat(json2.price)).toFixed(8));
+              setLoadingPrice(false);
+            }
+          } catch (err) {
+            setLoadingPrice(false);
+          }
         }
       }
     };
@@ -314,6 +325,7 @@ function UnlockContent() {
   const validateTransaction = async (hash) => {
     setTxHash(hash);
     setChecking(false);
+    if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
     setIsValidating(true);
     setSecurityStep(0);
 
@@ -348,26 +360,55 @@ function UnlockContent() {
       if (!data?.w || !bchPrice) return;
       const rawAddr = data.w;
       const sellerClean = rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr;
-      const expectedSats = Math.floor(parseFloat(bchPrice) * 100000000) - 1000; 
+      
+      const rawAff = searchParams.get('ref');
+      const cleanAff = rawAff ? (rawAff.includes(':') ? rawAff.split(':')[1] : rawAff).trim() : '';
+      const isViral = data?.a && cleanAff && (cleanAff !== sellerClean);
+
+      let targetBch = parseFloat(bchPrice);
+      if (isViral) {
+          targetBch = targetBch * 0.9;
+      }
+      const expectedSats = Math.floor(targetBch * 100000000) - 1000;
 
       try {
-          const res = await fetch(`https://rest.mainnet.cash/v1/address/history/${sellerClean}`);
-          const history = await res.json();
+          const res = await fetch(`https://rest.mainnet.cash/v2/address/unconfirmed/${sellerClean}`);
+          const unconfirmedTxs = await res.json();
+          
+          const resHist = await fetch(`https://rest.mainnet.cash/v1/address/history/${sellerClean}`);
+          const history = await resHist.json();
+
+          const mappedUnconfirmed = Array.isArray(unconfirmedTxs) ? unconfirmedTxs.map(tx => {
+              let val = 0;
+              if (tx.vout) {
+                  tx.vout.forEach(v => {
+                      if (v.scriptPubKey && v.scriptPubKey.addresses) {
+                          if (v.scriptPubKey.addresses.some(a => a.includes(sellerClean))) {
+                              val += Math.round(v.value * 100000000);
+                          }
+                      }
+                  });
+              }
+              return { tx_hash: tx.txid, value: val };
+          }) : [];
+
+          const allTxs = [...mappedUnconfirmed, ...(Array.isArray(history) ? history : [])];
           
           if (data.l) { 
-              const totalSales = history.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 5000).length;
+              const totalSales = allTxs.filter(tx => tx.value && tx.value >= expectedSats && tx.value <= expectedSats + 5000).length;
               setSoldCount(totalSales);
               if (totalSales >= data.l) {
                   setIsSoldOut(true);
                   setChecking(false);
+                  if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
                   return;
               }
           }
 
           if (checking && !isPaid && !isValidating && !isSoldOut) {
-              const newTx = history.find(tx => 
+              const newTx = allTxs.find(tx => 
                   !initialTxHistory.current.has(tx.tx_hash) && 
-                  tx.value >= expectedSats
+                  tx.value && tx.value >= expectedSats
               );
 
               if (newTx) {
@@ -377,7 +418,7 @@ function UnlockContent() {
           }
 
           if (!isHistoryLoaded.current) {
-              history.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
+              allTxs.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
               isHistoryLoaded.current = true;
           }
       } catch (err) {}
@@ -389,13 +430,15 @@ function UnlockContent() {
     }
 
     return () => clearInterval(interval);
-  }, [checking, isPaid, isValidating, data, bchPrice, isSoldOut]);
+  }, [checking, isPaid, isValidating, data, bchPrice, isSoldOut, searchParams]);
 
   useEffect(() => {
-    const affiliateAddr = searchParams.get('ref');
+    const rawAff = searchParams.get('ref');
+    const cleanAff = rawAff ? (rawAff.includes(':') ? rawAff.split(':')[1] : rawAff).trim() : '';
     const rawAddr = data?.w || '';
     const sellerClean = rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr;
-    if (data?.a && affiliateAddr && affiliateAddr !== sellerClean) {
+    
+    if (data?.a && cleanAff && cleanAff !== sellerClean) {
       setQrMode('smart');
     } else {
       setQrMode('smart'); 
@@ -446,17 +489,22 @@ function UnlockContent() {
 
   const rawAddr = data.w || '';
   const cleanAddr = (rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr).trim();
-  const affiliateAddr = searchParams.get('ref');
-  const isViral = data.a && affiliateAddr && (affiliateAddr !== cleanAddr);
+  const displaySeller = `bitcoincash:${cleanAddr}`;
+  
+  const rawAff = searchParams.get('ref');
+  const cleanAff = rawAff ? (rawAff.includes(':') ? rawAff.split(':')[1] : rawAff).trim() : '';
+  const displayAff = cleanAff ? `bitcoincash:${cleanAff}` : '';
+  
+  const isViral = data.a && cleanAff && (cleanAff !== cleanAddr);
 
   const fullPriceBch = bchPrice ? parseFloat(bchPrice).toFixed(8) : "0.00000000";
   const sellerAmt = isViral ? (parseFloat(fullPriceBch) * 0.9).toFixed(8) : fullPriceBch;
   const affAmt = isViral ? (parseFloat(fullPriceBch) * 0.1).toFixed(8) : "0.00000000";
 
   const standardLink = `bitcoincash:${cleanAddr}?amount=${fullPriceBch}`;
-  const smartViralLink = `bitcoincash:${cleanAddr}?amount=${sellerAmt}&address=${affiliateAddr}&amount=${affAmt}`;
+  const smartViralLink = `bitcoincash:${cleanAddr}?amount=${sellerAmt}&address=${cleanAff}&amount=${affAmt}`;
 
-  const qrData = qrMode === 'smart' ? (isViral ? smartViralLink : standardLink) : cleanAddr;
+  const qrData = qrMode === 'smart' ? (isViral ? smartViralLink : standardLink) : displaySeller;
 
   const copyToClipboard = (text, type) => {
     navigator.clipboard.writeText(text);
@@ -469,6 +517,15 @@ function UnlockContent() {
   };
 
   const isGated = data.tk && data.tk.type === 'gated' && !tokenVerified;
+
+  const handleVerifyClick = () => {
+    setChecking(true);
+    if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
+    checkTimeoutRef.current = setTimeout(() => {
+        setChecking(false);
+        alert("Transaction not found in the mempool. Please ensure your wallet broadcasted the payment successfully.");
+    }, 30000);
+  };
 
   return (
     <div dir={dir} className={`min-h-screen bg-[#09090b] text-white flex flex-col items-center justify-center px-4 py-12 font-sans relative overflow-hidden ${lang === 'ar' ? 'font-arabic' : ''}`}>
@@ -675,9 +732,9 @@ function UnlockContent() {
                                     <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-[10px]">🏁</div>
                                     <div className="flex-1 overflow-hidden text-start">
                                         <p className="text-[8px] text-zinc-500 font-black uppercase mb-0.5">{t.recipient}</p>
-                                        <p className="text-[10px] font-mono text-zinc-300 truncate">{cleanAddr}</p>
+                                        <p className="text-[10px] font-mono text-zinc-300 truncate">{displaySeller}</p>
                                     </div>
-                                    <button onClick={() => copyToClipboard(cleanAddr, 'seller')} className="bg-white/5 hover:bg-white/10 p-2 rounded-lg text-[10px] text-white transition-all">
+                                    <button onClick={() => copyToClipboard(displaySeller, 'seller')} className="bg-white/5 hover:bg-white/10 p-2 rounded-lg text-[10px] text-white transition-all">
                                         {copied === 'seller' ? t.done : t.copy}
                                     </button>
                                 </div>
@@ -689,9 +746,9 @@ function UnlockContent() {
                                         <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-[10px]">🏪</div>
                                         <div className="flex-1 overflow-hidden text-start">
                                             <p className="text-[8px] text-zinc-500 font-black uppercase mb-0.5">{t.seller} (90%) - {sellerAmt} BCH</p>
-                                            <p className="text-[10px] font-mono text-zinc-300 truncate">{cleanAddr}</p>
+                                            <p className="text-[10px] font-mono text-zinc-300 truncate">{displaySeller}</p>
                                         </div>
-                                        <button onClick={() => copyToClipboard(cleanAddr, 'seller')} className="bg-white/5 hover:bg-white/10 p-2 rounded-lg text-[10px] text-white">
+                                        <button onClick={() => copyToClipboard(displaySeller, 'seller')} className="bg-white/5 hover:bg-white/10 p-2 rounded-lg text-[10px] text-white">
                                             {copied === 'seller' ? t.done : t.copy}
                                         </button>
                                     </div>
@@ -699,9 +756,9 @@ function UnlockContent() {
                                         <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-[10px]">🚀</div>
                                         <div className="flex-1 overflow-hidden text-start">
                                             <p className="text-[8px] text-zinc-500 font-black uppercase mb-0.5">{t.promoter} (10%) - {affAmt} BCH</p>
-                                            <p className="text-[10px] font-mono text-zinc-300 truncate">{affiliateAddr}</p>
+                                            <p className="text-[10px] font-mono text-zinc-300 truncate">{displayAff}</p>
                                         </div>
-                                        <button onClick={() => copyToClipboard(affiliateAddr, 'aff')} className="bg-white/5 hover:bg-white/10 p-2 rounded-lg text-[10px] text-white">
+                                        <button onClick={() => copyToClipboard(displayAff, 'aff')} className="bg-white/5 hover:bg-white/10 p-2 rounded-lg text-[10px] text-white">
                                             {copied === 'aff' ? t.done : t.copy}
                                         </button>
                                     </div>
@@ -723,8 +780,8 @@ function UnlockContent() {
                     </div>
 
                     <button 
-                        onClick={() => setChecking(true)} 
-                        disabled={checking}
+                        onClick={handleVerifyClick} 
+                        disabled={checking || !bchPrice}
                         className="w-full bg-green-600 hover:bg-green-500 text-black font-black py-4 rounded-xl transition-all uppercase tracking-tight text-base shadow-[0_10px_30px_rgba(22,163,74,0.3)] hover:shadow-[0_10px_40px_rgba(22,163,74,0.5)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mb-4"
                     >
                         {checking ? t.scanning : t.verify}
@@ -765,7 +822,7 @@ function UnlockContent() {
                         </div>
                     </div>
                     
-                    {data.a && !affiliateAddr && (
+                    {data.a && !cleanAff && (
                         <button onClick={() => router.push(`/affiliate?product=${searchParams.get('cid')}`)} className="w-full mt-4 py-3 rounded-xl border border-dashed border-zinc-700 text-zinc-500 hover:text-white hover:border-zinc-500 text-[9px] font-black uppercase tracking-widest transition-all">
                             {t.become}
                         </button>
