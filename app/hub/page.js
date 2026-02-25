@@ -39,7 +39,7 @@ function HubViewer() {
 
   const formatUrl = (url) => {
     if (!url) return '';
-    return url.startsWith('http') ? url : `https://${url}`;
+    return url.startsWith('http') || url.startsWith('mailto:') ? url : `https://${url}`;
   };
 
   if (loading) {
@@ -84,21 +84,27 @@ function HubViewer() {
             </a>
           )}
           {hubData.profile.email && (
-            <a href={`mailto:${hubData.profile.email}`} className="w-10 h-10 rounded-full bg-white/5 hover:bg-green-500/20 text-white hover:text-green-500 flex items-center justify-center transition-colors">
+            <a href={formatUrl(hubData.profile.email)} className="w-10 h-10 rounded-full bg-white/5 hover:bg-green-500/20 text-white hover:text-green-500 flex items-center justify-center transition-colors">
               ✉️
             </a>
           )}
         </div>
 
         <div className="w-full space-y-4">
-          {hubData.links.map((link) => (
-            <a key={link.id} href={formatUrl(link.url)} target="_blank" rel="noopener noreferrer" className="w-full bg-white/5 hover:bg-green-500 hover:text-black border border-white/10 rounded-2xl p-4 font-bold transition-all flex items-center justify-between group">
-              <span className="truncate pr-4">{link.title}</span>
-              <svg className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </a>
-          ))}
+          {hubData.links.map((link) => {
+            const isPayOnce = link.url.includes('payonce.cash');
+            return (
+              <a key={link.id} href={formatUrl(link.url)} target="_blank" rel="noopener noreferrer" className={`w-full border rounded-2xl p-4 font-bold transition-all flex items-center justify-between group ${isPayOnce ? 'bg-green-500/10 border-green-500/50 hover:bg-green-500 hover:text-black text-green-400' : 'bg-white/5 hover:bg-white/20 border-white/10 text-white'}`}>
+                <span className="truncate pr-4">{link.title}</span>
+                <div className="flex items-center gap-2">
+                  {isPayOnce && <span className="text-[10px] bg-green-500 text-black px-2 py-1 rounded-md shrink-0 font-black group-hover:bg-black group-hover:text-green-500">BCH ⚡</span>}
+                  <svg className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </div>
+              </a>
+            );
+          })}
         </div>
 
         <div className="mt-12 pt-6 w-full border-t border-white/5">
