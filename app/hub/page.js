@@ -92,7 +92,7 @@ function HubViewer() {
 
         <div className="w-full space-y-4">
           {hubData.links.map((link) => {
-            const isPayOnce = link.url.includes('payonce.cash');
+            const isPayOnce = link.url.includes('payonce-cash.vercel.app');
             return (
               <a key={link.id} href={formatUrl(link.url)} target="_blank" rel="noopener noreferrer" className={`w-full border rounded-2xl p-4 font-bold transition-all flex items-center justify-between group ${isPayOnce ? 'bg-green-500/10 border-green-500/50 hover:bg-green-500 hover:text-black text-green-400' : 'bg-white/5 hover:bg-white/20 border-white/10 text-white'}`}>
                 <span className="truncate pr-4">{link.title}</span>
