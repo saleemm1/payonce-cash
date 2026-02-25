@@ -8,7 +8,8 @@ export default function CreateHubPage() {
     bio: 'Welcome to my decentralized storefront. Pay with BCH instantly.',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=PayOnce',
     twitter: '',
-    website: ''
+    website: '',
+    email: ''
   });
 
   const [links, setLinks] = useState([
@@ -17,6 +18,7 @@ export default function CreateHubPage() {
 
   const [paymentStep, setPaymentStep] = useState('edit');
   const [finalCid, setFinalCid] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const handleProfileChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -63,6 +65,17 @@ export default function CreateHubPage() {
     }
   };
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(`https://payonce.cash/hub?cid=${finalCid}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const formatUrl = (url) => {
+    if (!url) return '';
+    return url.startsWith('http') || url.startsWith('mailto:') ? url : `https://${url}`;
+  };
+
   return (
     <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-green-500/30 overflow-x-hidden">
       <nav className="border-b border-white/5 py-4 px-6 flex justify-between items-center max-w-7xl mx-auto">
@@ -107,14 +120,18 @@ export default function CreateHubPage() {
                 <textarea name="bio" value={profile.bio} onChange={handleProfileChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-green-500 transition-colors resize-none h-20" />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-zinc-500 block mb-1">X (Twitter) URL</label>
-                  <input type="text" name="twitter" value={profile.twitter} onChange={handleProfileChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-green-500 transition-colors" placeholder="https://x.com/..." />
+                  <label className="text-[10px] uppercase font-bold text-zinc-500 block mb-1">X (Twitter)</label>
+                  <input type="text" name="twitter" value={profile.twitter} onChange={handleProfileChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-green-500 transition-colors" placeholder="x.com/..." />
                 </div>
                 <div>
-                  <label className="text-[10px] uppercase font-bold text-zinc-500 block mb-1">Website URL</label>
-                  <input type="text" name="website" value={profile.website} onChange={handleProfileChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-green-500 transition-colors" placeholder="https://..." />
+                  <label className="text-[10px] uppercase font-bold text-zinc-500 block mb-1">Website</label>
+                  <input type="text" name="website" value={profile.website} onChange={handleProfileChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-green-500 transition-colors" placeholder="yourdomain.com" />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-zinc-500 block mb-1">Support Email</label>
+                  <input type="email" name="email" value={profile.email} onChange={handleProfileChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-green-500 transition-colors" placeholder="support@..." />
                 </div>
               </div>
             </div>
@@ -161,6 +178,7 @@ export default function CreateHubPage() {
               <div className="flex gap-4 mb-8">
                 {profile.twitter && <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-xs">𝕏</div>}
                 {profile.website && <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-xs">🌐</div>}
+                {profile.email && <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-xs">✉️</div>}
               </div>
 
               <div className="w-full space-y-3">
@@ -194,10 +212,21 @@ export default function CreateHubPage() {
                     </div>
                     <h3 className="font-black uppercase text-xl mb-2 text-white">Hub Deployed!</h3>
                     <p className="text-xs text-zinc-400 mb-6">Your Web3 Storefront is now live and immutable.</p>
-                    <div className="w-full bg-zinc-900 border border-white/10 rounded-xl p-3 mb-6 relative group overflow-hidden">
-                      <p className="text-[9px] text-zinc-500 uppercase font-bold mb-1">Your Hub URL</p>
-                      <input readOnly value={`https://payonce.cash/hub?cid=${finalCid}`} className="w-full bg-transparent text-[10px] text-green-500 font-mono outline-none cursor-pointer" onClick={(e) => e.target.select()} />
+                    
+                    <div className="w-full bg-zinc-900 border border-white/10 rounded-xl p-3 mb-6 relative group overflow-hidden flex flex-col gap-2">
+                      <p className="text-[9px] text-zinc-500 uppercase font-bold">Your Hub URL</p>
+                      <div className="flex items-center gap-2">
+                        <input readOnly value={`https://payonce.cash/hub?cid=${finalCid}`} className="w-full bg-transparent text-[10px] text-green-500 font-mono outline-none" />
+                        <button onClick={copyToClipboard} className="bg-white/10 hover:bg-green-500 hover:text-black text-white p-2 rounded-lg transition-colors shrink-0">
+                          {copied ? (
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                          ) : (
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                          )}
+                        </button>
+                      </div>
                     </div>
+
                     <a href={`/hub?cid=${finalCid}`} target="_blank" className="w-full bg-white text-black font-black uppercase text-xs py-4 rounded-xl hover:bg-zinc-200 transition-colors block text-center">
                       Visit Storefront
                     </a>
