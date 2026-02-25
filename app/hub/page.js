@@ -37,6 +37,11 @@ function HubViewer() {
     fetchHub();
   }, [cid]);
 
+  const formatUrl = (url) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : `https://${url}`;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center text-white">
@@ -69,22 +74,27 @@ function HubViewer() {
 
         <div className="flex gap-4 mb-8">
           {hubData.profile.twitter && (
-            <a href={hubData.profile.twitter} target="_blank" className="w-10 h-10 rounded-full bg-white/5 hover:bg-green-500/20 text-white hover:text-green-500 flex items-center justify-center transition-colors">
+            <a href={formatUrl(hubData.profile.twitter)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/5 hover:bg-green-500/20 text-white hover:text-green-500 flex items-center justify-center transition-colors">
               𝕏
             </a>
           )}
           {hubData.profile.website && (
-            <a href={hubData.profile.website} target="_blank" className="w-10 h-10 rounded-full bg-white/5 hover:bg-green-500/20 text-white hover:text-green-500 flex items-center justify-center transition-colors">
+            <a href={formatUrl(hubData.profile.website)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/5 hover:bg-green-500/20 text-white hover:text-green-500 flex items-center justify-center transition-colors">
               🌐
+            </a>
+          )}
+          {hubData.profile.email && (
+            <a href={`mailto:${hubData.profile.email}`} className="w-10 h-10 rounded-full bg-white/5 hover:bg-green-500/20 text-white hover:text-green-500 flex items-center justify-center transition-colors">
+              ✉️
             </a>
           )}
         </div>
 
         <div className="w-full space-y-4">
           {hubData.links.map((link) => (
-            <a key={link.id} href={link.url} target="_blank" className="w-full bg-white/5 hover:bg-green-500 hover:text-black border border-white/10 rounded-2xl p-4 font-bold transition-all flex items-center justify-between group">
-              <span>{link.title}</span>
-              <svg className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <a key={link.id} href={formatUrl(link.url)} target="_blank" rel="noopener noreferrer" className="w-full bg-white/5 hover:bg-green-500 hover:text-black border border-white/10 rounded-2xl p-4 font-bold transition-all flex items-center justify-between group">
+              <span className="truncate pr-4">{link.title}</span>
+              <svg className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
             </a>
