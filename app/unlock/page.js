@@ -369,7 +369,7 @@ function UnlockContent() {
       if (isViral) {
           targetBch = targetBch * 0.9;
       }
-      const expectedSats = Math.floor(targetBch * 100000000) - 2000; // زيادة التسامح قليلاً لتغطية fee أكبر
+      const expectedSats = Math.floor(targetBch * 100000000) - 2000;
 
       try {
           const res = await fetch(`https://rest.mainnet.cash/v2/address/unconfirmed/${sellerClean}`);
@@ -394,7 +394,7 @@ function UnlockContent() {
 
           const allTxs = [...mappedUnconfirmed, ...(Array.isArray(history) ? history : [])];
           
-          // حساب عدد المبيعات (يظل كما هو)
+         
           if (data.l) { 
               const totalSales = allTxs.filter(tx => tx.value && tx.value >= expectedSats && tx.value <= expectedSats + 8000).length;
               setSoldCount(totalSales);
@@ -406,9 +406,9 @@ function UnlockContent() {
               }
           }
 
-          // التحقق من الدفع الجديد فقط إذا كنا في وضع checking
+         
           if (checking && !isPaid && !isValidating && !isSoldOut) {
-              // إذا لم يتم تهيئة initialTxHistory بعد → نأخذ snapshot الآن (أول مرة نضغط verify)
+              
               if (!isHistoryInitialized.current) {
                   allTxs.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
                   isHistoryInitialized.current = true;
@@ -420,7 +420,7 @@ function UnlockContent() {
               );
 
               if (newTx) {
-                  initialTxHistory.current.add(newTx.tx_hash); // نضيفه فوراً لمنع التكرار
+                  initialTxHistory.current.add(newTx.tx_hash); 
                   clearInterval(interval);
                   validateTransaction(newTx.tx_hash);
               }
@@ -430,11 +430,11 @@ function UnlockContent() {
     };
 
     if (data?.w && bchPrice) {
-      // لا نعمل checkBlockchain تلقائياً في البداية
-      // ننتظر الضغط على Verify
+     
+     
       if (checking) {
         checkBlockchain();
-        interval = setInterval(checkBlockchain, 4000); // زيادة الفترة قليلاً لتقليل الضغط
+        interval = setInterval(checkBlockchain, 4000); 
       }
     }
 
@@ -533,13 +533,13 @@ function UnlockContent() {
         return;
     }
 
-    // هنا نبدأ الـ checking → سيتم تهيئة initialTxHistory في أول دورة
+    
     setChecking(true);
     if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
     checkTimeoutRef.current = setTimeout(() => {
         setChecking(false);
         alert("Transaction not found in the mempool. Please ensure your wallet broadcasted the payment successfully.");
-    }, 45000); // زيادة المهلة قليلاً
+    }, 45000); 
   };
 
   return (
