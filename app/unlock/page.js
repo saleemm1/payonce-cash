@@ -303,7 +303,7 @@ function UnlockContent() {
     setTokenError('');
     try {
         const cleanAddr = tokenWallet.includes(':') ? tokenWallet.split(':')[1] : tokenWallet;
-        const res = await fetch(`https://rest.mainnet.cash/v1/address/utxos/${cleanAddr}`);
+        const res = await fetch(`https://rest-unstable.mainnet.cash/v1/address/utxos/${cleanAddr}`);
         const utxos = await res.json();
         const hasToken = utxos.some(u => u.token && u.token.category === data.tk.id);
         
@@ -372,10 +372,10 @@ function UnlockContent() {
       const expectedSats = Math.floor(targetBch * 100000000) - 2000;
 
       try {
-          const res = await fetch(`https://rest.mainnet.cash/v2/address/unconfirmed/${sellerClean}`);
+          const res = await fetch(`https://rest-unstable.mainnet.cash/v2/address/unconfirmed/${sellerClean}`);
           const unconfirmedTxs = await res.json();
           
-          const resHist = await fetch(`https://rest.mainnet.cash/v1/address/history/${sellerClean}`);
+          const resHist = await fetch(`https://rest-unstable.mainnet.cash/v1/address/history/${sellerClean}`);
           const history = await resHist.json();
 
           const mappedUnconfirmed = Array.isArray(unconfirmedTxs) ? unconfirmedTxs.map(tx => {
@@ -394,7 +394,6 @@ function UnlockContent() {
 
           const allTxs = [...mappedUnconfirmed, ...(Array.isArray(history) ? history : [])];
           
-         
           if (data.l) { 
               const totalSales = allTxs.filter(tx => tx.value && tx.value >= expectedSats && tx.value <= expectedSats + 8000).length;
               setSoldCount(totalSales);
@@ -406,7 +405,6 @@ function UnlockContent() {
               }
           }
 
-         
           if (checking && !isPaid && !isValidating && !isSoldOut) {
               
               if (!isHistoryInitialized.current) {
@@ -426,12 +424,38 @@ function UnlockContent() {
               }
           }
 
-      } catch (err) {}
+      } catch (err) {
+          console.warn("mainnet.cash API failed:", err);
+          // Fallback بسيط بـ Blockchair (يجيب tx hashes فقط، value مش دقيق لكن يساعد في detection)
+          try {
+              const bcRes = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}`);
+              const bcJson = await bcRes.json();
+              const recentTxs = bcJson.data[sellerClean.toLowerCase()]?.transactions || [];
+              const fallbackTxs = recentTxs.map(hash => ({ tx_hash: hash, value: 0 })); // value placeholder
+
+              if (checking && !isPaid && !isValidating && !isSoldOut) {
+                  if (!isHistoryInitialized.current) {
+                      fallbackTxs.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
+                      isHistoryInitialized.current = true;
+                  }
+
+                  const newTx = fallbackTxs.find(tx => 
+                      !initialTxHistory.current.has(tx.tx_hash)
+                  );
+
+                  if (newTx) {
+                      initialTxHistory.current.add(newTx.tx_hash);
+                      clearInterval(interval);
+                      validateTransaction(newTx.tx_hash); // هون الـ validate هيجيب الـ value والـ details من blockchair
+                  }
+              }
+          } catch (fallbackErr) {
+              console.error("Blockchair fallback also failed:", fallbackErr);
+          }
+      }
     };
 
     if (data?.w && bchPrice) {
-     
-     
       if (checking) {
         checkBlockchain();
         interval = setInterval(checkBlockchain, 4000); 
@@ -533,7 +557,6 @@ function UnlockContent() {
         return;
     }
 
-    
     setChecking(true);
     if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
     checkTimeoutRef.current = setTimeout(() => {
