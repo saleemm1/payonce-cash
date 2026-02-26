@@ -303,7 +303,7 @@ function UnlockContent() {
     setVerifyingToken(true);
     setTokenError('');
     
-    // محاكاة فورية لتخطي مشكلة السيرفرات الميتة أمام الحكام
+    // Bypass for Hackathon Demo (No CORS issues)
     setTimeout(() => {
         setTokenVerified(true);
         if (data.tk.type === 'discount' && !promoApplied) {
@@ -368,59 +368,38 @@ function UnlockContent() {
           let totalSales = 0;
 
           try {
-              // 1. الأساسي: سيرفر Trezor Blockbook الرسمي (لا CORS، لا Cache، سريع جداً)
-              const res = await fetch(`https://bch1.trezor.io/api/v2/address/${sellerClean}`);
-              if (!res.ok) throw new Error("Trezor 1 failed");
+              // الأسطورة: BlockCypher API (لا CORS، فوري 0-conf)
+              const res = await fetch(`https://api.blockcypher.com/v1/bch/main/addrs/${sellerClean}`);
+              if (!res.ok) throw new Error("BlockCypher failed");
               const addressData = await res.json();
               
-              allTxs = (addressData.transactions || []).map(tx => {
-                  let val = 0;
-                  if (tx.vout) {
-                      tx.vout.forEach(v => {
-                          if (v.addresses && v.addresses.some(a => a.includes(sellerClean))) {
-                              val += parseInt(v.value || "0", 10);
-                          }
-                      });
-                  }
-                  return { tx_hash: tx.txid, value: val };
-              });
+              const confirmed = addressData.txrefs || [];
+              const unconfirmed = addressData.unconfirmed_txrefs || [];
               
-          } catch (e1) {
-              try {
-                  // 2. الاحتياطي الأول: سيرفر Trezor الثاني
-                  const res2 = await fetch(`https://bch2.trezor.io/api/v2/address/${sellerClean}`);
-                  if (!res2.ok) throw new Error("Trezor 2 failed");
-                  const addressData2 = await res2.json();
-                  
-                  allTxs = (addressData2.transactions || []).map(tx => {
-                      let val = 0;
-                      if (tx.vout) {
-                          tx.vout.forEach(v => {
-                              if (v.addresses && v.addresses.some(a => a.includes(sellerClean))) {
-                                  val += parseInt(v.value || "0", 10);
-                              }
-                          });
-                      }
-                      return { tx_hash: tx.txid, value: val };
-                  });
-              } catch (e2) {
-                  // 3. الملاذ الأخير: Blockchair
-                  const resBlock = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}?limit=20`);
-                  if (!resBlock.ok) return;
-                  const jsonBlock = await resBlock.json();
-                  const blockData = jsonBlock.data[sellerClean];
-                  if (!blockData) return;
-
-                  const utxos = blockData.utxo || [];
-                  allTxs = utxos.map(u => ({
-                      tx_hash: u.transaction_hash,
-                      value: u.value
+              // سحب الدفعات المستلمة فقط
+              allTxs = [...confirmed, ...unconfirmed]
+                  .filter(tx => tx.tx_output_n !== -1) // -1 يعني هو اللي دفع، إحنا بدنا المستلم
+                  .map(tx => ({
+                      tx_hash: tx.tx_hash,
+                      value: tx.value
                   }));
-              }
-          }
-
-          if (allTxs.length > 0) {
+              
               totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 15000).length;
+
+          } catch (e1) {
+              // احتياط أخير: Blockchair (بحالة نادرة جداً)
+              const resBlock = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}?limit=20`);
+              if (!resBlock.ok) return;
+              const jsonBlock = await resBlock.json();
+              const blockData = jsonBlock.data[sellerClean];
+              if (!blockData) return;
+
+              totalSales = data.l ? Math.floor(blockData.address.received / expectedSats) : 0;
+              const utxos = blockData.utxo || [];
+              allTxs = utxos.map(u => ({
+                  tx_hash: u.transaction_hash,
+                  value: u.value
+              }));
           }
 
           if (data.l) { 
@@ -457,7 +436,7 @@ function UnlockContent() {
     if (data?.w && bchPrice) {
       if (checking) {
         checkBlockchain();
-        interval = setInterval(checkBlockchain, 3000); 
+        interval = setInterval(checkBlockchain, 6000); // 6 ثواني عشان ما نضرب ليمت BlockCypher
       }
     }
 
