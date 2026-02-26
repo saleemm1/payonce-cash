@@ -517,16 +517,11 @@ function UnlockContent() {
   const isGated = data.tk && data.tk.type === 'gated' && !tokenVerified;
 
   const handleVerifyClick = () => {
-    if (searchParams.get('dev') === 'trustme') {
-        validateTransaction('dev-bypass-1234');
-        return;
-    }
-
     setChecking(true);
     if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
     checkTimeoutRef.current = setTimeout(() => {
         setChecking(false);
-        alert("Transaction not found in the mempool. Please ensure your wallet broadcasted the payment successfully.");
+        alert("Transaction not found in the mempool yet. It usually takes a few seconds to appear due to global node caching. Please try clicking Verify again.");
     }, 65000); 
   };
 
