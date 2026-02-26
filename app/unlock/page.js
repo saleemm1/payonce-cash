@@ -303,7 +303,7 @@ function UnlockContent() {
     setVerifyingToken(true);
     setTokenError('');
     
-    // Bypass for Hackathon Demo (No CORS issues)
+    // Bypass for Hackathon Demo (No server dependencies)
     setTimeout(() => {
         setTokenVerified(true);
         if (data.tk.type === 'discount' && !promoApplied) {
@@ -367,39 +367,51 @@ function UnlockContent() {
           let allTxs = [];
           let totalSales = 0;
 
+          // دالة استخراج الداتا من سيرفرات Blockbook
+          const parseBlockbook = (blockbookData) => {
+              return (blockbookData.transactions || []).map(tx => {
+                  let val = 0;
+                  if (tx.vout) {
+                      tx.vout.forEach(v => {
+                          if (v.addresses && v.addresses.some(a => a.includes(sellerClean))) {
+                              val += parseInt(v.value || "0", 10);
+                          }
+                      });
+                  }
+                  return { tx_hash: tx.txid, value: val };
+              });
+          };
+
           try {
-              // الأسطورة: BlockCypher API (لا CORS، فوري 0-conf)
-              const res = await fetch(`https://api.blockcypher.com/v1/bch/main/addrs/${sellerClean}`);
-              if (!res.ok) throw new Error("BlockCypher failed");
-              const addressData = await res.json();
-              
-              const confirmed = addressData.txrefs || [];
-              const unconfirmed = addressData.unconfirmed_txrefs || [];
-              
-              // سحب الدفعات المستلمة فقط
-              allTxs = [...confirmed, ...unconfirmed]
-                  .filter(tx => tx.tx_output_n !== -1) // -1 يعني هو اللي دفع، إحنا بدنا المستلم
-                  .map(tx => ({
-                      tx_hash: tx.tx_hash,
-                      value: tx.value
-                  }));
-              
+              // 1. الأساسي: Cryptoservers Blockbook (سيرفر مجتمعي فخم، بدون CORS)
+              const res = await fetch(`https://bch.cryptoservers.net/api/v2/address/${sellerClean}`);
+              if (!res.ok) throw new Error("Cryptoservers down");
+              allTxs = parseBlockbook(await res.json());
               totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 15000).length;
 
           } catch (e1) {
-              // احتياط أخير: Blockchair (بحالة نادرة جداً)
-              const resBlock = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}?limit=20`);
-              if (!resBlock.ok) return;
-              const jsonBlock = await resBlock.json();
-              const blockData = jsonBlock.data[sellerClean];
-              if (!blockData) return;
+              try {
+                  // 2. الاحتياطي الأول: Guarda Wallet Blockbook (سيرفر مؤسسي، بدون CORS)
+                  const res2 = await fetch(`https://bchbook.guarda.co/api/v2/address/${sellerClean}`);
+                  if (!res2.ok) throw new Error("Guarda down");
+                  allTxs = parseBlockbook(await res2.json());
+                  totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 15000).length;
+                  
+              } catch (e2) {
+                  // 3. الاحتياطي الأخير: Blockchair
+                  const resBlock = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}?limit=20`);
+                  if (!resBlock.ok) return;
+                  const jsonBlock = await resBlock.json();
+                  const blockData = jsonBlock.data[sellerClean];
+                  if (!blockData) return;
 
-              totalSales = data.l ? Math.floor(blockData.address.received / expectedSats) : 0;
-              const utxos = blockData.utxo || [];
-              allTxs = utxos.map(u => ({
-                  tx_hash: u.transaction_hash,
-                  value: u.value
-              }));
+                  totalSales = data.l ? Math.floor(blockData.address.received / expectedSats) : 0;
+                  const utxos = blockData.utxo || [];
+                  allTxs = utxos.map(u => ({
+                      tx_hash: u.transaction_hash,
+                      value: u.value
+                  }));
+              }
           }
 
           if (data.l) { 
@@ -436,7 +448,7 @@ function UnlockContent() {
     if (data?.w && bchPrice) {
       if (checking) {
         checkBlockchain();
-        interval = setInterval(checkBlockchain, 6000); // 6 ثواني عشان ما نضرب ليمت BlockCypher
+        interval = setInterval(checkBlockchain, 4000); 
       }
     }
 
