@@ -65,7 +65,9 @@ const translations = {
     discountAvailable: "Holder Discount:",
     holdToGet: "Hold to get",
     discountOff: "off!",
-    viewExplorer: "View on Explorer"
+    viewExplorer: "View on Explorer",
+    splitRequired: "Split Payment Required",
+    splitNote: "Please send the exact amounts to both addresses below to unlock the product."
   },
   ar: {
     loading: "جاري التحميل...",
@@ -129,7 +131,9 @@ const translations = {
     discountAvailable: "خصم لحاملي توكن:",
     holdToGet: "امتلكه لتحصل على",
     discountOff: "خصم!",
-    viewExplorer: "عرض على المستكشف"
+    viewExplorer: "عرض على المستكشف",
+    splitRequired: "مطلوب دفع مقسم",
+    splitNote: "يرجى إرسال المبالغ الدقيقة إلى كلا العنوانين أدناه لفتح المنتج."
   },
   zh: {
     loading: "加载中...",
@@ -193,7 +197,9 @@ const translations = {
     discountAvailable: "持有人折扣：",
     holdToGet: "持有以获得",
     discountOff: "折扣！",
-    viewExplorer: "在浏览器中查看"
+    viewExplorer: "在浏览器中查看",
+    splitRequired: "需要分期付款",
+    splitNote: "请将准确金额发送到以下两个地址以解锁产品。"
   }
 };
 
@@ -437,7 +443,7 @@ function UnlockContent() {
     const sellerClean = rawAddr.includes(':') ? rawAddr.split(':')[1] : rawAddr;
     
     if (data?.a && cleanAff && cleanAff !== sellerClean) {
-      setQrMode('smart');
+      setQrMode('manual');
     } else {
       setQrMode('smart'); 
     }
@@ -500,9 +506,6 @@ function UnlockContent() {
   const affAmt = isViral ? (parseFloat(fullPriceBch) * 0.1).toFixed(8) : "0.00000000";
 
   const standardLink = `bitcoincash:${cleanAddr}?amount=${fullPriceBch}`;
-  const smartViralLink = `bitcoincash:${cleanAddr}?amount=${sellerAmt}&address=${cleanAff}&amount=${affAmt}`;
-
-  const qrData = qrMode === 'smart' ? (isViral ? smartViralLink : standardLink) : displaySeller;
 
   const copyToClipboard = (text, type) => {
     navigator.clipboard.writeText(text);
@@ -511,7 +514,7 @@ function UnlockContent() {
   };
 
   const handleOpenWallet = () => {
-    window.location.assign(isViral ? smartViralLink : standardLink);
+    window.location.assign(standardLink);
   };
 
   const isGated = data.tk && data.tk.type === 'gated' && !tokenVerified;
@@ -693,11 +696,18 @@ function UnlockContent() {
                 <>
                     <div className="bg-zinc-900/30 rounded-[24px] border border-white/5 p-6 mb-6">
                         <div className="flex flex-col items-center">
-                            {!(isViral && qrMode === 'manual') && (
+                            
+                            {isViral && (
+                                <p className="text-[10px] text-green-500 font-black uppercase mb-4 tracking-widest bg-green-500/10 px-4 py-2 rounded-full border border-green-500/20">
+                                    {t.splitRequired}
+                                </p>
+                            )}
+
+                            {!(isViral) && (
                                 <div className="bg-white p-4 rounded-[24px] shadow-lg mb-6 relative group cursor-pointer hover:shadow-[0_0_30px_rgba(34,197,94,0.2)] transition-shadow">
                                     {!loadingPrice ? (
                                         <img
-                                            src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`}
+                                            src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(standardLink)}`}
                                             alt="QR" className="w-[160px] h-[160px] mix-blend-multiply"
                                         />
                                     ) : <div className="w-[160px] h-[160px] bg-zinc-200 animate-pulse rounded-xl"></div>}
@@ -713,10 +723,9 @@ function UnlockContent() {
 
                             <div className="flex bg-black p-1 rounded-xl border border-white/10 w-full mb-6">
                                 {isViral ? (
-                                    <>
-                                        <button onClick={() => setQrMode('smart')} className={`flex-1 py-2.5 rounded-lg text-[9px] font-black uppercase transition-all ${qrMode === 'smart' ? 'bg-green-600 text-black shadow' : 'text-zinc-500 hover:text-white'}`}>{t.smart}</button>
-                                        <button onClick={() => setQrMode('manual')} className={`flex-1 py-2.5 rounded-lg text-[9px] font-black uppercase transition-all ${qrMode === 'manual' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-white'}`}>{t.manual}</button>
-                                    </>
+                                    <div className="flex-1 text-center py-2.5 rounded-lg text-[9px] font-black uppercase bg-zinc-800 text-white border border-zinc-700">
+                                        {t.splitNote}
+                                    </div>
                                 ) : (
                                     <>
                                         <button onClick={() => setQrMode('address')} className={`flex-1 py-2.5 rounded-lg text-[9px] font-black uppercase transition-all ${qrMode === 'address' ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-white'}`}>{t.address}</button>
@@ -738,9 +747,9 @@ function UnlockContent() {
                                 </div>
                             )}
 
-                            {qrMode === 'manual' && isViral && (
-                                <div className="w-full space-y-2">
-                                         <div className="bg-black/40 rounded-xl p-3 border border-white/5 flex items-center gap-3">
+                            {isViral && (
+                                <div className="w-full space-y-3">
+                                    <div className="bg-black/40 rounded-xl p-3 border border-white/5 flex items-center gap-3">
                                         <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-[10px]">🏪</div>
                                         <div className="flex-1 overflow-hidden text-start">
                                             <p className="text-[8px] text-zinc-500 font-black uppercase mb-0.5">{t.seller} (90%) - {sellerAmt} BCH</p>
@@ -774,7 +783,6 @@ function UnlockContent() {
                             <span className="text-lg font-bold text-green-500 tracking-tight">BCH</span>
                         </div>
                         <p className="text-[10px] text-zinc-500 mt-1 font-bold">≈ ${currentPrice} USD</p>
-                        {isViral && <span className="inline-block mt-2 text-[9px] bg-green-500/10 text-green-500 px-2 py-0.5 rounded border border-green-500/20 font-bold uppercase">Viral Mode Applied</span>}
                     </div>
 
                     <button 
@@ -792,7 +800,7 @@ function UnlockContent() {
                             <div className="h-[1px] bg-zinc-800 flex-1"></div>
                         </div>
 
-                        {!loadingPrice && (
+                        {!loadingPrice && !isViral && (
                             <button 
                                 onClick={handleOpenWallet}
                                 className="flex items-center justify-between w-full bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl transition-all group active:scale-[0.98] cursor-pointer"
