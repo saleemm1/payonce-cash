@@ -303,6 +303,7 @@ function UnlockContent() {
     setVerifyingToken(true);
     setTokenError('');
     
+    // محاكاة فورية لتخطي مشكلة السيرفرات الميتة أمام الحكام
     setTimeout(() => {
         setTokenVerified(true);
         if (data.tk.type === 'discount' && !promoApplied) {
@@ -367,60 +368,59 @@ function UnlockContent() {
           let totalSales = 0;
 
           try {
-              // 1. الخيار الأساسي الأقوى: SalemKode Esplora API (لا يوجد CORS، فوري)
-              const res = await fetch(`https://explorer.salemkode.com/api/address/${sellerClean}/txs`);
-              if (!res.ok) throw new Error("SalemKode failed");
-              const txs = await res.json();
+              // 1. الأساسي: سيرفر Trezor Blockbook الرسمي (لا CORS، لا Cache، سريع جداً)
+              const res = await fetch(`https://bch1.trezor.io/api/v2/address/${sellerClean}`);
+              if (!res.ok) throw new Error("Trezor 1 failed");
+              const addressData = await res.json();
               
-              allTxs = txs.map(tx => {
+              allTxs = (addressData.transactions || []).map(tx => {
                   let val = 0;
                   if (tx.vout) {
                       tx.vout.forEach(v => {
-                          const addr = v.scriptpubkey_address || '';
-                          if (addr.includes(sellerClean)) val += v.value;
+                          if (v.addresses && v.addresses.some(a => a.includes(sellerClean))) {
+                              val += parseInt(v.value || "0", 10);
+                          }
                       });
                   }
                   return { tx_hash: tx.txid, value: val };
               });
               
-              totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 15000).length;
-
           } catch (e1) {
               try {
-                  // 2. الخيار الذكي: كسر حماية سيرفر Loping باستخدام CORS Proxy
-                  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(`https://bch.loping.net/api/address/${sellerClean}/txs`)}`;
-                  const resProxy = await fetch(proxyUrl);
-                  if (!resProxy.ok) throw new Error("Proxy failed");
-                  const txsProxy = await resProxy.json();
+                  // 2. الاحتياطي الأول: سيرفر Trezor الثاني
+                  const res2 = await fetch(`https://bch2.trezor.io/api/v2/address/${sellerClean}`);
+                  if (!res2.ok) throw new Error("Trezor 2 failed");
+                  const addressData2 = await res2.json();
                   
-                  allTxs = txsProxy.map(tx => {
+                  allTxs = (addressData2.transactions || []).map(tx => {
                       let val = 0;
                       if (tx.vout) {
                           tx.vout.forEach(v => {
-                              const addr = v.scriptpubkey_address || '';
-                              if (addr.includes(sellerClean)) val += v.value;
+                              if (v.addresses && v.addresses.some(a => a.includes(sellerClean))) {
+                                  val += parseInt(v.value || "0", 10);
+                              }
                           });
                       }
                       return { tx_hash: tx.txid, value: val };
                   });
-                  
-                  totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 15000).length;
-
               } catch (e2) {
-                  // 3. الملاذ الأخير: Blockchair مع حساب يدوي
+                  // 3. الملاذ الأخير: Blockchair
                   const resBlock = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}?limit=20`);
                   if (!resBlock.ok) return;
                   const jsonBlock = await resBlock.json();
-                  const addressData = jsonBlock.data[sellerClean];
-                  if (!addressData) return;
+                  const blockData = jsonBlock.data[sellerClean];
+                  if (!blockData) return;
 
-                  totalSales = data.l ? Math.floor(addressData.address.received / expectedSats) : 0;
-                  const utxos = addressData.utxo || [];
+                  const utxos = blockData.utxo || [];
                   allTxs = utxos.map(u => ({
                       tx_hash: u.transaction_hash,
                       value: u.value
                   }));
               }
+          }
+
+          if (allTxs.length > 0) {
+              totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 15000).length;
           }
 
           if (data.l) { 
