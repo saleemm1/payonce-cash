@@ -224,7 +224,7 @@ function UnlockContent() {
   const [lang, setLang] = useState('en');
   
   const initialTxHistory = useRef(new Set());
-  const isHistoryLoaded = useRef(false);
+  const isHistoryInitialized = useRef(false);
   const checkTimeoutRef = useRef(null);
 
   useEffect(() => {
@@ -369,7 +369,7 @@ function UnlockContent() {
       if (isViral) {
           targetBch = targetBch * 0.9;
       }
-      const expectedSats = Math.floor(targetBch * 100000000) - 1000;
+      const expectedSats = Math.floor(targetBch * 100000000) - 2000; // زيادة التسامح قليلاً لتغطية fee أكبر
 
       try {
           const res = await fetch(`https://rest.mainnet.cash/v2/address/unconfirmed/${sellerClean}`);
@@ -394,8 +394,9 @@ function UnlockContent() {
 
           const allTxs = [...mappedUnconfirmed, ...(Array.isArray(history) ? history : [])];
           
+          // حساب عدد المبيعات (يظل كما هو)
           if (data.l) { 
-              const totalSales = allTxs.filter(tx => tx.value && tx.value >= expectedSats && tx.value <= expectedSats + 5000).length;
+              const totalSales = allTxs.filter(tx => tx.value && tx.value >= expectedSats && tx.value <= expectedSats + 8000).length;
               setSoldCount(totalSales);
               if (totalSales >= data.l) {
                   setIsSoldOut(true);
@@ -405,28 +406,36 @@ function UnlockContent() {
               }
           }
 
+          // التحقق من الدفع الجديد فقط إذا كنا في وضع checking
           if (checking && !isPaid && !isValidating && !isSoldOut) {
+              // إذا لم يتم تهيئة initialTxHistory بعد → نأخذ snapshot الآن (أول مرة نضغط verify)
+              if (!isHistoryInitialized.current) {
+                  allTxs.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
+                  isHistoryInitialized.current = true;
+              }
+
               const newTx = allTxs.find(tx => 
                   !initialTxHistory.current.has(tx.tx_hash) && 
-                  tx.value && tx.value >= expectedSats
+                  tx.value && tx.value >= expectedSats - 3000 && tx.value <= expectedSats + 15000
               );
 
               if (newTx) {
+                  initialTxHistory.current.add(newTx.tx_hash); // نضيفه فوراً لمنع التكرار
                   clearInterval(interval);
                   validateTransaction(newTx.tx_hash);
               }
           }
 
-          if (!isHistoryLoaded.current) {
-              allTxs.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
-              isHistoryLoaded.current = true;
-          }
       } catch (err) {}
     };
 
     if (data?.w && bchPrice) {
-      checkBlockchain(); 
-      interval = setInterval(checkBlockchain, 3000);
+      // لا نعمل checkBlockchain تلقائياً في البداية
+      // ننتظر الضغط على Verify
+      if (checking) {
+        checkBlockchain();
+        interval = setInterval(checkBlockchain, 4000); // زيادة الفترة قليلاً لتقليل الضغط
+      }
     }
 
     return () => clearInterval(interval);
@@ -524,12 +533,13 @@ function UnlockContent() {
         return;
     }
 
+    // هنا نبدأ الـ checking → سيتم تهيئة initialTxHistory في أول دورة
     setChecking(true);
     if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
     checkTimeoutRef.current = setTimeout(() => {
         setChecking(false);
         alert("Transaction not found in the mempool. Please ensure your wallet broadcasted the payment successfully.");
-    }, 30000);
+    }, 45000); // زيادة المهلة قليلاً
   };
 
   return (
