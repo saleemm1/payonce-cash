@@ -303,14 +303,14 @@ function UnlockContent() {
     setTokenError('');
     try {
         const cleanAddr = tokenWallet.includes(':') ? tokenWallet.split(':')[1] : tokenWallet;
-        const res = await fetch("https://api.fullstack.cash/v5/electrumx/utxos", {
+        const res = await fetch("https://bchn.fullstack.cash/v5/electrumx/utxos", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ address: `bitcoincash:${cleanAddr}` })
 });
 
 const result = await res.json();
-const utxos = result.utxos || [];
+const utxos = result.utxos || result.result || [];
 
 const hasToken = utxos.some(u => u.token && u.token.category === data.tk.id);
         
@@ -338,7 +338,7 @@ const hasToken = utxos.some(u => u.token && u.token.category === data.tk.id);
 
     try {
       setTimeout(() => setSecurityStep(1), 1000);
-      const res = await fetch("https://api.fullstack.cash/v5/electrumx/txdata", {
+      const res = await fetch("https://bchn.fullstack.cash/v5/electrumx/txdata", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ tx_hash: hash })
@@ -382,7 +382,7 @@ const txData = await res.json();
       const expectedSats = Math.floor(targetBch * 100000000) - 1000;
 
       try {
-          const res = await fetch("https://api.fullstack.cash/v5/electrumx/utxos", {
+          const res = await fetch("https://bchn.fullstack.cash/v5/electrumx/utxos", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ address: `bitcoincash:${sellerClean}` })
