@@ -519,7 +519,7 @@ function UnlockContent() {
     checkTimeoutRef.current = setTimeout(() => {
         setChecking(false);
         alert("Transaction not found in the mempool. Please ensure your wallet broadcasted the payment successfully.");
-    }, 45000); 
+    }, 65000); 
   };
 
   return (
