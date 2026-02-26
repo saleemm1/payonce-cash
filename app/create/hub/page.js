@@ -9,7 +9,8 @@ export default function CreateHubPage() {
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=PayOnce',
     twitter: '',
     website: '',
-    email: ''
+    email: '',
+    theme: 'green'
   });
 
   const [links, setLinks] = useState([
@@ -19,9 +20,27 @@ export default function CreateHubPage() {
   const [paymentStep, setPaymentStep] = useState('edit');
   const [finalCid, setFinalCid] = useState('');
   const [copied, setCopied] = useState(false);
+  const [twitterError, setTwitterError] = useState('');
+
+  const themes = {
+    green: { bg: 'bg-green-500', text: 'text-green-500', glow: 'bg-green-500/10', hex: '#22c55e' },
+    blue: { bg: 'bg-blue-500', text: 'text-blue-500', glow: 'bg-blue-500/10', hex: '#3b82f6' },
+    purple: { bg: 'bg-purple-500', text: 'text-purple-500', glow: 'bg-purple-500/10', hex: '#a855f7' }
+  };
+  const currentTheme = themes[profile.theme] || themes.green;
 
   const handleProfileChange = (e) => {
-    setProfile({ ...profile, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    
+    if (name === 'twitter') {
+      if (value && !/(x\.com|twitter\.com)/i.test(value)) {
+        setTwitterError('Only x.com or twitter.com links are allowed');
+      } else {
+        setTwitterError('');
+      }
+    }
+    
+    setProfile({ ...profile, [name]: value });
   };
 
   const addLink = () => {
@@ -71,16 +90,11 @@ export default function CreateHubPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const formatUrl = (url) => {
-    if (!url) return '';
-    return url.startsWith('http') || url.startsWith('mailto:') ? url : `https://${url}`;
-  };
-
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-green-500/30 overflow-x-hidden">
+    <div className={`min-h-screen bg-[#050505] text-white font-sans selection:${currentTheme.glow} overflow-x-hidden`}>
       <nav className="border-b border-white/5 py-4 px-6 flex justify-between items-center max-w-7xl mx-auto">
          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-black font-black text-xs">HUB</div>
+            <div className={`w-8 h-8 ${currentTheme.bg} rounded-lg flex items-center justify-center text-black font-black text-xs transition-colors`}>HUB</div>
             <span className="font-bold text-lg tracking-tight">PayOnce <span className="text-zinc-500">Storefront</span></span>
          </div>
          <Link href="/">
@@ -92,12 +106,12 @@ export default function CreateHubPage() {
         
         <div className={`lg:col-span-7 space-y-8 transition-all duration-500 ${paymentStep !== 'edit' ? 'opacity-20 pointer-events-none blur-sm' : ''}`}>
           <div>
-            <h1 className="text-4xl font-black uppercase italic tracking-tighter mb-2">Build Your <span className="text-green-500">Identity.</span></h1>
+            <h1 className="text-4xl font-black uppercase italic tracking-tighter mb-2">Build Your <span className={currentTheme.text}>Identity.</span></h1>
             <p className="text-zinc-400 text-sm">Create a 100% stateless Web3 Linktree. One link for all your PayOnce products.</p>
           </div>
 
           <div className="bg-[#121214] border border-white/5 rounded-3xl p-6 shadow-2xl space-y-6 relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-transparent opacity-50 group-hover:opacity-100 transition-opacity"></div>
+            <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-${profile.theme}-500 to-transparent opacity-50 group-hover:opacity-100 transition-opacity`} style={{ backgroundImage: `linear-gradient(to right, transparent, ${currentTheme.hex}, transparent)` }}></div>
             
             <h3 className="text-xs font-black uppercase text-zinc-500 tracking-widest border-b border-white/5 pb-2">1. Profile Details</h3>
             
@@ -106,32 +120,48 @@ export default function CreateHubPage() {
                 <img src={profile.avatar} alt="Avatar" className="w-16 h-16 rounded-full border border-white/10 bg-black object-cover" />
                 <div className="flex-1">
                   <label className="text-[10px] uppercase font-bold text-zinc-500 block mb-1">Avatar Image URL</label>
-                  <input type="text" name="avatar" value={profile.avatar} onChange={handleProfileChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-green-500 transition-colors" placeholder="https://example.com/my-logo.png" />
+                  <input type="text" name="avatar" value={profile.avatar} onChange={handleProfileChange} className={`w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-${profile.theme}-500 transition-colors`} placeholder="https://example.com/my-logo.png" />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-bold text-zinc-500 block mb-2">Theme Color</label>
+                <div className="flex gap-3">
+                  {Object.keys(themes).map(color => (
+                    <button 
+                      key={color} 
+                      type="button" 
+                      onClick={() => setProfile({...profile, theme: color})} 
+                      className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${profile.theme === color ? 'border-white scale-110' : 'border-transparent'}`} 
+                      style={{ backgroundColor: themes[color].hex }} 
+                    />
+                  ))}
                 </div>
               </div>
 
               <div>
                 <label className="text-[10px] uppercase font-bold text-zinc-500 block mb-1">Store Name</label>
-                <input type="text" name="name" value={profile.name} onChange={handleProfileChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-green-500 transition-colors" />
+                <input type="text" name="name" value={profile.name} onChange={handleProfileChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none transition-colors" style={{ outlineColor: currentTheme.hex }} />
               </div>
               
               <div>
                 <label className="text-[10px] uppercase font-bold text-zinc-500 block mb-1">Bio</label>
-                <textarea name="bio" value={profile.bio} onChange={handleProfileChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-green-500 transition-colors resize-none h-20" />
+                <textarea name="bio" value={profile.bio} onChange={handleProfileChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none transition-colors resize-none h-20" style={{ outlineColor: currentTheme.hex }} />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="text-[10px] uppercase font-bold text-zinc-500 block mb-1">X (Twitter)</label>
-                  <input type="text" name="twitter" value={profile.twitter} onChange={handleProfileChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-green-500 transition-colors" placeholder="x.com/..." />
+                  <input type="text" name="twitter" value={profile.twitter} onChange={handleProfileChange} className={`w-full bg-black/50 border ${twitterError ? 'border-red-500' : 'border-white/10'} rounded-xl p-3 text-sm text-white outline-none transition-colors`} style={{ outlineColor: twitterError ? '#ef4444' : currentTheme.hex }} placeholder="x.com/..." />
+                  {twitterError && <p className="text-[9px] text-red-500 mt-1 font-bold">{twitterError}</p>}
                 </div>
                 <div>
                   <label className="text-[10px] uppercase font-bold text-zinc-500 block mb-1">Website</label>
-                  <input type="text" name="website" value={profile.website} onChange={handleProfileChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-green-500 transition-colors" placeholder="yourdomain.com" />
+                  <input type="text" name="website" value={profile.website} onChange={handleProfileChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none transition-colors" style={{ outlineColor: currentTheme.hex }} placeholder="yourdomain.com" />
                 </div>
                 <div>
                   <label className="text-[10px] uppercase font-bold text-zinc-500 block mb-1">Support Email</label>
-                  <input type="email" name="email" value={profile.email} onChange={handleProfileChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-green-500 transition-colors" placeholder="support@..." />
+                  <input type="email" name="email" value={profile.email} onChange={handleProfileChange} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white outline-none transition-colors" style={{ outlineColor: currentTheme.hex }} placeholder="support@..." />
                 </div>
               </div>
             </div>
@@ -140,7 +170,7 @@ export default function CreateHubPage() {
           <div className="bg-[#121214] border border-white/5 rounded-3xl p-6 shadow-2xl space-y-6">
             <div className="flex justify-between items-center border-b border-white/5 pb-2">
               <h3 className="text-xs font-black uppercase text-zinc-500 tracking-widest">2. Your Links</h3>
-              <button onClick={addLink} className="text-[10px] font-black uppercase text-green-500 hover:text-white bg-green-500/10 px-3 py-1 rounded-full transition-colors">+ Add Link</button>
+              <button onClick={addLink} className={`text-[10px] font-black uppercase ${currentTheme.text} hover:text-white ${currentTheme.glow} px-3 py-1 rounded-full transition-colors`}>+ Add Link</button>
             </div>
 
             <div className="space-y-3">
@@ -148,8 +178,8 @@ export default function CreateHubPage() {
                 <div key={link.id} className="flex gap-3 items-start bg-black/30 p-3 rounded-xl border border-white/5 hover:border-white/10 transition-colors group">
                   <div className="w-6 h-6 rounded-full bg-zinc-900 flex items-center justify-center text-[10px] font-bold text-zinc-500 shrink-0 mt-2">{index + 1}</div>
                   <div className="flex-1 space-y-3">
-                    <input type="text" value={link.title} onChange={(e) => updateLink(link.id, 'title', e.target.value)} className="w-full bg-transparent border-b border-white/10 p-1 text-sm text-white outline-none focus:border-green-500" placeholder="Link Title (e.g., Buy My E-Book)" />
-                    <input type="text" value={link.url} onChange={(e) => updateLink(link.id, 'url', e.target.value)} className="w-full bg-transparent border-b border-white/10 p-1 text-xs text-zinc-400 outline-none focus:border-green-500" placeholder="URL (e.g., https://payonce.cash/...)" />
+                    <input type="text" value={link.title} onChange={(e) => updateLink(link.id, 'title', e.target.value)} className="w-full bg-transparent border-b border-white/10 p-1 text-sm text-white outline-none" style={{ outlineColor: currentTheme.hex }} placeholder="Link Title (e.g., Buy My E-Book)" />
+                    <input type="text" value={link.url} onChange={(e) => updateLink(link.id, 'url', e.target.value)} className="w-full bg-transparent border-b border-white/10 p-1 text-xs text-zinc-400 outline-none" style={{ outlineColor: currentTheme.hex }} placeholder="URL (e.g., https://payonce.cash/...)" />
                   </div>
                   <button onClick={() => removeLink(link.id)} className="w-8 h-8 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center shrink-0 hover:bg-red-500 hover:text-white transition-colors mt-1">✕</button>
                 </div>
@@ -157,11 +187,11 @@ export default function CreateHubPage() {
             </div>
           </div>
 
-          <button onClick={deployToIPFS} disabled={links.length === 0} className="w-full bg-white text-black py-4 rounded-2xl hover:bg-zinc-200 hover:scale-[1.02] transition-all shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center justify-center">
+          <button onClick={deployToIPFS} disabled={links.length === 0 || !!twitterError} className="w-full bg-white text-black py-4 rounded-2xl hover:bg-zinc-200 hover:scale-[1.02] transition-all shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center justify-center">
             <span className="font-black uppercase tracking-widest text-lg mb-1">Deploy Storefront</span>
             <span className="text-[10px] text-zinc-600 uppercase font-bold flex items-center gap-2">
               <del className="text-zinc-400">0.01 BCH</del> 
-              <span className="text-green-600 bg-green-500/20 px-2 py-0.5 rounded-full">FREE (Hackathon & Public Beta)</span>
+              <span className={`${currentTheme.text} ${currentTheme.glow} px-2 py-0.5 rounded-full`}>FREE (Hackathon & Public Beta)</span>
             </span>
           </button>
         </div>
@@ -170,9 +200,15 @@ export default function CreateHubPage() {
           <div className="sticky top-12 w-[320px] h-[650px] bg-black border-[8px] border-zinc-800 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col items-center relative z-10">
             <div className="absolute top-0 w-32 h-6 bg-zinc-800 rounded-b-2xl z-20"></div>
             
-            <div className="w-full h-full bg-gradient-to-b from-zinc-900 to-black p-6 overflow-y-auto custom-scrollbar flex flex-col items-center text-center pt-16">
+            <div className="w-full h-full bg-gradient-to-b from-zinc-900 to-black p-6 overflow-y-auto custom-scrollbar flex flex-col items-center text-center pt-16 relative">
+              
               <img src={profile.avatar} alt="Avatar" className="w-24 h-24 rounded-full border-4 border-black shadow-xl mb-4 transition-transform hover:scale-105 object-cover" />
-              <h2 className="text-xl font-bold text-white mb-1">{profile.name || 'Store Name'}</h2>
+              
+              <div className="flex items-center gap-1 mb-1">
+                <h2 className="text-xl font-bold text-white">{profile.name || 'Store Name'}</h2>
+                <svg className={`w-5 h-5 ${currentTheme.text}`} fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+              </div>
+
               <p className="text-xs text-zinc-400 mb-6 px-4">{profile.bio || 'Your bio will appear here.'}</p>
               
               <div className="flex gap-4 mb-8">
@@ -183,18 +219,19 @@ export default function CreateHubPage() {
 
               <div className="w-full space-y-3">
                 {links.map(link => {
-                  const isPayOnce = link.url.includes('payonce.cash');
+                  const isPayOnce = link.url.includes('payonce');
                   return (
-                    <div key={link.id} className={`w-full border rounded-xl p-4 text-sm font-bold transition-all cursor-pointer hover:scale-[1.02] flex items-center justify-between ${isPayOnce ? 'bg-green-500/10 border-green-500/50 hover:bg-green-500/20' : 'bg-white/5 hover:bg-white/10 border-white/10'}`}>
+                    <div key={link.id} className={`w-full border rounded-xl p-4 text-sm font-bold transition-all cursor-pointer hover:scale-[1.02] flex items-center justify-between ${isPayOnce ? `${currentTheme.glow} hover:brightness-110` : 'bg-white/5 hover:bg-white/10 border-white/10'}`} style={{ borderColor: isPayOnce ? `${currentTheme.hex}80` : '' }}>
                       <span className="truncate pr-2">{link.title || 'Untitled Link'}</span>
-                      {isPayOnce && <span className="text-[10px] bg-green-500 text-black px-2 py-1 rounded-md shrink-0 font-black flex items-center gap-1">BCH ⚡</span>}
+                      {isPayOnce && <span className={`text-[10px] ${currentTheme.bg} text-black px-2 py-1 rounded-md shrink-0 font-black flex items-center gap-1`}>BCH ⚡</span>}
                     </div>
                   );
                 })}
               </div>
               
-              <div className="mt-auto pt-8 pb-4 opacity-50 text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
-                Powered by <span className="text-green-500">PayOnce</span>
+              <div className="mt-auto pt-8 pb-4 opacity-50 text-[9px] font-black uppercase tracking-widest flex flex-col items-center gap-1">
+                <span className="text-zinc-500">100% Non-Custodial • 0-Conf Ready</span>
+                <span>Powered by <span className={currentTheme.text}>PayOnce</span></span>
               </div>
             </div>
 
@@ -202,15 +239,15 @@ export default function CreateHubPage() {
               <div className="absolute inset-0 bg-black/90 backdrop-blur-md z-30 flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-300">
                 {paymentStep === 'uploading' && (
                   <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 border-4 border-zinc-800 border-t-green-500 rounded-full animate-spin mb-4"></div>
-                    <p className="text-sm font-bold animate-pulse text-green-500">Pinning to IPFS...</p>
+                    <div className={`w-12 h-12 border-4 border-zinc-800 rounded-full animate-spin mb-4`} style={{ borderTopColor: currentTheme.hex }}></div>
+                    <p className={`text-sm font-bold animate-pulse ${currentTheme.text}`}>Pinning to IPFS...</p>
                     <p className="text-[10px] text-zinc-500 mt-2 uppercase tracking-widest">Decentralizing Identity</p>
                   </div>
                 )}
 
                 {paymentStep === 'success' && (
                   <div className="flex flex-col items-center w-full animate-in zoom-in-95 duration-500">
-                    <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(34,197,94,0.5)]">
+                    <div className={`w-16 h-16 ${currentTheme.bg} rounded-full flex items-center justify-center mb-4`} style={{ boxShadow: `0 0 30px ${currentTheme.hex}80` }}>
                       <svg className="w-8 h-8 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                     </div>
                     <h3 className="font-black uppercase text-xl mb-2 text-white">Hub Deployed!</h3>
@@ -219,8 +256,8 @@ export default function CreateHubPage() {
                     <div className="w-full bg-zinc-900 border border-white/10 rounded-xl p-3 mb-6 relative group overflow-hidden flex flex-col gap-2">
                       <p className="text-[9px] text-zinc-500 uppercase font-bold">Your Hub URL</p>
                       <div className="flex items-center gap-2">
-                        <input readOnly value={`https://payonce.cash/hub?cid=${finalCid}`} className="w-full bg-transparent text-[10px] text-green-500 font-mono outline-none" />
-                        <button onClick={copyToClipboard} className="bg-white/10 hover:bg-green-500 hover:text-black text-white p-2 rounded-lg transition-colors shrink-0">
+                        <input readOnly value={`https://payonce.cash/hub?cid=${finalCid}`} className={`w-full bg-transparent text-[10px] ${currentTheme.text} font-mono outline-none`} />
+                        <button onClick={copyToClipboard} className={`bg-white/10 ${currentTheme.text} hover:bg-white hover:text-black p-2 rounded-lg transition-colors shrink-0`}>
                           {copied ? (
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                           ) : (
@@ -239,7 +276,7 @@ export default function CreateHubPage() {
             )}
           </div>
           
-          <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-green-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+          <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] blur-[100px] rounded-full pointer-events-none transition-colors duration-500" style={{ backgroundColor: `${currentTheme.hex}20` }}></div>
         </div>
       </main>
     </div>
