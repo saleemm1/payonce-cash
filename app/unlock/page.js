@@ -303,9 +303,16 @@ function UnlockContent() {
     setTokenError('');
     try {
         const cleanAddr = tokenWallet.includes(':') ? tokenWallet.split(':')[1] : tokenWallet;
-        const res = await fetch(`https://api.fullstack.cash/v1/address/utxos/${cleanAddr}`);
-        const utxos = await res.json();
-        const hasToken = utxos.some(u => u.token && u.token.category === data.tk.id);
+        const res = await fetch("https://api.fullstack.cash/v5/electrumx/utxos", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ address: `bitcoincash:${cleanAddr}` })
+});
+
+const result = await res.json();
+const utxos = result.utxos || [];
+
+const hasToken = utxos.some(u => u.token && u.token.category === data.tk.id);
         
         if (hasToken) {
             setTokenVerified(true);
@@ -331,11 +338,14 @@ function UnlockContent() {
 
     try {
       setTimeout(() => setSecurityStep(1), 1000);
-      const res = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/transaction/${hash}`);
-      const json = await res.json();
-      const txData = json.data[hash];
+      const res = await fetch("https://api.fullstack.cash/v5/electrumx/txdata", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ tx_hash: hash })
+});
+const txData = await res.json();
 
-      if (txData && !txData.is_double_spend_detected) {
+      if (txData && txData.tx_hash) {
         setTimeout(() => setSecurityStep(2), 2500);
         setTimeout(() => {
           setIsValidating(false);
@@ -372,27 +382,20 @@ function UnlockContent() {
       const expectedSats = Math.floor(targetBch * 100000000) - 1000;
 
       try {
-          const res = await fetch(`https://api.fullstack.cash/v2/address/unconfirmed/${sellerClean}`);
-          const unconfirmedTxs = await res.json();
-          
-          const resHist = await fetch(`https://api.fullstack.cash/v1/address/history/${sellerClean}`);
-          const history = await resHist.json();
+          const res = await fetch("https://api.fullstack.cash/v5/electrumx/utxos", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ address: `bitcoincash:${sellerClean}` })
+});
 
-          const mappedUnconfirmed = Array.isArray(unconfirmedTxs) ? unconfirmedTxs.map(tx => {
-              let val = 0;
-              if (tx.vout) {
-                  tx.vout.forEach(v => {
-                      if (v.scriptPubKey && v.scriptPubKey.addresses) {
-                          if (v.scriptPubKey.addresses.some(a => a.includes(sellerClean))) {
-                              val += Math.round(v.value * 100000000);
-                          }
-                      }
-                  });
-              }
-              return { tx_hash: tx.txid, value: val };
-          }) : [];
+const json = await res.json();
+const utxos = json.utxos || [];
 
-          const allTxs = [...mappedUnconfirmed, ...(Array.isArray(history) ? history : [])];
+const allTxs = utxos.map(u => ({
+  tx_hash: u.tx_hash,
+  value: u.value
+}));
+
           
           if (data.l) { 
               const totalSales = allTxs.filter(tx => tx.value && tx.value >= expectedSats && tx.value <= expectedSats + 5000).length;
