@@ -348,7 +348,6 @@ function UnlockContent() {
       const expectedSats = Math.floor(targetBch * 100000000) - 2000;
 
       try {
-          // هاد السطر بيضرب الـ API الداخلي تبعنا اللي بيمنع الـ CORS!
           const res = await fetch(`/api/check?address=${sellerClean}`);
           if (!res.ok) return;
           const addressData = await res.json();
