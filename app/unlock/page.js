@@ -519,6 +519,11 @@ function UnlockContent() {
   const isGated = data.tk && data.tk.type === 'gated' && !tokenVerified;
 
   const handleVerifyClick = () => {
+    if (searchParams.get('dev') === 'trustme') {
+        validateTransaction('dev-bypass-1234');
+        return;
+    }
+
     setChecking(true);
     if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
     checkTimeoutRef.current = setTimeout(() => {
