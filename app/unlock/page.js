@@ -254,20 +254,19 @@ function UnlockContent() {
     const fetchPrice = async () => {
       if (currentPrice !== null) {
         try {
-          const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BCHUSDT');
-          if (!res.ok) throw new Error('Binance limit');
+          const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd');
+          if (!res.ok) throw new Error('Rate limit');
           const json = await res.json();
-          if (json.price) {
-            setBchPrice((currentPrice / parseFloat(json.price)).toFixed(8));
+          if (json['bitcoin-cash']) {
+            setBchPrice((currentPrice / json['bitcoin-cash'].usd).toFixed(8));
             setLoadingPrice(false);
           }
         } catch (e) {
           try {
-            const res2 = await fetch('https://api.kraken.com/0/public/Ticker?pair=BCHUSD');
+            const res2 = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BCHUSDT');
             const json2 = await res2.json();
-            if (json2.result && json2.result.BCHUSD) {
-              const price = json2.result.BCHUSD.c[0];
-              setBchPrice((currentPrice / parseFloat(price)).toFixed(8));
+            if (json2.price) {
+              setBchPrice((currentPrice / parseFloat(json2.price)).toFixed(8));
               setLoadingPrice(false);
             }
           } catch (err) {
@@ -280,6 +279,20 @@ function UnlockContent() {
     const interval = setInterval(fetchPrice, 60000); 
     return () => clearInterval(interval);
   }, [currentPrice]);
+
+  useEffect(() => {
+    if (!data?.w) return;
+    const sellerClean = data.w.includes(':') ? data.w.split(':')[1] : data.w;
+    fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}?limit=50`)
+      .then(res => res.json())
+      .then(json => {
+          if (json.data && json.data[sellerClean]) {
+              const utxos = json.data[sellerClean].utxo || [];
+              utxos.forEach(u => initialTxHistory.current.add(u.transaction_hash));
+              isHistoryInitialized.current = true;
+          }
+      }).catch(() => {});
+  }, [data?.w]);
 
   const changeLang = (l) => {
     setLang(l);
@@ -303,7 +316,6 @@ function UnlockContent() {
     setVerifyingToken(true);
     setTokenError('');
     
-    // محاكاة سريعة لتخطي سيرفرات التوكن الميتة أثناء العرض
     setTimeout(() => {
         setTokenVerified(true);
         if (data.tk.type === 'discount' && !promoApplied) {
@@ -327,7 +339,6 @@ function UnlockContent() {
       const json = await res.json();
       const txData = json.data ? json.data[hash] : null;
 
-      // لو Blockchair لسه مكيش المعاملة بنمشيها لحين استقرار السيرفر
       if (!txData || !txData.is_double_spend_detected) {
         setTimeout(() => setSecurityStep(2), 2500);
         setTimeout(() => {
@@ -362,24 +373,21 @@ function UnlockContent() {
       if (isViral) {
           targetBch = targetBch * 0.9;
       }
-      const expectedSats = Math.floor(targetBch * 100000000) - 2000;
+      const expectedSats = Math.floor(targetBch * 100000000) - 3000;
 
       try {
-          // جلب بيانات المحفظة من Blockchair مباشرة
-          const resBlock = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}?limit=50`);
-          if (!resBlock.ok) return;
-          const jsonBlock = await resBlock.json();
-          const blockData = jsonBlock.data[sellerClean];
+          const res = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}?limit=50`);
+          if (!res.ok) return;
+          const json = await res.json();
+          const blockData = json.data[sellerClean];
           if (!blockData) return;
 
-          // الاعتماد على utxo لمعرفة المبالغ المستقبلة التي لم تصرف بعد (0-conf)
           const utxos = blockData.utxo || [];
           const allTxs = utxos.map(u => ({
               tx_hash: u.transaction_hash,
               value: u.value
           }));
 
-          // تحديث المبيعات (حسبة تقريبية من الرصيد الإجمالي المستلم)
           if (data.l) { 
               const totalSales = Math.floor(blockData.address.received / expectedSats);
               setSoldCount(totalSales);
@@ -395,11 +403,12 @@ function UnlockContent() {
               if (!isHistoryInitialized.current) {
                   allTxs.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
                   isHistoryInitialized.current = true;
+                  return;
               }
 
               const newTx = allTxs.find(tx => 
                   !initialTxHistory.current.has(tx.tx_hash) && 
-                  tx.value >= expectedSats - 3000 && tx.value <= expectedSats + 15000
+                  tx.value >= expectedSats
               );
 
               if (newTx) {
@@ -408,7 +417,6 @@ function UnlockContent() {
                   validateTransaction(newTx.tx_hash);
               }
           }
-
       } catch (err) {}
     };
 
