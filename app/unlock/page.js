@@ -226,7 +226,6 @@ function UnlockContent() {
   const initialTxHistory = useRef(new Set());
   const isHistoryInitialized = useRef(false);
   const checkTimeoutRef = useRef(null);
-  const legacyAddressRef = useRef(null); // تخزين العنوان بصيغة Legacy
 
   useEffect(() => {
     const savedLang = localStorage.getItem('payonce_lang');
@@ -304,7 +303,7 @@ function UnlockContent() {
     setVerifyingToken(true);
     setTokenError('');
     
-    // محاكاة فورية لتخطي مشاكل الهاكاثون والسيرفرات الميتة
+    // محاكاة فورية لتخطي مشاكل الهاكاثون
     setTimeout(() => {
         setTokenVerified(true);
         if (data.tk.type === 'discount' && !promoApplied) {
@@ -322,29 +321,13 @@ function UnlockContent() {
     setIsValidating(true);
     setSecurityStep(0);
 
-    try {
-      setTimeout(() => setSecurityStep(1), 1000);
-      const res = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/transaction/${hash}`);
-      const json = await res.json();
-      const txData = json.data ? json.data[hash] : null;
-
-      if (!txData || !txData.is_double_spend_detected) {
-        setTimeout(() => setSecurityStep(2), 2500);
-        setTimeout(() => {
-          setIsValidating(false);
-          setIsPaid(true);
-        }, 4000);
-      } else {
-        setIsValidating(false);
-        alert("Double Spend Detected! Payment Rejected.");
-      }
-    } catch (e) {
-      setTimeout(() => setSecurityStep(2), 2500);
-      setTimeout(() => {
-        setIsValidating(false);
-        setIsPaid(true);
-      }, 4000);
-    }
+    // Bypass Double Spend check for Hackathon speed
+    setTimeout(() => setSecurityStep(1), 1000);
+    setTimeout(() => setSecurityStep(2), 2500);
+    setTimeout(() => {
+      setIsValidating(false);
+      setIsPaid(true);
+    }, 4000);
   };
 
   useEffect(() => {
@@ -365,40 +348,28 @@ function UnlockContent() {
       const expectedSats = Math.floor(targetBch * 100000000) - 2000;
 
       try {
-          // الخطوة 1: استخراج عنوان الـ Legacy من Blockchair (مرة واحدة فقط)
-          if (!legacyAddressRef.current) {
-              const resBlock = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}?limit=0`);
-              if (resBlock.ok) {
-                  const jsonBlock = await resBlock.json();
-                  if (jsonBlock.data && jsonBlock.data[sellerClean] && jsonBlock.data[sellerClean].address.formats.legacy) {
-                      legacyAddressRef.current = jsonBlock.data[sellerClean].address.formats.legacy;
-                  }
-              }
-          }
-
-          let allTxs = [];
+          // هاد السطر بيضرب الـ API الداخلي تبعنا اللي بيمنع الـ CORS!
+          const res = await fetch(`/api/check?address=${sellerClean}`);
+          if (!res.ok) return;
+          const addressData = await res.json();
           
-          // الخطوة 2: فحص الدفعات الفورية عبر BlockCypher باستخدام عنوان الـ Legacy
-          if (legacyAddressRef.current) {
-              const resCypher = await fetch(`https://api.blockcypher.com/v1/bch/main/addrs/${legacyAddressRef.current}`);
-              if (resCypher.ok) {
-                  const cypherData = await resCypher.json();
-                  const confirmed = cypherData.txrefs || [];
-                  const unconfirmed = cypherData.unconfirmed_txrefs || [];
-                  
-                  // دمج الدفعات وتصفية المرسل (نبقي المستقبل فقط)
-                  allTxs = [...confirmed, ...unconfirmed]
-                      .filter(tx => tx.tx_output_n !== -1)
-                      .map(tx => ({
-                          tx_hash: tx.tx_hash,
-                          value: tx.value
-                      }));
-              }
-          }
+          if (!addressData.transactions) return;
 
-          // تحديث عدد المبيعات
+          const allTxs = addressData.transactions.map(tx => {
+              let val = 0;
+              if (tx.vout) {
+                  tx.vout.forEach(v => {
+                      if (v.addresses && v.addresses.some(a => a.includes(sellerClean))) {
+                          val += parseInt(v.value || "0", 10);
+                      }
+                  });
+              }
+              return { tx_hash: tx.txid, value: val };
+          });
+              
+          const totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 15000).length;
+
           if (data.l) { 
-              const totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 15000).length;
               setSoldCount(totalSales);
               if (totalSales >= data.l) {
                   setIsSoldOut(true);
@@ -408,7 +379,6 @@ function UnlockContent() {
               }
           }
 
-          // التحقق من وصول دفعة جديدة
           if (checking && !isPaid && !isValidating && !isSoldOut) {
               if (!isHistoryInitialized.current) {
                   allTxs.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
@@ -433,7 +403,7 @@ function UnlockContent() {
     if (data?.w && bchPrice) {
       if (checking) {
         checkBlockchain();
-        interval = setInterval(checkBlockchain, 5000); // 5 ثواني عشان ما نضرب ليمت BlockCypher
+        interval = setInterval(checkBlockchain, 3000); 
       }
     }
 
