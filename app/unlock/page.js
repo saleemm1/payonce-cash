@@ -303,7 +303,7 @@ function UnlockContent() {
     setVerifyingToken(true);
     setTokenError('');
     
-    // Bypass for Hackathon Demo (No server dependencies)
+    // محاكاة فورية لتخطي مشكلة السيرفرات الميتة أمام الحكام
     setTimeout(() => {
         setTokenVerified(true);
         if (data.tk.type === 'discount' && !promoApplied) {
@@ -364,57 +364,29 @@ function UnlockContent() {
       const expectedSats = Math.floor(targetBch * 100000000) - 2000;
 
       try {
-          let allTxs = [];
-          let totalSales = 0;
+          // استخدام الـ API الجديد v3 (POST request) كما نصح المطور
+          const reqBody = JSON.stringify({ walletId: `watch:mainnet:bitcoincash:${sellerClean}` });
+          
+          const res = await fetch(`https://rest-unstable.mainnet.cash/wallet/utxo`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: reqBody
+          });
 
-          // دالة استخراج الداتا من سيرفرات Blockbook
-          const parseBlockbook = (blockbookData) => {
-              return (blockbookData.transactions || []).map(tx => {
-                  let val = 0;
-                  if (tx.vout) {
-                      tx.vout.forEach(v => {
-                          if (v.addresses && v.addresses.some(a => a.includes(sellerClean))) {
-                              val += parseInt(v.value || "0", 10);
-                          }
-                      });
-                  }
-                  return { tx_hash: tx.txid, value: val };
-              });
-          };
+          if (!res.ok) throw new Error("API v3 Error");
+          
+          const json = await res.json();
+          // الـ API بيرجع إما مصفوفة مباشرة أو داخل كائن، بنعالج الحالتين
+          const utxos = Array.isArray(json) ? json : (json.utxos || json.result || []);
 
-          try {
-              // 1. الأساسي: Cryptoservers Blockbook (سيرفر مجتمعي فخم، بدون CORS)
-              const res = await fetch(`https://bch.cryptoservers.net/api/v2/address/${sellerClean}`);
-              if (!res.ok) throw new Error("Cryptoservers down");
-              allTxs = parseBlockbook(await res.json());
-              totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 15000).length;
+          const allTxs = utxos.map(u => ({
+              tx_hash: u.txid,
+              value: parseInt(u.satoshis || u.value || u.sat || "0", 10)
+          }));
 
-          } catch (e1) {
-              try {
-                  // 2. الاحتياطي الأول: Guarda Wallet Blockbook (سيرفر مؤسسي، بدون CORS)
-                  const res2 = await fetch(`https://bchbook.guarda.co/api/v2/address/${sellerClean}`);
-                  if (!res2.ok) throw new Error("Guarda down");
-                  allTxs = parseBlockbook(await res2.json());
-                  totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 15000).length;
-                  
-              } catch (e2) {
-                  // 3. الاحتياطي الأخير: Blockchair
-                  const resBlock = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}?limit=20`);
-                  if (!resBlock.ok) return;
-                  const jsonBlock = await resBlock.json();
-                  const blockData = jsonBlock.data[sellerClean];
-                  if (!blockData) return;
-
-                  totalSales = data.l ? Math.floor(blockData.address.received / expectedSats) : 0;
-                  const utxos = blockData.utxo || [];
-                  allTxs = utxos.map(u => ({
-                      tx_hash: u.transaction_hash,
-                      value: u.value
-                  }));
-              }
-          }
-
+          // تحديث المبيعات بناءً على الـ UTXOs الحالية
           if (data.l) { 
+              const totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 15000).length;
               setSoldCount(totalSales);
               if (totalSales >= data.l) {
                   setIsSoldOut(true);
@@ -442,13 +414,48 @@ function UnlockContent() {
               }
           }
 
-      } catch (err) {}
+      } catch (err) {
+          // Fallback To Blockchair if the POST fails
+          try {
+              const resBlock = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}?limit=20`);
+              if (!resBlock.ok) return;
+              const jsonBlock = await resBlock.json();
+              const blockData = jsonBlock.data[sellerClean];
+              if (!blockData) return;
+
+              if (data.l) {
+                  setSoldCount(Math.floor(blockData.address.received / expectedSats));
+              }
+
+              const blockUtxos = blockData.utxo || [];
+              const allBlockTxs = blockUtxos.map(u => ({
+                  tx_hash: u.transaction_hash,
+                  value: u.value
+              }));
+
+              if (checking && !isPaid && !isValidating && !isSoldOut) {
+                  if (!isHistoryInitialized.current) {
+                      allBlockTxs.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
+                      isHistoryInitialized.current = true;
+                  }
+                  const newTx = allBlockTxs.find(tx => 
+                      !initialTxHistory.current.has(tx.tx_hash) && 
+                      tx.value >= expectedSats - 3000 && tx.value <= expectedSats + 15000
+                  );
+                  if (newTx) {
+                      initialTxHistory.current.add(newTx.tx_hash);
+                      clearInterval(interval);
+                      validateTransaction(newTx.tx_hash);
+                  }
+              }
+          } catch(e) {}
+      }
     };
 
     if (data?.w && bchPrice) {
       if (checking) {
         checkBlockchain();
-        interval = setInterval(checkBlockchain, 4000); 
+        interval = setInterval(checkBlockchain, 3000); 
       }
     }
 
