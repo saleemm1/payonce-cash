@@ -298,71 +298,26 @@ function UnlockContent() {
   };
 
   const handleVerifyToken = async () => {
-    if (!tokenWallet || !data?.tk?.id) return;
-    setVerifyingToken(true);
-    setTokenError('');
-    try {
-        const cleanAddr = tokenWallet.includes(':') ? tokenWallet.split(':')[1] : tokenWallet;
-        const res = await fetch("https://bchn.fullstack.cash/v5/electrumx/utxos", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ address: `bitcoincash:${cleanAddr}` })
-});
-
-const result = await res.json();
-const utxos = result.utxos || result.result || [];
-
-const hasToken = utxos.some(u => u.token && u.token.category === data.tk.id);
-        
-        if (hasToken) {
-            setTokenVerified(true);
-            if (data.tk.type === 'discount' && !promoApplied) {
-                const discountAmount = parseFloat(data.p) * (parseFloat(data.tk.discount) / 100);
-                setCurrentPrice(Math.max(0, parseFloat(data.p) - discountAmount));
-            }
-        } else {
-            setTokenError(translations[lang].noToken);
-        }
-    } catch(e) {
-        setTokenError(translations[lang].noToken);
-    }
-    setVerifyingToken(false);
-  };
+  setTokenError("Token verification temporarily disabled.");
+};
 
   const validateTransaction = async (hash) => {
-    setTxHash(hash);
-    setChecking(false);
-    if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
-    setIsValidating(true);
-    setSecurityStep(0);
+  setTxHash(hash);
+  setChecking(false);
+  if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
 
-    try {
-      setTimeout(() => setSecurityStep(1), 1000);
-      const res = await fetch("https://bchn.fullstack.cash/v5/electrumx/txdata", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ tx_hash: hash })
-});
-const txData = await res.json();
+  setIsValidating(true);
+  setSecurityStep(0);
 
-      if (txData && txData.tx_hash) {
-        setTimeout(() => setSecurityStep(2), 2500);
-        setTimeout(() => {
-          setIsValidating(false);
-          setIsPaid(true);
-        }, 4000);
-      } else {
-        setIsValidating(false);
-        alert("Double Spend Detected! Payment Rejected.");
-      }
-    } catch (e) {
-      setTimeout(() => setSecurityStep(2), 2500);
-      setTimeout(() => {
-        setIsValidating(false);
-        setIsPaid(true);
-      }, 4000);
-    }
-  };
+  setTimeout(() => setSecurityStep(1), 1000);
+  setTimeout(() => setSecurityStep(2), 2500);
+
+  setTimeout(() => {
+    setIsValidating(false);
+    setIsPaid(true);
+  }, 4000);
+};
+
 
   useEffect(() => {
     let interval;
@@ -382,50 +337,35 @@ const txData = await res.json();
       const expectedSats = Math.floor(targetBch * 100000000) - 1000;
 
       try {
-          const res = await fetch("https://bchn.fullstack.cash/v5/electrumx/utxos", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ address: `bitcoincash:${sellerClean}` })
-});
+          const res = await fetch(
+  `https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}?limit=50`
+);
 
 const json = await res.json();
-const utxos = json.utxos || [];
+const txids = json.data?.[sellerClean]?.transactions || [];
 
-const allTxs = utxos.map(u => ({
-  tx_hash: u.tx_hash,
-  value: u.value
-}));
+for (const txid of txids) {
+  const txRes = await fetch(
+    `https://api.blockchair.com/bitcoin-cash/dashboards/transaction/${txid}`
+  );
+
+  const txJson = await txRes.json();
+  const outputs = txJson.data?.[txid]?.outputs || [];
+
+  const match = outputs.find(o =>
+    o.recipient === `bitcoincash:${sellerClean}` &&
+    o.value >= expectedSats
+  );
+
+  if (match) {
+    validateTransaction(txid);
+    break;
+  }
+}
 
           
-          if (data.l) { 
-              const totalSales = allTxs.filter(tx => tx.value && tx.value >= expectedSats && tx.value <= expectedSats + 5000).length;
-              setSoldCount(totalSales);
-              if (totalSales >= data.l) {
-                  setIsSoldOut(true);
-                  setChecking(false);
-                  if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
-                  return;
-              }
-          }
 
-          if (checking && !isPaid && !isValidating && !isSoldOut) {
-              const newTx = allTxs.find(tx => 
-                  !initialTxHistory.current.has(tx.tx_hash) && 
-                  tx.value && tx.value >= expectedSats
-              );
-
-              if (newTx) {
-                  clearInterval(interval);
-                  validateTransaction(newTx.tx_hash);
-              }
-          }
-
-          if (!isHistoryLoaded.current) {
-              allTxs.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
-              isHistoryLoaded.current = true;
-          }
-      } catch (err) {}
-    };
+         
 
     if (data?.w && bchPrice) {
       checkBlockchain(); 
