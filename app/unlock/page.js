@@ -226,6 +226,7 @@ function UnlockContent() {
   const initialTxHistory = useRef(new Set());
   const isHistoryInitialized = useRef(false);
   const checkTimeoutRef = useRef(null);
+  const legacyAddressRef = useRef(null); // تخزين العنوان بصيغة Legacy
 
   useEffect(() => {
     const savedLang = localStorage.getItem('payonce_lang');
@@ -303,7 +304,7 @@ function UnlockContent() {
     setVerifyingToken(true);
     setTokenError('');
     
-    // محاكاة فورية لتخطي مشاكل الهاكاثون (الـ POST شغال بس هاي حماية للعرض)
+    // محاكاة فورية لتخطي مشاكل الهاكاثون والسيرفرات الميتة
     setTimeout(() => {
         setTokenVerified(true);
         if (data.tk.type === 'discount' && !promoApplied) {
@@ -364,69 +365,40 @@ function UnlockContent() {
       const expectedSats = Math.floor(targetBch * 100000000) - 2000;
 
       try {
-          let allTxs = [];
-          let totalSales = 0;
-
-          try {
-              // الأسطورة: استخدام الـ POST للـ v3 اللي نصحك فيه الشب (صحيح ومثالي)
-              const reqBody = JSON.stringify({ walletId: `watch:mainnet:bitcoincash:${sellerClean}` });
-              const res = await fetch(`https://rest-unstable.mainnet.cash/wallet/utxo`, {
-                  method: 'POST',
-                  headers: { 
-                      'Content-Type': 'application/json',
-                      'Accept': 'application/json' 
-                  },
-                  body: reqBody
-              });
-
-              if (!res.ok) throw new Error("mainnet v3 failed");
-              const json = await res.json();
-              const utxos = Array.isArray(json) ? json : (json.utxos || json.result || []);
-
-              allTxs = utxos.map(u => ({
-                  tx_hash: u.txid,
-                  value: parseInt(u.satoshis || u.value || u.sat || "0", 10)
-              }));
-
-              totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 15000).length;
-
-          } catch (e1) {
-              try {
-                  // الملاذ الاحتياطي الثاني: Blockbook بدون CORS
-                  const res2 = await fetch(`https://bch.cryptoservers.net/api/v2/address/${sellerClean}`);
-                  if (!res2.ok) throw new Error("Cryptoservers down");
-                  const data2 = await res2.json();
-                  
-                  allTxs = (data2.transactions || []).map(tx => {
-                      let val = 0;
-                      if (tx.vout) {
-                          tx.vout.forEach(v => {
-                              if (v.addresses && v.addresses.some(a => a.includes(sellerClean))) {
-                                  val += parseInt(v.value || "0", 10);
-                              }
-                          });
-                      }
-                      return { tx_hash: tx.txid, value: val };
-                  });
-                  totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 15000).length;
-              } catch (e2) {
-                  // الملاذ الأخير (Blockchair)
-                  const resBlock = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}?limit=20`);
-                  if (!resBlock.ok) return;
+          // الخطوة 1: استخراج عنوان الـ Legacy من Blockchair (مرة واحدة فقط)
+          if (!legacyAddressRef.current) {
+              const resBlock = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}?limit=0`);
+              if (resBlock.ok) {
                   const jsonBlock = await resBlock.json();
-                  const blockData = jsonBlock.data[sellerClean];
-                  if (!blockData) return;
-
-                  totalSales = data.l ? Math.floor(blockData.address.received / expectedSats) : 0;
-                  const utxos = blockData.utxo || [];
-                  allTxs = utxos.map(u => ({
-                      tx_hash: u.transaction_hash,
-                      value: u.value
-                  }));
+                  if (jsonBlock.data && jsonBlock.data[sellerClean] && jsonBlock.data[sellerClean].address.formats.legacy) {
+                      legacyAddressRef.current = jsonBlock.data[sellerClean].address.formats.legacy;
+                  }
               }
           }
 
+          let allTxs = [];
+          
+          // الخطوة 2: فحص الدفعات الفورية عبر BlockCypher باستخدام عنوان الـ Legacy
+          if (legacyAddressRef.current) {
+              const resCypher = await fetch(`https://api.blockcypher.com/v1/bch/main/addrs/${legacyAddressRef.current}`);
+              if (resCypher.ok) {
+                  const cypherData = await resCypher.json();
+                  const confirmed = cypherData.txrefs || [];
+                  const unconfirmed = cypherData.unconfirmed_txrefs || [];
+                  
+                  // دمج الدفعات وتصفية المرسل (نبقي المستقبل فقط)
+                  allTxs = [...confirmed, ...unconfirmed]
+                      .filter(tx => tx.tx_output_n !== -1)
+                      .map(tx => ({
+                          tx_hash: tx.tx_hash,
+                          value: tx.value
+                      }));
+              }
+          }
+
+          // تحديث عدد المبيعات
           if (data.l) { 
+              const totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 15000).length;
               setSoldCount(totalSales);
               if (totalSales >= data.l) {
                   setIsSoldOut(true);
@@ -436,6 +408,7 @@ function UnlockContent() {
               }
           }
 
+          // التحقق من وصول دفعة جديدة
           if (checking && !isPaid && !isValidating && !isSoldOut) {
               if (!isHistoryInitialized.current) {
                   allTxs.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
@@ -460,7 +433,7 @@ function UnlockContent() {
     if (data?.w && bchPrice) {
       if (checking) {
         checkBlockchain();
-        interval = setInterval(checkBlockchain, 3000); 
+        interval = setInterval(checkBlockchain, 5000); // 5 ثواني عشان ما نضرب ليمت BlockCypher
       }
     }
 
