@@ -3,6 +3,42 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
+const translations = {
+  en: {
+    loading: "Loading Web3 Store...",
+    notFound: "Store Not Found",
+    invalidCid: "Invalid CID or IPFS gateway issue.",
+    goHome: "Go Home",
+    nonCustodial: "100% Non-Custodial",
+    instant: "Instant",
+    zeroConf: "0-Conf",
+    poweredBy: "Powered by",
+    copied: "Hub Link copied to clipboard!"
+  },
+  ar: {
+    loading: "جاري تحميل المتجر...",
+    notFound: "المتجر غير موجود",
+    invalidCid: "مشكلة في CID أو بوابة IPFS.",
+    goHome: "الصفحة الرئيسية",
+    nonCustodial: "لامركزي 100%",
+    instant: "فوري",
+    zeroConf: "يدعم 0-Conf",
+    poweredBy: "بدعم من",
+    copied: "تم نسخ الرابط!"
+  },
+  zh: {
+    loading: "正在加载 Web3 商店...",
+    notFound: "找不到商店",
+    invalidCid: "无效的 CID 或 IPFS 网关问题。",
+    goHome: "回首页",
+    nonCustodial: "100% 非托管",
+    instant: "即时",
+    zeroConf: "0-Conf",
+    poweredBy: "技术支持",
+    copied: "链接已复制!"
+  }
+};
+
 function HubViewer() {
   const searchParams = useSearchParams();
   const cid = searchParams.get('cid');
@@ -10,6 +46,9 @@ function HubViewer() {
   const [hubData, setHubData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [lang, setLang] = useState('en');
+  
+  const t = translations[lang];
 
   useEffect(() => {
     if (!cid) {
@@ -45,33 +84,33 @@ function HubViewer() {
   const handleShare = async () => {
     const shareData = {
       title: hubData?.profile?.name || 'PayOnce Hub',
-      text: hubData?.profile?.bio || 'Check out my Web3 Storefront!',
+      text: hubData?.profile?.bio || '',
       url: window.location.href
     };
     if (navigator.share) {
       try { await navigator.share(shareData); } catch (err) { console.log('Share dismissed'); }
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert('Hub Link copied to clipboard!');
+      alert(t.copied);
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center text-white">
+      <div dir={lang === 'ar' ? 'rtl' : 'ltr'} className="min-h-screen bg-[#050505] flex flex-col items-center justify-center text-white">
         <div className="w-12 h-12 border-4 border-zinc-800 border-t-white rounded-full animate-spin mb-4"></div>
-        <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs">Loading Web3 Store...</p>
+        <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs">{t.loading}</p>
       </div>
     );
   }
 
   if (error || !hubData) {
     return (
-      <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center text-white">
-        <p className="text-red-500 font-bold uppercase text-xl mb-2">Store Not Found</p>
-        <p className="text-zinc-500 text-sm mb-6">Invalid CID or IPFS gateway issue.</p>
+      <div dir={lang === 'ar' ? 'rtl' : 'ltr'} className="min-h-screen bg-[#050505] flex flex-col items-center justify-center text-white">
+        <p className="text-red-500 font-bold uppercase text-xl mb-2">{t.notFound}</p>
+        <p className="text-zinc-500 text-sm mb-6">{t.invalidCid}</p>
         <Link href="/">
-          <button className="bg-white text-black px-6 py-2 rounded-xl font-bold">Go Home</button>
+          <button className="bg-white text-black px-6 py-2 rounded-xl font-bold">{t.goHome}</button>
         </Link>
       </div>
     );
@@ -85,12 +124,21 @@ function HubViewer() {
   const currentTheme = themes[hubData.profile.theme] || themes.green;
 
   return (
-    <div className={`min-h-screen bg-[#050505] flex items-center justify-center p-4 relative overflow-hidden selection:${currentTheme.glow}`}>
+    <div dir={lang === 'ar' ? 'rtl' : 'ltr'} className={`min-h-screen bg-[#050505] flex items-center justify-center p-4 relative overflow-hidden selection:${currentTheme.glow}`}>
+      
+      <div className="absolute top-6 left-6 z-50">
+        <select value={lang} onChange={(e) => setLang(e.target.value)} className="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs font-bold text-zinc-400 hover:text-white outline-none cursor-pointer backdrop-blur-md transition-colors">
+          <option value="en" className="bg-black">EN</option>
+          <option value="ar" className="bg-black">AR</option>
+          <option value="zh" className="bg-black">ZH</option>
+        </select>
+      </div>
+
       <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] blur-[120px] rounded-full pointer-events-none opacity-50" style={{ backgroundColor: `${currentTheme.hex}20` }}></div>
 
       <div className="w-full max-w-md bg-black border border-white/10 rounded-[2rem] shadow-2xl p-8 flex flex-col items-center text-center animate-in slide-in-from-bottom-10 duration-700 relative">
         
-        <button onClick={handleShare} className={`absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 ${currentTheme.hoverGlow} text-white ${currentTheme.hoverText} flex items-center justify-center transition-colors`} aria-label="Share Hub">
+        <button onClick={handleShare} className={`absolute top-6 ${lang === 'ar' ? 'left-6' : 'right-6'} w-10 h-10 rounded-full bg-white/5 ${currentTheme.hoverGlow} text-white ${currentTheme.hoverText} flex items-center justify-center transition-colors`} aria-label="Share Hub">
            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
         </button>
 
@@ -116,10 +164,10 @@ function HubViewer() {
             const isPayOnce = link.url.includes('payonce');
             return (
               <a key={link.id} href={formatUrl(link.url)} target="_blank" rel="noopener noreferrer" className={`w-full border rounded-2xl p-4 font-bold transition-all flex items-center justify-between group ${isPayOnce ? `${currentTheme.glow} hover:brightness-110 text-white` : 'bg-white/5 hover:bg-white/20 border-white/10 text-white'}`} style={{ borderColor: isPayOnce ? `${currentTheme.hex}80` : '' }}>
-                <span className="truncate pr-4">{link.title}</span>
+                <span className={`truncate ${lang === 'ar' ? 'pl-4' : 'pr-4'}`}>{link.title}</span>
                 <div className="flex items-center gap-2">
                   {isPayOnce && <span className={`text-[10px] ${currentTheme.bg} text-black px-2 py-1 rounded-md shrink-0 font-black flex items-center gap-1 group-hover:scale-105 transition-transform`}>BCH ⚡</span>}
-                  <svg className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className={`w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity shrink-0 ${lang === 'ar' ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>
                 </div>
@@ -130,11 +178,11 @@ function HubViewer() {
 
         <div className="mt-12 pt-6 w-full border-t border-white/5 flex flex-col items-center gap-2">
           <div className="bg-white/5 rounded-full px-4 py-1.5 flex items-center gap-2 text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-2">
-             100% Non-Custodial <span className="w-1 h-1 rounded-full bg-zinc-600"></span> Instant <span className="w-1 h-1 rounded-full bg-zinc-600"></span> 0-Conf
+             {t.nonCustodial} <span className="w-1 h-1 rounded-full bg-zinc-600"></span> {t.instant} <span className="w-1 h-1 rounded-full bg-zinc-600"></span> {t.zeroConf}
           </div>
           
           <Link href="/" className="inline-flex items-center gap-2 opacity-50 hover:opacity-100 transition-opacity">
-            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Powered by</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{t.poweredBy}</span>
             <span className={`text-[10px] font-black uppercase tracking-widest ${currentTheme.text}`}>PayOnce ⚡</span>
           </Link>
         </div>
