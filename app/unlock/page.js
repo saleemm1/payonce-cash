@@ -372,30 +372,20 @@ function UnlockContent() {
       const expectedSats = Math.floor(targetBch * 100000000) - 2000;
 
       try {
-          const res = await fetch(`https://rest-unstable.mainnet.cash/v2/address/unconfirmed/${sellerClean}`);
-          const unconfirmedTxs = await res.json();
-          
-          const resHist = await fetch(`https://rest-unstable.mainnet.cash/v1/address/history/${sellerClean}`);
-          const history = await resHist.json();
+          const res = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}?limit=20`);
+          const json = await res.json();
+          const addressData = json.data[sellerClean];
+          if (!addressData) return;
 
-          const mappedUnconfirmed = Array.isArray(unconfirmedTxs) ? unconfirmedTxs.map(tx => {
-              let val = 0;
-              if (tx.vout) {
-                  tx.vout.forEach(v => {
-                      if (v.scriptPubKey && v.scriptPubKey.addresses) {
-                          if (v.scriptPubKey.addresses.some(a => a.includes(sellerClean))) {
-                              val += Math.round(v.value * 100000000);
-                          }
-                      }
-                  });
-              }
-              return { tx_hash: tx.txid, value: val };
-          }) : [];
-
-          const allTxs = [...mappedUnconfirmed, ...(Array.isArray(history) ? history : [])];
+          const allTxs = (addressData.transactions || [])
+              .filter(tx => tx.balance_change > 0) 
+              .map(tx => ({
+                  tx_hash: tx.hash,
+                  value: tx.balance_change
+              }));
           
           if (data.l) { 
-              const totalSales = allTxs.filter(tx => tx.value && tx.value >= expectedSats && tx.value <= expectedSats + 8000).length;
+              const totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 8000).length;
               setSoldCount(totalSales);
               if (totalSales >= data.l) {
                   setIsSoldOut(true);
@@ -406,7 +396,6 @@ function UnlockContent() {
           }
 
           if (checking && !isPaid && !isValidating && !isSoldOut) {
-              
               if (!isHistoryInitialized.current) {
                   allTxs.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
                   isHistoryInitialized.current = true;
@@ -414,51 +403,23 @@ function UnlockContent() {
 
               const newTx = allTxs.find(tx => 
                   !initialTxHistory.current.has(tx.tx_hash) && 
-                  tx.value && tx.value >= expectedSats - 3000 && tx.value <= expectedSats + 15000
+                  tx.value >= expectedSats - 3000 && tx.value <= expectedSats + 15000
               );
 
               if (newTx) {
-                  initialTxHistory.current.add(newTx.tx_hash); 
+                  initialTxHistory.current.add(newTx.tx_hash);
                   clearInterval(interval);
                   validateTransaction(newTx.tx_hash);
               }
           }
 
-      } catch (err) {
-          console.warn("mainnet.cash API failed:", err);
-          // Fallback بسيط بـ Blockchair (يجيب tx hashes فقط، value مش دقيق لكن يساعد في detection)
-          try {
-              const bcRes = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}`);
-              const bcJson = await bcRes.json();
-              const recentTxs = bcJson.data[sellerClean.toLowerCase()]?.transactions || [];
-              const fallbackTxs = recentTxs.map(hash => ({ tx_hash: hash, value: 0 })); // value placeholder
-
-              if (checking && !isPaid && !isValidating && !isSoldOut) {
-                  if (!isHistoryInitialized.current) {
-                      fallbackTxs.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
-                      isHistoryInitialized.current = true;
-                  }
-
-                  const newTx = fallbackTxs.find(tx => 
-                      !initialTxHistory.current.has(tx.tx_hash)
-                  );
-
-                  if (newTx) {
-                      initialTxHistory.current.add(newTx.tx_hash);
-                      clearInterval(interval);
-                      validateTransaction(newTx.tx_hash); // هون الـ validate هيجيب الـ value والـ details من blockchair
-                  }
-              }
-          } catch (fallbackErr) {
-              console.error("Blockchair fallback also failed:", fallbackErr);
-          }
-      }
+      } catch (err) {}
     };
 
     if (data?.w && bchPrice) {
       if (checking) {
         checkBlockchain();
-        interval = setInterval(checkBlockchain, 4000); 
+        interval = setInterval(checkBlockchain, 5000); 
       }
     }
 
