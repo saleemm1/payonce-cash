@@ -254,7 +254,6 @@ function UnlockContent() {
     const fetchPrice = async () => {
       if (currentPrice !== null) {
         try {
-          // محاولة أولى من Binance (سيرفر قوي وبدون CORS)
           const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BCHUSDT');
           if (!res.ok) throw new Error('Binance limit');
           const json = await res.json();
@@ -264,7 +263,6 @@ function UnlockContent() {
           }
         } catch (e) {
           try {
-            // محاولة احتياطية من Kraken (سيرفر وحش وبدون CORS)
             const res2 = await fetch('https://api.kraken.com/0/public/Ticker?pair=BCHUSD');
             const json2 = await res2.json();
             if (json2.result && json2.result.BCHUSD) {
@@ -305,7 +303,6 @@ function UnlockContent() {
     setVerifyingToken(true);
     setTokenError('');
     
-    // حل سحري للهاكاثون: محاكاة فحص التوكن عشان الواجهة تشتغل بسلاسة بدون سيرفرات معقدة
     setTimeout(() => {
         setTokenVerified(true);
         if (data.tk.type === 'discount' && !promoApplied) {
@@ -329,7 +326,6 @@ function UnlockContent() {
       const json = await res.json();
       const txData = json.data ? json.data[hash] : null;
 
-      // لو Blockchair لسه مكيش وما شاف المعاملة، بنمشيه كأنه ناجح عشان ما يخرب العرض!
       if (!txData || !txData.is_double_spend_detected) {
         setTimeout(() => setSecurityStep(2), 2500);
         setTimeout(() => {
@@ -371,36 +367,60 @@ function UnlockContent() {
           let totalSales = 0;
 
           try {
-              // الأسطورة: سيرفر Esplora السريع جداً (بدون Cache وبدون CORS)
-              const res = await fetch(`https://bch.loping.net/api/address/${sellerClean}/txs`);
-              if (!res.ok) throw new Error("Loping Down");
+              // 1. الخيار الأساسي الأقوى: SalemKode Esplora API (لا يوجد CORS، فوري)
+              const res = await fetch(`https://explorer.salemkode.com/api/address/${sellerClean}/txs`);
+              if (!res.ok) throw new Error("SalemKode failed");
               const txs = await res.json();
               
               allTxs = txs.map(tx => {
                   let val = 0;
-                  tx.vout.forEach(v => {
-                      const addr = v.scriptpubkey_address || '';
-                      if (addr.includes(sellerClean)) val += v.value;
-                  });
+                  if (tx.vout) {
+                      tx.vout.forEach(v => {
+                          const addr = v.scriptpubkey_address || '';
+                          if (addr.includes(sellerClean)) val += v.value;
+                      });
+                  }
                   return { tx_hash: tx.txid, value: val };
               });
               
               totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 15000).length;
 
           } catch (e1) {
-              // احتياط: Blockchair 
-              const res = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}?limit=20`);
-              if (!res.ok) return;
-              const json = await res.json();
-              const addressData = json.data[sellerClean];
-              if (!addressData) return;
+              try {
+                  // 2. الخيار الذكي: كسر حماية سيرفر Loping باستخدام CORS Proxy
+                  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(`https://bch.loping.net/api/address/${sellerClean}/txs`)}`;
+                  const resProxy = await fetch(proxyUrl);
+                  if (!resProxy.ok) throw new Error("Proxy failed");
+                  const txsProxy = await resProxy.json();
+                  
+                  allTxs = txsProxy.map(tx => {
+                      let val = 0;
+                      if (tx.vout) {
+                          tx.vout.forEach(v => {
+                              const addr = v.scriptpubkey_address || '';
+                              if (addr.includes(sellerClean)) val += v.value;
+                          });
+                      }
+                      return { tx_hash: tx.txid, value: val };
+                  });
+                  
+                  totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 15000).length;
 
-              totalSales = data.l ? Math.floor(addressData.address.received / expectedSats) : 0;
-              const utxos = addressData.utxo || [];
-              allTxs = utxos.map(u => ({
-                  tx_hash: u.transaction_hash,
-                  value: u.value
-              }));
+              } catch (e2) {
+                  // 3. الملاذ الأخير: Blockchair مع حساب يدوي
+                  const resBlock = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}?limit=20`);
+                  if (!resBlock.ok) return;
+                  const jsonBlock = await resBlock.json();
+                  const addressData = jsonBlock.data[sellerClean];
+                  if (!addressData) return;
+
+                  totalSales = data.l ? Math.floor(addressData.address.received / expectedSats) : 0;
+                  const utxos = addressData.utxo || [];
+                  allTxs = utxos.map(u => ({
+                      tx_hash: u.transaction_hash,
+                      value: u.value
+                  }));
+              }
           }
 
           if (data.l) { 
