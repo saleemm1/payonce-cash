@@ -372,20 +372,29 @@ function UnlockContent() {
       const expectedSats = Math.floor(targetBch * 100000000) - 2000;
 
       try {
-          const res = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${sellerClean}?limit=20`);
-          const json = await res.json();
-          const addressData = json.data[sellerClean];
-          if (!addressData) return;
+          const [resHist, resUtxos] = await Promise.all([
+              fetch(`https://rest-unstable.mainnet.cash/v1/address/history/${sellerClean}`).catch(()=>null),
+              fetch(`https://rest-unstable.mainnet.cash/v1/address/utxos/${sellerClean}`).catch(()=>null)
+          ]);
 
-          const allTxs = (addressData.transactions || [])
-              .filter(tx => tx.balance_change > 0) 
-              .map(tx => ({
-                  tx_hash: tx.hash,
-                  value: tx.balance_change
-              }));
+          const history = resHist && resHist.ok ? await resHist.json() : [];
+          const utxos = resUtxos && resUtxos.ok ? await resUtxos.json() : [];
+
+          const mappedUtxos = (Array.isArray(utxos) ? utxos : []).map(u => ({
+              tx_hash: u.txid,
+              value: u.satoshis || u.value || 0
+          }));
+
+          const mappedHistory = (Array.isArray(history) ? history : []).map(h => ({
+              tx_hash: h.tx_hash || h.txid,
+              value: h.value || h.satoshis || 0
+          }));
+
+          const allTxsData = [...mappedUtxos, ...mappedHistory];
+          const allTxs = Array.from(new Map(allTxsData.map(item => [item.tx_hash, item])).values());
           
           if (data.l) { 
-              const totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 8000).length;
+              const totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 15000).length;
               setSoldCount(totalSales);
               if (totalSales >= data.l) {
                   setIsSoldOut(true);
@@ -419,7 +428,7 @@ function UnlockContent() {
     if (data?.w && bchPrice) {
       if (checking) {
         checkBlockchain();
-        interval = setInterval(checkBlockchain, 5000); 
+        interval = setInterval(checkBlockchain, 3000); 
       }
     }
 
