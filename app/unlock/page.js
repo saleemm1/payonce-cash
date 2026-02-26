@@ -224,7 +224,7 @@ function UnlockContent() {
   const [lang, setLang] = useState('en');
   
   const initialTxHistory = useRef(new Set());
-  const isHistoryInitialized = useRef(false);
+  const isHistoryLoaded = useRef(false);
   const checkTimeoutRef = useRef(null);
 
   useEffect(() => {
@@ -254,20 +254,19 @@ function UnlockContent() {
     const fetchPrice = async () => {
       if (currentPrice !== null) {
         try {
-          const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BCHUSDT');
-          if (!res.ok) throw new Error('Binance limit');
+          const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd');
+          if (!res.ok) throw new Error('Rate limit');
           const json = await res.json();
-          if (json.price) {
-            setBchPrice((currentPrice / parseFloat(json.price)).toFixed(8));
+          if (json['bitcoin-cash']) {
+            setBchPrice((currentPrice / json['bitcoin-cash'].usd).toFixed(8));
             setLoadingPrice(false);
           }
         } catch (e) {
           try {
-            const res2 = await fetch('https://api.kraken.com/0/public/Ticker?pair=BCHUSD');
+            const res2 = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BCHUSDT');
             const json2 = await res2.json();
-            if (json2.result && json2.result.BCHUSD) {
-              const price = json2.result.BCHUSD.c[0];
-              setBchPrice((currentPrice / parseFloat(price)).toFixed(8));
+            if (json2.price) {
+              setBchPrice((currentPrice / parseFloat(json2.price)).toFixed(8));
               setLoadingPrice(false);
             }
           } catch (err) {
@@ -302,16 +301,25 @@ function UnlockContent() {
     if (!tokenWallet || !data?.tk?.id) return;
     setVerifyingToken(true);
     setTokenError('');
-    
-    // محاكاة فورية لتخطي مشاكل الهاكاثون
-    setTimeout(() => {
-        setTokenVerified(true);
-        if (data.tk.type === 'discount' && !promoApplied) {
-            const discountAmount = parseFloat(data.p) * (parseFloat(data.tk.discount) / 100);
-            setCurrentPrice(Math.max(0, parseFloat(data.p) - discountAmount));
+    try {
+        const cleanAddr = tokenWallet.includes(':') ? tokenWallet.split(':')[1] : tokenWallet;
+        const res = await fetch(`https://api.fullstack.cash/v1/address/utxos/${cleanAddr}`);
+        const utxos = await res.json();
+        const hasToken = utxos.some(u => u.token && u.token.category === data.tk.id);
+        
+        if (hasToken) {
+            setTokenVerified(true);
+            if (data.tk.type === 'discount' && !promoApplied) {
+                const discountAmount = parseFloat(data.p) * (parseFloat(data.tk.discount) / 100);
+                setCurrentPrice(Math.max(0, parseFloat(data.p) - discountAmount));
+            }
+        } else {
+            setTokenError(translations[lang].noToken);
         }
-        setVerifyingToken(false);
-    }, 1500);
+    } catch(e) {
+        setTokenError(translations[lang].noToken);
+    }
+    setVerifyingToken(false);
   };
 
   const validateTransaction = async (hash) => {
@@ -321,13 +329,29 @@ function UnlockContent() {
     setIsValidating(true);
     setSecurityStep(0);
 
-    // Bypass Double Spend check for Hackathon speed
-    setTimeout(() => setSecurityStep(1), 1000);
-    setTimeout(() => setSecurityStep(2), 2500);
-    setTimeout(() => {
-      setIsValidating(false);
-      setIsPaid(true);
-    }, 4000);
+    try {
+      setTimeout(() => setSecurityStep(1), 1000);
+      const res = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/transaction/${hash}`);
+      const json = await res.json();
+      const txData = json.data[hash];
+
+      if (txData && !txData.is_double_spend_detected) {
+        setTimeout(() => setSecurityStep(2), 2500);
+        setTimeout(() => {
+          setIsValidating(false);
+          setIsPaid(true);
+        }, 4000);
+      } else {
+        setIsValidating(false);
+        alert("Double Spend Detected! Payment Rejected.");
+      }
+    } catch (e) {
+      setTimeout(() => setSecurityStep(2), 2500);
+      setTimeout(() => {
+        setIsValidating(false);
+        setIsPaid(true);
+      }, 4000);
+    }
   };
 
   useEffect(() => {
@@ -345,31 +369,33 @@ function UnlockContent() {
       if (isViral) {
           targetBch = targetBch * 0.9;
       }
-      const expectedSats = Math.floor(targetBch * 100000000) - 2000;
+      const expectedSats = Math.floor(targetBch * 100000000) - 1000;
 
       try {
-          // هاد السطر بيضرب الـ API الداخلي تبعنا اللي بيمنع الـ CORS!
-          const res = await fetch(`/api/check?address=${sellerClean}`);
-          if (!res.ok) return;
-          const addressData = await res.json();
+          const res = await fetch(`https://api.fullstack.cash/v2/address/unconfirmed/${sellerClean}`);
+          const unconfirmedTxs = await res.json();
           
-          if (!addressData.transactions) return;
+          const resHist = await fetch(`https://api.fullstack.cash/v1/address/history/${sellerClean}`);
+          const history = await resHist.json();
 
-          const allTxs = addressData.transactions.map(tx => {
+          const mappedUnconfirmed = Array.isArray(unconfirmedTxs) ? unconfirmedTxs.map(tx => {
               let val = 0;
               if (tx.vout) {
                   tx.vout.forEach(v => {
-                      if (v.addresses && v.addresses.some(a => a.includes(sellerClean))) {
-                          val += parseInt(v.value || "0", 10);
+                      if (v.scriptPubKey && v.scriptPubKey.addresses) {
+                          if (v.scriptPubKey.addresses.some(a => a.includes(sellerClean))) {
+                              val += Math.round(v.value * 100000000);
+                          }
                       }
                   });
               }
               return { tx_hash: tx.txid, value: val };
-          });
-              
-          const totalSales = allTxs.filter(tx => tx.value >= expectedSats && tx.value <= expectedSats + 15000).length;
+          }) : [];
 
+          const allTxs = [...mappedUnconfirmed, ...(Array.isArray(history) ? history : [])];
+          
           if (data.l) { 
+              const totalSales = allTxs.filter(tx => tx.value && tx.value >= expectedSats && tx.value <= expectedSats + 5000).length;
               setSoldCount(totalSales);
               if (totalSales >= data.l) {
                   setIsSoldOut(true);
@@ -380,31 +406,27 @@ function UnlockContent() {
           }
 
           if (checking && !isPaid && !isValidating && !isSoldOut) {
-              if (!isHistoryInitialized.current) {
-                  allTxs.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
-                  isHistoryInitialized.current = true;
-              }
-
               const newTx = allTxs.find(tx => 
                   !initialTxHistory.current.has(tx.tx_hash) && 
-                  tx.value >= expectedSats - 3000 && tx.value <= expectedSats + 15000
+                  tx.value && tx.value >= expectedSats
               );
 
               if (newTx) {
-                  initialTxHistory.current.add(newTx.tx_hash);
                   clearInterval(interval);
                   validateTransaction(newTx.tx_hash);
               }
           }
 
+          if (!isHistoryLoaded.current) {
+              allTxs.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
+              isHistoryLoaded.current = true;
+          }
       } catch (err) {}
     };
 
     if (data?.w && bchPrice) {
-      if (checking) {
-        checkBlockchain();
-        interval = setInterval(checkBlockchain, 3000); 
-      }
+      checkBlockchain(); 
+      interval = setInterval(checkBlockchain, 3000);
     }
 
     return () => clearInterval(interval);
@@ -497,17 +519,12 @@ function UnlockContent() {
   const isGated = data.tk && data.tk.type === 'gated' && !tokenVerified;
 
   const handleVerifyClick = () => {
-    if (searchParams.get('dev') === 'trustme') {
-        validateTransaction('dev-bypass-1234');
-        return;
-    }
-
     setChecking(true);
     if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
     checkTimeoutRef.current = setTimeout(() => {
         setChecking(false);
         alert("Transaction not found in the mempool. Please ensure your wallet broadcasted the payment successfully.");
-    }, 45000); 
+    }, 30000);
   };
 
   return (
