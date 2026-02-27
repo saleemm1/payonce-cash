@@ -9,6 +9,7 @@ const translations = {
     solutions: "Solutions",
     dev: "Developers",
     loyalty: "Loyalty",
+    hub: "Hub",
     new: "NEW",
     launch: "Launch App 🚀",
     live: "Live on Bitcoin Cash Network",
@@ -43,6 +44,16 @@ const translations = {
     viral: "Viral Affiliate Mode",
     viralDesc: "Enable 'Viral Mode' to let others sell for you. They get 10% automatically, you get sales.",
     waiting: "Waiting for Payment...",
+    hubLabel: "Web3 Linktree",
+    hubTitle: "Your Decentralized Storefront.",
+    hubDesc: "Group all your PayOnce payment links into one beautiful, customizable, and decentralized profile. Hosted permanently on IPFS.",
+    hubF1: "100% On-Chain",
+    hubF1d: "Your identity lives on IPFS. Uncensorable.",
+    hubF2: "Beautifully Yours",
+    hubF2d: "Custom themes and avatars for your brand.",
+    hubF3: "Zero Fees",
+    hubF3d: "Create and host your storefront for free.",
+    createHub: "Create Storefront 🏪",
     devTitle: "Integration in Milliseconds.",
     devDesc: "Embed non-custodial checkout buttons into your app, game, or website with a single line of code. Zero backend required.",
     getSdk: "Get the SDK",
@@ -55,6 +66,7 @@ const translations = {
     solutions: "الحلول",
     dev: "للمطورين",
     loyalty: "ولاء",
+    hub: "المتجر",
     new: "جديد",
     launch: "إطلاق التطبيق 🚀",
     live: "مباشر على شبكة بيتكوين كاش",
@@ -89,6 +101,16 @@ const translations = {
     viral: "نظام التسويق الفيروسي",
     viralDesc: "فعل 'الوضع الفيروسي' لتدع الآخرين يبيعون لك. هم يحصلون على 10% تلقائياً، وأنت تحصل على المبيعات.",
     waiting: "بانتظار الدفع...",
+    hubLabel: "واجهة متكاملة",
+    hubTitle: "متجرك اللامركزي الخاص.",
+    hubDesc: "اجمع كل روابط الدفع الخاصة بك في ملف شخصي جميل وقابل للتخصيص ولامركزي. مستضاف دائماً على IPFS.",
+    hubF1: "لامركزي 100%",
+    hubF1d: "هويتك تعيش على IPFS. لا يمكن حظرها.",
+    hubF2: "مصمم لك",
+    hubF2d: "ألوان وصور مخصصة تعكس علامتك التجارية.",
+    hubF3: "بدون رسوم",
+    hubF3d: "أنشئ متجرك اللامركزي واستضفه مجاناً.",
+    createHub: "أنشئ متجرك 🏪",
     devTitle: "دمج في أجزاء من الثانية.",
     devDesc: "أضف أزرار دفع غير وصائية في تطبيقك، لعبتك، أو موقعك بسطر كود واحد. لا حاجة لسيرفرات.",
     getSdk: "احصل على SDK",
@@ -101,6 +123,7 @@ const translations = {
     solutions: "解决方案",
     dev: "开发者",
     loyalty: "忠诚度",
+    hub: "中心",
     new: "新",
     launch: "启动应用 🚀",
     live: "运行于比特币现金网络",
@@ -135,6 +158,16 @@ const translations = {
     viral: "病毒式联盟模式",
     viralDesc: "启用“病毒模式”让其他人为您销售。他们自动获得 10%，您获得销售额。",
     waiting: "等待付款...",
+    hubLabel: "Web3 主页",
+    hubTitle: "您的去中心化店面。",
+    hubDesc: "将您所有的 PayOnce 支付链接组合成一个美观、可定制且去中心化的个人资料。永久托管在 IPFS 上。",
+    hubF1: "100% 链上",
+    hubF1d: "您的身份存在于 IPFS 上。不可审查。",
+    hubF2: "专属美学",
+    hubF2d: "为您的品牌定制主题和头像。",
+    hubF3: "零费用",
+    hubF3d: "免费创建和托管您的店面。",
+    createHub: "创建店面 🏪",
     devTitle: "毫秒级集成。",
     devDesc: "只需一行代码即可将非托管结账按钮嵌入您的应用、游戏或网站。无需后端。",
     getSdk: "获取 SDK",
@@ -149,6 +182,7 @@ export default function HomePage() {
   const howItWorksRef = useRef(null);
   const invoiceRef = useRef(null);
   const devRef = useRef(null);
+  const hubRef = useRef(null);
   const [scrolled, setScrolled] = useState(false);
   const [lang, setLang] = useState('en');
 
@@ -169,6 +203,7 @@ export default function HomePage() {
   const scrollToFeatures = () => featuresRef.current?.scrollIntoView({ behavior: 'smooth' });
   const scrollToHowItWorks = () => howItWorksRef.current?.scrollIntoView({ behavior: 'smooth' });
   const scrollToInvoice = () => invoiceRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToHub = () => hubRef.current?.scrollIntoView({ behavior: 'smooth' });
   const scrollToDev = () => devRef.current?.scrollIntoView({ behavior: 'smooth' });
 
   const t = translations[lang];
@@ -196,11 +231,14 @@ export default function HomePage() {
           <div className="hidden md:flex gap-8 items-center">
              <button onClick={scrollToHowItWorks} className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">{t.how}</button>
              <button onClick={scrollToInvoice} className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">{t.solutions}</button>
+             <button onClick={scrollToHub} className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors flex items-center gap-2">
+                 {t.hub} <span className="bg-green-500/10 border border-green-500/20 text-green-500 text-[8px] px-1.5 py-0.5 rounded">{t.new}</span>
+             </button>
              <button onClick={scrollToDev} className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors">{t.dev}</button>
              
              <Link href="/loyalty">
                <button className="text-[11px] font-bold uppercase tracking-widest text-yellow-500 hover:text-yellow-400 transition-colors flex items-center gap-2">
-                 {t.loyalty} <span className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[8px] px-1.5 py-0.5 rounded">{t.new}</span>
+                 {t.loyalty} 
                </button>
              </Link>
              
@@ -409,6 +447,72 @@ export default function HomePage() {
                 </div>
                 <div className="absolute inset-0 bg-green-500/20 blur-[60px] -z-10"></div>
             </div>
+
+         </div>
+      </section>
+
+      
+      <section ref={hubRef} className="py-32 px-6 border-t border-white/5 bg-[#0a0a0c] relative">
+         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-green-500/5 blur-[120px] rounded-full pointer-events-none"></div>
+         
+         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-16 relative z-10">
+             
+             <div className="flex-1 w-full flex justify-center">
+                 <div className="w-[300px] h-[550px] bg-black border-4 border-zinc-800 rounded-[3rem] shadow-[0_0_50px_rgba(34,197,94,0.1)] relative overflow-hidden flex flex-col items-center pt-12">
+                     <div className="absolute top-0 w-32 h-6 bg-zinc-800 rounded-b-2xl"></div>
+                     <div className="w-20 h-20 bg-zinc-800 rounded-full mb-4 mt-8"></div>
+                     <div className="w-32 h-4 bg-zinc-800 rounded mb-2"></div>
+                     <div className="w-24 h-2 bg-zinc-800 rounded mb-8"></div>
+                     
+                     <div className="w-full px-6 space-y-3">
+                         <div className="w-full h-12 bg-white/5 rounded-xl border border-white/10 flex items-center px-4"><div className="w-4 h-4 rounded-full bg-green-500/50"></div></div>
+                         <div className="w-full h-12 bg-white/5 rounded-xl border border-white/10 flex items-center px-4"><div className="w-4 h-4 rounded-full bg-blue-500/50"></div></div>
+                         <div className="w-full h-12 bg-white/5 rounded-xl border border-white/10 flex items-center px-4"><div className="w-4 h-4 rounded-full bg-purple-500/50"></div></div>
+                     </div>
+                 </div>
+             </div>
+
+             <div className={`flex-1 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
+                 <div className="inline-block bg-green-500/10 text-green-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 border border-green-500/20">
+                     {t.hubLabel}
+                 </div>
+                 <h2 className="text-4xl md:text-5xl font-black uppercase italic text-white mb-6 leading-none">
+                     {t.hubTitle}
+                 </h2>
+                 <p className="text-zinc-400 text-lg mb-10 leading-relaxed max-w-xl">
+                     {t.hubDesc}
+                 </p>
+                 
+                 <div className="space-y-6 mb-10">
+                     <div className="flex gap-4 items-start">
+                         <div className="text-green-500 text-xl mt-1">✓</div>
+                         <div>
+                             <h5 className="font-black uppercase text-white">{t.hubF1}</h5>
+                             <p className="text-zinc-500 text-sm">{t.hubF1d}</p>
+                         </div>
+                     </div>
+                     <div className="flex gap-4 items-start">
+                         <div className="text-green-500 text-xl mt-1">✓</div>
+                         <div>
+                             <h5 className="font-black uppercase text-white">{t.hubF2}</h5>
+                             <p className="text-zinc-500 text-sm">{t.hubF2d}</p>
+                         </div>
+                     </div>
+                     <div className="flex gap-4 items-start">
+                         <div className="text-green-500 text-xl mt-1">✓</div>
+                         <div>
+                             <h5 className="font-black uppercase text-white">{t.hubF3}</h5>
+                             <p className="text-zinc-500 text-sm">{t.hubF3d}</p>
+                         </div>
+                     </div>
+                 </div>
+
+                 <Link href="/hub/create">
+                     <button className="bg-white text-black font-black uppercase px-8 py-4 rounded-xl hover:bg-green-500 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(34,197,94,0.4)]">
+                         {t.createHub}
+                     </button>
+                 </Link>
+             </div>
 
          </div>
       </section>
