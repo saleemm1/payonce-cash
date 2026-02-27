@@ -119,12 +119,22 @@ We are executing a focused strategy to make Bitcoin Cash the default rail for gl
 
 - [x] **Phase 1: Foundation** (Retail POS, Invoicing, Viral Protocol, Security Visualizer).
 - [x] **Phase 2: Developer Tooling** (PayOnce SDK, Embeddable Buttons, HMAC Protection).
-- [x] **Phase 3: Decentralization & Loyalty** (100% IPFS Architecture, CashTokens Token-Gated Commerce).
-- [ ] **Phase 4: Automated Web3 Cashback (Smart Contract Airdrops)**
-    * Using BCH Covenants, merchants will lock loyalty CashTokens in a smart contract. When a customer completes a checkout, the atomic swap will automatically air-drop loyalty tokens back to the buyer's wallet, creating a self-sustaining "Shop-to-Earn" economy.
-- [ ] **Phase 5: The Ecosystem**
-    * Native Stablecoin Support (USDT/USDC on BCH).
-    * WordPress/WooCommerce Plugin. 
+- [x] **Phase 3: Decentralization & Identity** (100% IPFS Architecture, CashTokens Token-Gated Commerce, Web3 Hub).
+
+- [ ] **Phase 4: Enterprise Security & Official Launch (Top Priority)**
+    * Migrating from client-side validation to a robust **Server-Side Watchtower Architecture** using `rpckit` and Electrum/Fulcrum servers.
+    * Ensuring 100% tamper-proof, zero-trust SPV payment verification.
+    * **Production Launch:** Migrating from Vercel to a premium, dedicated domain (e.g., PayOnce.cash) with scaled backend infrastructure.
+
+- [ ] **Phase 5: Automated Web3 Cashback (Smart Contract Airdrops)**
+    * Using BCH Covenants, merchants will lock loyalty CashTokens in a smart contract. When a checkout is completed, the atomic swap automatically air-drops loyalty tokens to the buyer, creating a "Shop-to-Earn" economy.
+
+- [ ] **Phase 6: The Hub Evolution (NFTs & Social Commerce)**
+    * Integrating **CashTokens NFT Showcases** directly into the PayOnce Hub. Merchants can mint, display, and sell unique digital assets and memberships alongside regular products.
+
+- [ ] **Phase 7: Web2 Mass Adoption & Ecosystem**
+    * Native Stablecoin Support (USDT/USDC on BCH) to protect merchants from volatility.
+    * **WordPress/WooCommerce Plugin:** Bringing 100% non-custodial P2P crypto settlements to traditional Web2 merchants via a seamless 1-click integration.. 
 
 ---
 
