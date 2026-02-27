@@ -51,8 +51,8 @@ const translations = {
     hubF1d: "Your identity lives on IPFS. Uncensorable.",
     hubF2: "Beautifully Yours",
     hubF2d: "Custom themes and avatars for your brand.",
-    hubF3: "Zero Fees",
-    hubF3d: "Create and host your storefront for free.",
+    hubF3: "Pay Once, Own Forever",
+    hubF3d: "No monthly fees. Deploy your storefront permanently with a single micro-payment.",
     createHub: "Create Storefront 🏪",
     devTitle: "Integration in Milliseconds.",
     devDesc: "Embed non-custodial checkout buttons into your app, game, or website with a single line of code. Zero backend required.",
@@ -108,8 +108,8 @@ const translations = {
     hubF1d: "هويتك تعيش على IPFS. لا يمكن حظرها.",
     hubF2: "مصمم لك",
     hubF2d: "ألوان وصور مخصصة تعكس علامتك التجارية.",
-    hubF3: "بدون رسوم",
-    hubF3d: "أنشئ متجرك اللامركزي واستضفه مجاناً.",
+    hubF3: "ادفع مرة، املك للأبد",
+    hubF3d: "بدون اشتراكات شهرية. انشر متجرك بشكل دائم بدفعة صغيرة واحدة.",
     createHub: "أنشئ متجرك 🏪",
     devTitle: "دمج في أجزاء من الثانية.",
     devDesc: "أضف أزرار دفع غير وصائية في تطبيقك، لعبتك، أو موقعك بسطر كود واحد. لا حاجة لسيرفرات.",
@@ -165,8 +165,8 @@ const translations = {
     hubF1d: "您的身份存在于 IPFS 上。不可审查。",
     hubF2: "专属美学",
     hubF2d: "为您的品牌定制主题和头像。",
-    hubF3: "零费用",
-    hubF3d: "免费创建和托管您的店面。",
+    hubF3: "一次支付，永久拥有",
+    hubF3d: "无月费。只需一次微额支付即可永久部署您的店面。",
     createHub: "创建店面 🏪",
     devTitle: "毫秒级集成。",
     devDesc: "只需一行代码即可将非托管结账按钮嵌入您的应用、游戏或网站。无需后端。",
@@ -451,7 +451,6 @@ export default function HomePage() {
          </div>
       </section>
 
-      
       <section ref={hubRef} className="py-32 px-6 border-t border-white/5 bg-[#0a0a0c] relative">
          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-green-500/5 blur-[120px] rounded-full pointer-events-none"></div>
          
