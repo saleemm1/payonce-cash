@@ -133,7 +133,7 @@ We are executing a focused strategy to make Bitcoin Cash the default rail for gl
     * Integrating **CashTokens NFT Showcases** directly into the PayOnce Hub. Merchants can mint, display, and sell unique digital assets and memberships alongside regular products.
 
 - [ ] **Phase 7: Web2 Mass Adoption & Ecosystem**
-    * Native Stablecoin Support (USDT/USDC on BCH) to protect merchants from volatility.
+    * Native Stablecoin Support via CashTokens (e.g., integrating PUSD upon mainnet maturity).
     * **WordPress/WooCommerce Plugin:** Bringing 100% non-custodial P2P crypto settlements to traditional Web2 merchants via a seamless 1-click integration.. 
 
 ---
