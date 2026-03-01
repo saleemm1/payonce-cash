@@ -124,7 +124,6 @@ Instead of sharing scattered payment links, creators can now group all their dig
 * **100% IPFS Hosted:** Your storefront identity lives on IPFS. It is immutable, uncensorable, and no centralized platform can ever take it down.
 * **Pay Once, Own Forever:** Zero monthly subscriptions and zero platform rent. Deploy your complete Hub permanently with a single micro-payment.
 * **Fully Customizable Identity:** Tailor your brand with custom avatars, titles, descriptions, and beautifully designed UI themes.
-* **Ecosystem Ready:** Seamlessly integrates with our *Viral Affiliate Mode* and *Automated Asset Delivery*, turning your Hub into a self-sustaining Web3 economy.
 
 ---
 
