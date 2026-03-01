@@ -113,6 +113,21 @@ Money has no language. PayOnce is fully localized to onboard the world's largest
 
 ---
 
+##  PayOnce Hub: The Decentralized Web3 Storefront
+
+Stop renting your storefront. **PayOnce Hub** is the ultimate decentralized alternative to Linktree, built specifically for sovereign creators and Web3 merchants. 
+
+Instead of sharing scattered payment links, creators can now group all their digital assets, products, and POS terminals into one beautifully customized, uncensorable profile.
+
+###  Key Features of The Hub:
+* ** The Ultimate Web3 Linktree:** Aggregate all your PayOnce checkout links into a single, elegant landing page. One link for your entire business.
+* ** 100% IPFS Hosted:** Your storefront identity lives on IPFS. It is immutable, uncensorable, and no centralized platform can ever take it down.
+* ** Pay Once, Own Forever:** Zero monthly subscriptions and zero platform rent. Deploy your complete Hub permanently with a single micro-payment.
+* ** Fully Customizable Identity:** Tailor your brand with custom avatars, titles, descriptions, and beautifully designed UI themes.
+* ** Ecosystem Ready:** Seamlessly integrates with our *Viral Affiliate Mode* and *Automated Asset Delivery*, turning your Hub into a self-sustaining Web3 economy.
+
+---
+
 ## 🛣️ Future Roadmap: The Sovereign Economy
 
 We are executing a focused strategy to make Bitcoin Cash the default rail for global commerce.
