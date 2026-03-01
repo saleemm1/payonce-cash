@@ -7,7 +7,7 @@
   </a>
 
   <p><b>PayOnce enables creators, developers, and merchants to accept Bitcoin Cash globally with zero fees, zero custody, and zero databases.</b></p>
-  <p><i>Stripe-level UX. Bitcoin-level sovereignty.</i></p>
+  
 
   [![Live App](https://img.shields.io/badge/🚀_Live_App-Launch-success?style=for-the-badge)](https://payonce-cash.vercel.app)
   [![Powered by BCH](https://img.shields.io/badge/⚡_Powered_By-Bitcoin_Cash-green?style=for-the-badge)](https://bch.info)
