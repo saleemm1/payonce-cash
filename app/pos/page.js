@@ -107,7 +107,7 @@ export default function POSPage() {
   ];
 
   useEffect(() => {
-    const savedLang = localStorage.getItem('payonce_lang');
+    const savedLang = typeof window !== 'undefined' ? localStorage.getItem('payonce_lang') : null;
     if (savedLang) setLang(savedLang);
 
     const fetchPrice = async () => {
@@ -126,15 +126,17 @@ export default function POSPage() {
     fetchPrice();
     const interval = setInterval(fetchPrice, 60000); 
     
-    const savedAddr = localStorage.getItem('pos_wallet');
-    const savedCurr = localStorage.getItem('pos_currency');
-    
-    if (savedAddr) {
-        setMerchantAddress(savedAddr);
-        setIsSettingsOpen(false);
-    }
-    if (savedCurr && currencies.some(c => c.code === savedCurr)) {
-        setCurrency(savedCurr);
+    if (typeof window !== 'undefined') {
+      const savedAddr = localStorage.getItem('pos_wallet');
+      const savedCurr = localStorage.getItem('pos_currency');
+      
+      if (savedAddr) {
+          setMerchantAddress(savedAddr);
+          setIsSettingsOpen(false);
+      }
+      if (savedCurr && currencies.some(c => c.code === savedCurr)) {
+          setCurrency(savedCurr);
+      }
     }
 
     return () => clearInterval(interval);
@@ -145,7 +147,7 @@ export default function POSPage() {
     localStorage.setItem('payonce_lang', l);
   };
 
-  const t = translations[lang];
+  const t = translations[lang] || translations['en'];
   const dir = lang === 'ar' ? 'rtl' : 'ltr';
 
   const handleSaveSettings = (e) => {
@@ -209,31 +211,26 @@ export default function POSPage() {
           loadInitialHistory();
       }
 
-      if (showQR && paymentStatus === 'pending' && merchantAddress && bchAmount > 0) {
+      if (showQR && paymentStatus === 'pending' && merchantAddress && parseFloat(bchAmount) > 0) {
           const expectedSats = Math.floor(parseFloat(bchAmount) * 100000000) - 1000;
 
           interval = setInterval(async () => {
               try {
-                  
                   const res = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${merchantAddress}`);
                   const json = await res.json();
                   const addressData = json.data[merchantAddress];
                   
                   if (!addressData || !addressData.transactions) return;
 
-                  
                   const newHashes = addressData.transactions.filter(tx => !initialTxHistory.current.has(tx));
 
                   for (const hash of newHashes) {
-                      
                       const txRes = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/transaction/${hash}`);
                       const txJson = await txRes.json();
                       const txData = txJson.data[hash];
 
                       if (txData && txData.outputs) {
-                         
                           const cleanMerchantAddr = merchantAddress.replace('bitcoincash:', '');
-                          
                           const matchingOutput = txData.outputs.find(out => {
                               const cleanRecipient = out.recipient.replace('bitcoincash:', '');
                               return cleanRecipient === cleanMerchantAddr && out.value >= expectedSats;
@@ -252,7 +249,6 @@ export default function POSPage() {
                               }
                               return; 
                           } else {
-                            
                               initialTxHistory.current.add(hash);
                           }
                       }
@@ -261,13 +257,12 @@ export default function POSPage() {
                   console.error("Polling error:", err);
               }
           }, 4000); 
+      }
       return () => clearInterval(interval);
-  }, [showQR, paymentStatus, merchantAddress, bchAmount, lang]);
-
+  }, [showQR, paymentStatus, merchantAddress, bchAmount, t.warning]);
 
   return (
     <div dir={dir} className={`min-h-screen bg-black text-white font-sans flex items-center justify-center p-4 selection:bg-green-500/30 ${lang === 'ar' ? 'font-arabic' : ''}`}>
-      
       <div className="absolute top-6 right-6 flex gap-2 text-[10px] font-black uppercase z-50">
         <button onClick={() => changeLang('en')} className={`${lang === 'en' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>EN</button>
         <button onClick={() => changeLang('ar')} className={`${lang === 'ar' ? 'text-green-500' : 'text-zinc-600 hover:text-white'}`}>AR</button>
@@ -276,7 +271,7 @@ export default function POSPage() {
 
       {isSettingsOpen && (
           <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-6 backdrop-blur-sm">
-              <div className="bg-[#1a1a1a] border border-white/10 p-8 rounded-3xl w-full max-w-sm animate-fade-in-up">
+              <div className="bg-[#1a1a1a] border border-white/10 p-8 rounded-3xl w-full max-w-sm">
                   <h2 className="text-xl font-black uppercase italic mb-4">{t.setup}</h2>
                   <div className="mb-4">
                       <label className="text-xs text-zinc-500 uppercase font-bold">{t.merchAddr}</label>
@@ -314,7 +309,6 @@ export default function POSPage() {
       )}
 
       <div className="w-full max-w-sm bg-[#111] border border-zinc-800 rounded-[40px] shadow-2xl overflow-hidden relative flex flex-col h-[750px]">
-        
         <div className={`absolute top-6 ${lang === 'ar' ? 'right-6' : 'left-6'} z-10`}>
             <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/5">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
@@ -355,8 +349,7 @@ export default function POSPage() {
         </div>
 
         {showQR && (
-            <div className="absolute inset-0 bg-black/95 z-20 flex flex-col items-center justify-start pt-10 animate-fade-in px-6 text-center backdrop-blur-md">
-                
+            <div className="absolute inset-0 bg-black/95 z-20 flex flex-col items-center justify-start pt-10 px-6 text-center backdrop-blur-md">
                 {paymentStatus === 'pending' && (
                     <>
                         <div className="flex bg-zinc-900 p-1 rounded-xl w-full mb-6 border border-white/10">
@@ -374,7 +367,7 @@ export default function POSPage() {
                             </button>
                         </div>
 
-                        <div className="bg-white p-4 rounded-3xl mb-4 shadow-[0_0_60px_rgba(0,0,0,0.5)] ring-4 ring-green-500/20 transition-all duration-300 transform hover:scale-105 relative">
+                        <div className="bg-white p-4 rounded-3xl mb-4 shadow-[0_0_60px_rgba(0,0,0,0.5)] ring-4 ring-green-500/20 relative">
                             <img 
                                 src={qrImageUrl} 
                                 alt="Payment QR"
@@ -383,13 +376,13 @@ export default function POSPage() {
                         </div>
 
                         {qrTab === 'smart' ? (
-                            <div className="animate-fade-in">
+                            <div>
                                 <h3 className="text-2xl font-black text-white mb-1">{activeCurrency.symbol}{amount}</h3>
                                 <p className="text-green-500 font-mono text-sm mb-2 bg-green-500/10 px-4 py-1 rounded-full border border-green-500/20 inline-block">{bchAmount} BCH</p>
                                 <p className="text-[10px] text-zinc-500 mt-2">{t.scan}</p>
                             </div>
                         ) : (
-                            <div className="animate-fade-in w-full">
+                            <div className="w-full">
                                 <h3 className="text-2xl font-black text-white mb-1">{activeCurrency.symbol}{amount}</h3>
                                 <p className="text-green-500 font-mono text-sm mb-4 bg-green-500/10 px-4 py-1 rounded-full border border-green-500/20 inline-block">{bchAmount} BCH</p>
                                 
@@ -428,7 +421,7 @@ export default function POSPage() {
                 )}
 
                 {paymentStatus === 'verifying' && (
-                    <div className="flex flex-col items-center justify-center h-full animate-in fade-in zoom-in-95">
+                    <div className="flex flex-col items-center justify-center h-full">
                         <div className="w-20 h-20 border-4 border-zinc-800 border-t-green-500 rounded-full animate-spin mb-6"></div>
                         <h2 className="text-xl font-black uppercase italic text-white tracking-tight">{t.verifying}</h2>
                         <p className="text-xs text-zinc-500 mt-2 font-mono">{t.double}</p>
@@ -436,7 +429,7 @@ export default function POSPage() {
                 )}
 
                 {paymentStatus === 'success' && (
-                    <div className="flex flex-col items-center justify-center h-full w-full bg-green-500 animate-in slide-in-from-bottom-10 duration-500">
+                    <div className="flex flex-col items-center justify-center h-full w-full bg-green-500">
                         <div className="bg-white text-green-600 w-24 h-24 rounded-full flex items-center justify-center text-5xl mb-6 shadow-2xl scale-110">
                             ✓
                         </div>
@@ -478,7 +471,6 @@ export default function POSPage() {
         >
             {t.charge}
         </button>
-
       </div>
     </div>
   );
