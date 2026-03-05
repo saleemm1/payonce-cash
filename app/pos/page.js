@@ -182,7 +182,7 @@ export default function POSPage() {
   const currentRate = rates[currency] || 0;
   const bchAmount = currentRate > 0 ? (parseFloat(amount) / currentRate).toFixed(8) : '0.00';
   
-  const smartLink = `bitcoincash:${merchantAddress}?amount=${bchAmount}`;
+  const smartLink = `bitcoincash:${merchantAddress.replace('bitcoincash:', '')}?amount=${bchAmount}`;
   const simpleLink = merchantAddress;
 
   const currentLink = qrTab === 'smart' ? smartLink : simpleLink;
@@ -193,10 +193,11 @@ export default function POSPage() {
       
       const loadInitialHistory = async () => {
           if (!merchantAddress) return;
+          const cleanAddr = merchantAddress.replace('bitcoincash:', '');
           try {
-              const res = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${merchantAddress}`);
+              const res = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${cleanAddr}`);
               const json = await res.json();
-              const addressData = json.data[merchantAddress];
+              const addressData = json.data[cleanAddr];
               
               if (addressData && addressData.transactions) {
                   addressData.transactions.forEach(tx => initialTxHistory.current.add(tx));
@@ -213,12 +214,13 @@ export default function POSPage() {
 
       if (showQR && paymentStatus === 'pending' && merchantAddress && parseFloat(bchAmount) > 0) {
           const expectedSats = Math.floor(parseFloat(bchAmount) * 100000000) - 1000;
+          const cleanAddr = merchantAddress.replace('bitcoincash:', '');
 
           interval = setInterval(async () => {
               try {
-                  const res = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${merchantAddress}`);
+                  const res = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${cleanAddr}`);
                   const json = await res.json();
-                  const addressData = json.data[merchantAddress];
+                  const addressData = json.data[cleanAddr];
                   
                   if (!addressData || !addressData.transactions) return;
 
@@ -230,10 +232,9 @@ export default function POSPage() {
                       const txData = txJson.data[hash];
 
                       if (txData && txData.outputs) {
-                          const cleanMerchantAddr = merchantAddress.replace('bitcoincash:', '');
                           const matchingOutput = txData.outputs.find(out => {
                               const cleanRecipient = out.recipient.replace('bitcoincash:', '');
-                              return cleanRecipient === cleanMerchantAddr && out.value >= expectedSats;
+                              return cleanRecipient === cleanAddr && out.value >= expectedSats;
                           });
 
                           if (matchingOutput) {
