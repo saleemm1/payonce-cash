@@ -192,11 +192,17 @@ export default function POSPage() {
       const loadInitialHistory = async () => {
           if (!merchantAddress) return;
           try {
-              const res = await fetch(`https://rest.mainnet.cash/v1/address/history/${merchantAddress}`);
-              const history = await res.json();
-              history.forEach(tx => initialTxHistory.current.add(tx.tx_hash));
+              const res = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${merchantAddress}`);
+              const json = await res.json();
+              const addressData = json.data[merchantAddress];
+              
+              if (addressData && addressData.transactions) {
+                  addressData.transactions.forEach(tx => initialTxHistory.current.add(tx));
+              }
               isHistoryLoaded.current = true;
-          } catch (e) {}
+          } catch (e) {
+              console.error("Failed to load initial history", e);
+          }
       };
 
       if (merchantAddress && !isHistoryLoaded.current) {
@@ -208,37 +214,53 @@ export default function POSPage() {
 
           interval = setInterval(async () => {
               try {
-                  const res = await fetch(`https://rest.mainnet.cash/v1/address/history/${merchantAddress}`);
-                  const history = await res.json();
                   
-                  const newTx = history.find(tx => 
-                      !initialTxHistory.current.has(tx.tx_hash) && 
-                      tx.value >= expectedSats
-                  );
+                  const res = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/address/${merchantAddress}`);
+                  const json = await res.json();
+                  const addressData = json.data[merchantAddress];
+                  
+                  if (!addressData || !addressData.transactions) return;
 
-                  if (newTx) {
-                      clearInterval(interval);
-                      setPaymentStatus('verifying');
-                      setTxHash(newTx.tx_hash);
+                  
+                  const newHashes = addressData.transactions.filter(tx => !initialTxHistory.current.has(tx));
+
+                  for (const hash of newHashes) {
                       
-                      try {
-                          const blockRes = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/transaction/${newTx.tx_hash}`);
-                          const blockJson = await blockRes.json();
-                          const txData = blockJson.data[newTx.tx_hash];
+                      const txRes = await fetch(`https://api.blockchair.com/bitcoin-cash/dashboards/transaction/${hash}`);
+                      const txJson = await txRes.json();
+                      const txData = txJson.data[hash];
+
+                      if (txData && txData.outputs) {
+                         
+                          const cleanMerchantAddr = merchantAddress.replace('bitcoincash:', '');
                           
-                          if (txData && !txData.is_double_spend_detected) {
-                              setPaymentStatus('success');
+                          const matchingOutput = txData.outputs.find(out => {
+                              const cleanRecipient = out.recipient.replace('bitcoincash:', '');
+                              return cleanRecipient === cleanMerchantAddr && out.value >= expectedSats;
+                          });
+
+                          if (matchingOutput) {
+                              clearInterval(interval);
+                              setPaymentStatus('verifying');
+                              setTxHash(hash);
+                              
+                              if (txData.transaction && !txData.transaction.is_double_spend_detected) {
+                                  setPaymentStatus('success');
+                              } else {
+                                  alert(t.warning);
+                                  setPaymentStatus('pending'); 
+                              }
+                              return; 
                           } else {
-                              alert(t.warning);
-                              setPaymentStatus('pending'); 
+                            
+                              initialTxHistory.current.add(hash);
                           }
-                      } catch (e) {
-                          setPaymentStatus('success');
                       }
                   }
-              } catch (err) {}
-          }, 3000);
-      }
+              } catch (err) {
+                  console.error("Polling error:", err);
+              }
+          }, 4000); 
       return () => clearInterval(interval);
   }, [showQR, paymentStatus, merchantAddress, bchAmount, lang]);
 
